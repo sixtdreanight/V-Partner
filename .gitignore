@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+data/conversations/
+data/long-term-memory.json
+data/learned-interests.json
+data/relationship.json
+.DS_Store
+

@@ -1,0 +1,26 @@
+{
+  "name": "v-partner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx tsx src/index.ts",
+    "setup": "npx tsx src/setup.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.71",
+    "@ai-sdk/openai": "^3.0.53",
+    "ai": "^6.0.168",
+    "node-cron": "^3.0.3",
+    "ws": "^8.18.0",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.0",
+    "@types/ws": "^8.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
