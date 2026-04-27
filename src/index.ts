@@ -9,6 +9,7 @@
  * 支持关系类型: 女友/男友 × 男生/女生/其他 = 全组合
  */
 
+import "dotenv/config";
 import * as readline from "node:readline";
 import { loadConfig, loadProfile } from "./config.js";
 import { logger, setLogLevel } from "./utils.js";

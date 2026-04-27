@@ -63,12 +63,12 @@ export function createAIProvider(config: AppConfig["ai"]): LanguageModel {
 
   if (provider === "openai") {
     const openai = createOpenAI({ apiKey });
-    return openai(model);
+    return openai.chat(model);
   }
 
-  // openai-compatible
+  // openai-compatible (使用 Chat Completions API，第三方厂商通常不支持 Responses API)
   const openai = createOpenAI({ apiKey, baseURL: baseUrl });
-  return openai(model);
+  return openai.chat(model);
 }
 
 // ---- 管道 ----
