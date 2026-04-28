@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.0-beta.3 (2026-04-28)
+
+### Bug 修复
+- 移除未使用的 `lchwxbot` 依赖，修复 `better-sqlite3` 原生模块与 Electron 41 V8 API 不兼容导致打包失败的问题
+- 修复 `scripts/notarize.js` ESM/CJS 冲突，重命名为 `.cjs`
+
+### 打包验证
+- 本地 `package:mac` 通过，产出 x64 + arm64 双架构 `.dmg` 和 `.zip`
+
+---
+
 ## v1.0.0-beta.2 (2026-04-28)
 
 ### Bug 修复
