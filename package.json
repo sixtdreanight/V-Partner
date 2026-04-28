@@ -1,6 +1,8 @@
 {
   "name": "v-partner",
   "version": "1.0.0-beta.2",
+  "description": "V-Partner — AI 伴侣桌面应用",
+  "author": "V-Partner Team <erk163@163.com>",
   "private": true,
   "type": "module",
   "main": "dist/main/index.js",

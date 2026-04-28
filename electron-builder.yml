@@ -63,7 +63,7 @@ linux:
   maintainer: V-Partner Team <erk163@163.com>
   description: V-Partner — AI companion desktop app
 
-afterSign: scripts/notarize.js
+afterSign: scripts/notarize.cjs
 
 publish:
   provider: github
