@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.0-beta.4 (2026-04-28)
+
+### Bug 修复
+- 修复 `electron-updater` named import 导致的运行时崩溃 — CJS 模块在 ESM 上下文加载失败
+- 修复 `hardenedRuntime: true` 导致 ad-hoc 签名校验失败，arm64 启动即 SIGABRT 崩溃
+- 全量 ESM/CJS 兼容性审计通过，无同类隐患
+
+---
+
 ## v1.0.0-beta.3 (2026-04-28)
 
 ### Bug 修复
