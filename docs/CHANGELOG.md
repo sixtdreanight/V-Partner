@@ -1,11 +1,37 @@
 # Changelog
 
-## v1.0.0-beta.1 (2026-04-28)
+## v1.0.0-beta.2 (2026-04-28)
+
+### Bug 修复
+- **P0** 修复 preload 文件名不匹配导致 release 包 `window.api` 不可用
+- **P0** 修复 `electron-builder.yml` publish 配置错误，自动更新不可用
+- **P0** 修复设置向导完成后应用卡死 — defer pipeline 初始化到首次聊天，添加文件写入验证
+- **P0** 添加 ErrorBoundary 捕获渲染错误，transition 超时 10s 显示重试按钮
+
+### UI 重构
+- 聊天界面 IM 风格重新设计：不对称圆角、气泡尾翼、渐变用户气泡
+- 消息列表时间分组：今天/昨天/日期分割线
+- 输入区域仿 Telegram 风格，添加表情/附件占位按钮
+- 新增 IM 专用 CSS 设计令牌（`--vp-bubble-*`、`--vp-bg-chat`）
+- 更新 UpdateToast 使用设计令牌替换硬编码色值
+
+### CI/CD
+- 新增 GitHub Actions 自动发布工作流（`.github/workflows/release.yml`）
+- 推送 `v*` 标签自动构建 macOS / Windows / Linux 三平台并发布到 Releases
+
+### 其他
+- 移除 scheduler 中无操作的兴趣学习 cron 任务
+- WeChat 适配器添加 `onQRCode` 回调支持
+- 新增 `docs/CHANGELOG.md`，更新 README / 架构 / 开发文档
+
+---
+
+## v1.0.0-beta.1 (2026-04-26)
 
 ### 新功能
 - 桌面应用支持 macOS / Windows / Linux 三平台
 - 14 步设置向导，引导完成 AI 伴侣配置
-- 应用内即时聊天，IM 风格气泡界面
+- 应用内即时聊天
 - QQ 机器人接入（NapCatQQ OneBot v11），应用内一键下载启动
 - 微信机器人接入（Gewechat Docker），应用内一键启动容器
 - 多 AI 后端支持（Anthropic Claude / OpenAI / OpenAI 兼容）
@@ -17,14 +43,6 @@
 - 自动更新：基于 GitHub Releases 的 electron-updater
 - 内置测试问卷：帮助产品持续改进
 - 暗色模式：跟随系统自动切换
-
-### Bug 修复
-- **P0** 修复 preload 文件名不匹配导致 release 包 `window.api` 不可用（[#B1]）
-- **P0** 修复 `electron-builder.yml` publish.owner 配置错误，自动更新不可用（[#B2]）
-- **P0** 修复设置向导完成后应用卡死 — defer pipeline 初始化到首次聊天（[#B4]）
-- **P0** 添加 ErrorBoundary 捕获渲染错误，transition 超时 10s 显示重试按钮
-- **P2** 移除 scheduler 中无操作的兴趣学习 cron 任务
-- **P2** 聊天界面重构：IM 风格气泡、时间分组、日期分割线、设计令牌统一
 
 ### 已知问题
 - macOS App Store QQ 阻止 LiteLoader 注入，NapCatQQ 在 macOS 上不可用，需用 Windows
