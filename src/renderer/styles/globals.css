@@ -1,4 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Varela+Round&display=swap");
+@import "@radix-ui/themes/styles.css";
 @import "tailwindcss";
+
+/* ===== Tailwind v4 Theme Registration ===== */
+/* Required for shadcn/ui utility classes (bg-background, text-foreground, etc.) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+}
 
 /* ===== shadcn/ui Design Tokens ===== */
 :root {
@@ -8,22 +35,22 @@
   --card-foreground: #18181b;
   --popover: #ffffff;
   --popover-foreground: #18181b;
-  --primary: #7c3aed;
+  --primary: #f472b6;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
   --muted: #f4f4f5;
   --muted-foreground: #a1a1aa;
-  --accent: #f4f4f5;
+  --accent: #fdf2f8;
   --accent-foreground: #18181b;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #7c3aed;
+  --ring: #f472b6;
   --radius: 0.5rem;
 
-  --chart-1: #7c3aed;
+  --chart-1: #f9a8d4;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #6366f1;
@@ -38,8 +65,8 @@
     --card-foreground: #fafafa;
     --popover: #18181b;
     --popover-foreground: #fafafa;
-    --primary: #7c3aed;
-    --primary-foreground: #ffffff;
+    --primary: #f9a8d4;
+    --primary-foreground: #18181b;
     --secondary: #27272a;
     --secondary-foreground: #fafafa;
     --muted: #27272a;
@@ -50,9 +77,9 @@
     --destructive-foreground: #ffffff;
     --border: #27272a;
     --input: #27272a;
-    --ring: #7c3aed;
+    --ring: #f9a8d4;
 
-    --chart-1: #a78bfa;
+    --chart-1: #fbcfe8;
     --chart-2: #34d399;
     --chart-3: #fbbf24;
     --chart-4: #818cf8;
@@ -63,11 +90,11 @@
 /* ===== V-Partner Design Tokens (aliases + chat-specific) ===== */
 :root {
   --vp-primary: var(--primary);
-  --vp-primary-light: #a78bfa;
-  --vp-primary-dim: #5b21b6;
-  --vp-primary-soft: #ede9fe;
-  --vp-accent: #6366f1;
-  --vp-accent-light: #818cf8;
+  --vp-primary-light: #fbcfe8;
+  --vp-primary-dim: #be185d;
+  --vp-primary-soft: #fce7f3;
+  --vp-accent: #f472b6;
+  --vp-accent-light: #fce7f3;
   --vp-rose: #f43f5e;
   --vp-amber: #f59e0b;
 
@@ -101,11 +128,11 @@
   --vp-radius-2xl: 24px;
 
   /* IM chat tokens */
-  --vp-bubble-user: linear-gradient(135deg, var(--primary), var(--vp-accent));
+  --vp-bubble-user: var(--primary);
   --vp-bubble-user-text: #ffffff;
   --vp-bubble-partner: var(--card);
   --vp-bubble-partner-text: var(--foreground);
-  --vp-bg-chat: #f0f2f5;
+  --vp-bg-chat: #e8eaed;
   --vp-time-label: var(--muted-foreground);
   --vp-separator: var(--border);
 
@@ -139,7 +166,7 @@
     --vp-text-secondary: #a1a1aa;
     --vp-text-muted: var(--muted-foreground);
 
-    --vp-primary-soft: #1e1345;
+    --vp-primary-soft: #500724;
     --vp-success-soft: #022c22;
     --vp-warning-soft: #291800;
     --vp-error-soft: #1c0303;
@@ -173,9 +200,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   overflow: hidden;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.65;
   letter-spacing: 0.01em;
 }
 
@@ -301,9 +328,9 @@ button:focus-visible {
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(244, 114, 182, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(244, 114, 182, 0); }
 }
 
 @keyframes floatUp {

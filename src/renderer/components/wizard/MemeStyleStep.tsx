@@ -13,8 +13,8 @@ export default function MemeStyleStep({
   update: (d: Partial<{ memeStyle: string }>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">TA 的网络梗风格？</h2>
         <p className="text-sm text-muted-foreground">决定 TA 能不能和你一起玩梗</p>
       </div>

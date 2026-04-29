@@ -50,8 +50,8 @@ export default function AIProviderStep({ data, update }: Props) {
   const models = getModels(data.aiProvider);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">选择 AI 服务商</h2>
         <p className="text-sm text-muted-foreground">TA 的智能由你选择的 AI 驱动</p>
       </div>
@@ -62,7 +62,7 @@ export default function AIProviderStep({ data, update }: Props) {
         onChange={(v) => update({ aiProvider: v, aiModel: "" })}
       />
 
-      <div className="space-y-3">
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Model Select */}
         {data.aiProvider !== "openai-compatible" && models.length > 0 && (
           <Field label="模型">

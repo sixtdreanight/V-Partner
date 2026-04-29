@@ -37,8 +37,14 @@ export default function MessageInput({
   const canSend = text.trim().length > 0 && !disabled;
 
   return (
-    <div className="px-4 py-3">
-      <div className="max-w-2xl mx-auto flex items-end glass rounded-3xl px-4 py-2.5 border border-border">
+    <div style={{ padding: "12px 16px", maxWidth: 720, margin: "0 auto", width: "100%" }}>
+      <div style={{
+        display: "flex", alignItems: "center",
+        background: "var(--gray-3)",
+        borderRadius: 18,
+        border: "1px solid var(--gray-5)",
+        padding: "8px 4px 8px 14px",
+      }}>
         <textarea
           ref={inputRef}
           value={text}
@@ -47,25 +53,42 @@ export default function MessageInput({
           placeholder="输入消息... (Enter 发送)"
           rows={1}
           disabled={disabled}
-          className="flex-1 bg-transparent text-sm outline-none resize-none disabled:opacity-40 overflow-hidden"
           style={{
-            minHeight: "1.5rem",
-            maxHeight: "6rem",
-            fontFamily: "var(--vp-font)",
-            lineHeight: "1.6",
-            color: "var(--vp-text)",
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            resize: "none",
+            fontSize: 14,
+            fontFamily: "inherit",
+            lineHeight: "22px",
+            minHeight: 22,
+            maxHeight: 96,
+            color: "var(--gray-12)",
+            padding: "4px 0",
           }}
         />
         <button
           onClick={handleSend}
           disabled={!canSend}
-          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 active:scale-90 ml-2"
           style={{
-            background: canSend ? "var(--primary)" : "var(--vp-border-light)",
-            opacity: canSend ? 1 : 0.4,
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            cursor: canSend ? "pointer" : "default",
+            background: canSend ? "var(--accent-9)" : "transparent",
+            transition: "transform 150ms, background 150ms",
+            marginLeft: 6,
           }}
+          onMouseDown={(e) => e.currentTarget.style.transform = "scale(0.9)"}
+          onMouseUp={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-          <Send className="w-3.5 h-3.5 text-white" />
+          <Send size={15} color={canSend ? "white" : "var(--gray-9)"} />
         </button>
       </div>
     </div>

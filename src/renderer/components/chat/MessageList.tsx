@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useRef, useMemo } from "react";
+import { type RefObject, useEffect, useMemo } from "react";
 import { Users, Heart } from "lucide-react";
 import type { ChatMessage } from "../../hooks/useChat";
 import MessageBubble from "./MessageBubble";
@@ -42,7 +42,6 @@ export default function MessageList({
   typing: boolean;
   messagesEndRef: RefObject<HTMLDivElement | null>;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const groups = useMemo(() => groupByDate(messages), [messages]);
 
   useEffect(() => {
@@ -52,16 +51,17 @@ export default function MessageList({
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center" style={{ background: "var(--vp-bg-chat)" }}>
-        <div className="text-center bounce-in">
-          <div
-            className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "var(--vp-primary-soft)" }}
-          >
-            <Users className="w-7 h-7 text-primary" />
+      <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }} className="bounce-in">
+          <div style={{
+            width: 64, height: 64, margin: "0 auto 16px",
+            borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "var(--vp-primary-soft)",
+          }}>
+            <Users size={28} style={{ color: "var(--primary)" }} />
           </div>
-          <h3 className="text-base font-medium">开始聊天吧</h3>
-          <p className="text-sm mt-1.5 text-muted-foreground">
+          <h3 style={{ fontSize: 15, fontWeight: 500 }}>开始聊天吧</h3>
+          <p style={{ fontSize: 13, marginTop: 6, color: "var(--muted-foreground)" }}>
             发送第一条消息，TA 会回复你
           </p>
         </div>
@@ -70,60 +70,51 @@ export default function MessageList({
   }
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-auto" style={{ background: "var(--vp-bg-chat)" }}>
-      <div className="max-w-2xl mx-auto px-5 py-4 space-y-0.5">
-        {groups.map((group, gi) => (
-          <div key={gi}>
-            {group.label && (
-              <div className="flex items-center justify-center py-3">
-                <span
-                  className="text-[11px] px-3 py-0.5 rounded-full font-mono"
-                  style={{
-                    background: "var(--vp-surface)",
-                    color: "var(--muted-foreground)",
-                    border: "1px solid var(--border)",
-                  }}
-                >
-                  {group.label}
-                </span>
-              </div>
-            )}
-            {group.messages.map(({ msg, idx }, mi) => (
-              <MessageBubble
-                key={idx}
-                message={msg}
-                showAvatar={mi === 0 || group.messages[mi - 1]?.msg.role !== msg.role}
-              />
-            ))}
-          </div>
-        ))}
-
-        {typing && (
-          <div className="flex items-start gap-2.5 pt-2 slide-up">
-            <Avatar
-              className="w-7 h-7"
-              style={{ background: "var(--vp-primary-soft)" }}
-            >
-              <AvatarFallback className="bg-transparent">
-                <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />
-              </AvatarFallback>
-            </Avatar>
-            <div
-              className="px-4 py-3 rounded-2xl"
-              style={{
-                background: "var(--vp-bubble-partner)",
-                border: "1px solid var(--border)",
-                borderRadius: "16px 16px 16px 4px",
-              }}
-            >
-              <span className="bounce-dot" />
-              <span className="bounce-dot" style={{ marginLeft: 4 }} />
-              <span className="bounce-dot" style={{ marginLeft: 4 }} />
+    <>
+      {groups.map((group, gi) => (
+        <div key={gi} style={{ marginBottom: 12 }}>
+          {group.label && (
+            <div style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}>
+              <span style={{
+                fontSize: 11,
+                fontFamily: "var(--vp-font-mono)",
+                color: "var(--muted-foreground)",
+              }}>
+                {group.label}
+              </span>
             </div>
+          )}
+          {group.messages.map(({ msg, idx }, mi) => (
+            <MessageBubble
+              key={idx}
+              message={msg}
+              showAvatar={mi === 0 || group.messages[mi - 1]?.msg.role !== msg.role}
+            />
+          ))}
+        </div>
+      ))}
+
+      {typing && (
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, paddingTop: 4 }}
+          className="slide-up">
+          <Avatar style={{ width: 32, height: 32, background: "var(--vp-primary-soft)" }}>
+            <AvatarFallback className="bg-transparent">
+              <Heart size={16} style={{ color: "var(--primary)" }} fill="currentColor" />
+            </AvatarFallback>
+          </Avatar>
+          <div style={{
+            padding: "10px 14px",
+            background: "var(--vp-bubble-partner)",
+            border: "1px solid var(--border)",
+            borderRadius: "18px 18px 18px 4px",
+          }}>
+            <span className="bounce-dot" />
+            <span className="bounce-dot" style={{ marginLeft: 4 }} />
+            <span className="bounce-dot" style={{ marginLeft: 4 }} />
           </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-    </div>
+        </div>
+      )}
+      <div ref={messagesEndRef} />
+    </>
   );
 }

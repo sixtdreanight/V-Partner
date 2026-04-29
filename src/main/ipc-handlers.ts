@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, app } from "electron";
+import { ipcMain, BrowserWindow, app, dialog } from "electron";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -9,7 +9,7 @@ import {
 import { processMessage, createAIProvider } from "../core/pipeline.js";
 import { loadShortTerm } from "../core/memory.js";
 import { parseDescription } from "../cli/setup.js";
-import { mkdirSync, existsSync } from "node:fs";
+import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { createRelationshipState } from "../core/relationship.js";
 import { napCatManager } from "./napcat-manager.js";
 import { weChatManager } from "./wechat-manager.js";
@@ -244,6 +244,47 @@ export function registerIpcHandlers() {
     });
     pipelineInvalidate();
     return { success: true };
+  });
+
+  // ---- 头像上传 ----
+  ipcMain.handle("app:pick-avatar", async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{ name: "图片", extensions: ["png", "jpg", "jpeg", "gif", "webp"] }],
+    });
+    if (result.canceled || result.filePaths.length === 0) return null;
+    const filePath = result.filePaths[0];
+    const data = readFileSync(filePath);
+    const ext = filePath.split(".").pop()?.toLowerCase() || "png";
+    const mime = ext === "jpg" ? "jpeg" : ext;
+    const base64 = `data:image/${mime};base64,${data.toString("base64")}`;
+    // persist to data/avatar
+    const dataDir = resolve(getDataRoot(), "data");
+    if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
+    writeFileSync(resolve(dataDir, "avatar"), base64, "utf-8");
+    return base64;
+  });
+
+  ipcMain.handle("app:get-avatar", () => {
+    const avatarPath = resolve(getDataRoot(), "data", "avatar");
+    if (existsSync(avatarPath)) {
+      return readFileSync(avatarPath, "utf-8");
+    }
+    return null;
+  });
+
+  // ---- 重置所有数据 ----
+  ipcMain.handle("app:reset-data", async () => {
+    try {
+      const dataRoot = getDataRoot();
+      const dataDir = resolve(dataRoot, "data");
+      const envPath = resolve(dataRoot, ".env");
+      if (existsSync(dataDir)) rmSync(dataDir, { recursive: true, force: true });
+      if (existsSync(envPath)) rmSync(envPath);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: String(err) };
+    }
   });
 
   // ---- 自动启动已配置的服务 ----

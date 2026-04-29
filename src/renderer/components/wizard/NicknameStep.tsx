@@ -7,8 +7,8 @@ export default function NicknameStep({
   update: (d: Partial<{ nickname: string }>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">TA 怎么称呼你？</h2>
         <p className="text-sm text-muted-foreground">你想让 TA 叫你什么？</p>
       </div>

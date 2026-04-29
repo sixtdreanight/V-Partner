@@ -86,10 +86,17 @@ export function splitForChat(text: string): string[] {
   cleaned = cleaned.replace(/\*[^*]+\*/g, "").replace(/_[^_]+_/g, "");
 
   // 按中文标点拆分
+  const meaningful = (s: string) => {
+    const t = s.trim();
+    if (t.length === 0) return false;
+    // 过滤无意义的孤立英文句点（AI 偶尔会输出 stray dot）
+    if (t === ".") return false;
+    return true;
+  };
   const sentences = cleaned
     .split(/(?<=[。！？…\.!\?～~\n])\s*/)
     .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+    .filter(meaningful);
 
   if (sentences.length === 0) return [cleaned.trim() || text];
 
@@ -103,7 +110,7 @@ export function splitForChat(text: string): string[] {
       const parts = s
         .split(/(?<=[，,；;])/)
         .map((p) => p.trim())
-        .filter((p) => p.length > 0);
+        .filter(meaningful);
       result.push(...parts);
     }
   }

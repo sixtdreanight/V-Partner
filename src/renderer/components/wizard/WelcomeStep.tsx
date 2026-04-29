@@ -1,58 +1,59 @@
-import { Heart, AlertTriangle } from "lucide-react";
-import { Button } from "../ui/button";
+import { Flex, Text, Heading, Button, Callout } from "@radix-ui/themes";
+import { Sparkles, AlertTriangle } from "lucide-react";
 
 export default function WelcomeStep({ next }: { next: () => void }) {
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div
-          className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center"
-          style={{ background: "var(--vp-primary-soft)" }}
+    <Flex direction="column" gap="6">
+      <Flex direction="column" align="center" gap="4">
+        <Flex
+          width="64px" height="64px" align="center" justify="center"
+          style={{ borderRadius: "var(--radius-4)", background: "var(--accent-3)" }}
         >
-          <Heart className="w-7 h-7 text-primary" fill="currentColor" />
-        </div>
+          <Sparkles size={28} color="var(--accent-9)" />
+        </Flex>
 
-        <div className="space-y-1">
-          <h1 className="text-xl font-medium">V-Partner</h1>
-          <p className="text-sm text-muted-foreground">创建属于你的 AI 伴侣</p>
-        </div>
+        <Flex direction="column" align="center" gap="1">
+          <Heading size="6">V-Partner</Heading>
+          <Text size="2" color="gray">创建属于你的 AI 伴侣</Text>
+        </Flex>
 
-        <p className="text-xs leading-relaxed text-muted-foreground max-w-xs mx-auto">
+        <Text size="2" color="gray" align="center" style={{ maxWidth: 280 }}>
           TA 有自己的性格、爱好和记忆，可以通过 QQ、微信或应用内直接聊天。接下来 14 步完成配置，约 2 分钟。
-        </p>
+        </Text>
 
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+        <Flex gap="1" style={{ fontSize: 12, color: "var(--gray-10)" }}>
           <span>选择性格</span>
           <span>→</span>
           <span>设置 AI</span>
           <span>→</span>
           <span>连接平台</span>
-        </div>
-      </div>
+        </Flex>
+      </Flex>
 
-      <div
-        className="rounded-xl p-4 space-y-2.5 text-left"
-        style={{ background: "var(--vp-warning-soft)", border: "1px solid var(--vp-warning)" }}
-      >
-        <div className="flex items-center gap-2 text-[13px] font-medium" style={{ color: "var(--vp-warning)" }}>
-          <AlertTriangle className="w-4 h-4" />
-          使用前请阅读
-        </div>
-        <ul className="text-[11px] leading-relaxed space-y-1 text-muted-foreground list-disc list-inside">
-          <li>AI 生成内容不代表作者立场，仅供学习娱乐</li>
-          <li>QQ 使用第三方协议，建议使用小号</li>
-          <li>AI API 按量计费，频繁聊天会产生费用</li>
-          <li>请勿透露身份证、银行卡等敏感信息</li>
-          <li>TA 不能替代真实人际关系</li>
-        </ul>
-      </div>
+      <Callout.Root color="amber">
+        <Callout.Icon>
+          <AlertTriangle size={16} />
+        </Callout.Icon>
+        <Callout.Text>
+          <Flex direction="column" gap="1">
+            <Text weight="medium" size="1">使用前请阅读</Text>
+            <ul style={{ paddingLeft: 16, margin: 0, fontSize: 11, lineHeight: 1.6 }}>
+              <li>AI 生成内容不代表作者立场，仅供学习娱乐</li>
+              <li>QQ 使用第三方协议，建议使用小号</li>
+              <li>AI API 按量计费，频繁聊天会产生费用</li>
+              <li>请勿透露身份证、银行卡等敏感信息</li>
+              <li>TA 不能替代真实人际关系</li>
+            </ul>
+          </Flex>
+        </Callout.Text>
+      </Callout.Root>
 
-      <div className="space-y-3">
-        <Button variant="primary" size="lg" className="w-full" onClick={next}>
+      <Flex direction="column" gap="3">
+        <Button size="4" onClick={next} style={{ width: "100%" }}>
           开始设置
         </Button>
-        <p className="text-center text-[11px] text-muted-foreground">14 步简单配置，约 2 分钟完成</p>
-      </div>
-    </div>
+        <Text size="1" color="gray" align="center">14 步简单配置，约 2 分钟完成</Text>
+      </Flex>
+    </Flex>
   );
 }

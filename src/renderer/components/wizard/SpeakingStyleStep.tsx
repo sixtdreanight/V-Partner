@@ -7,8 +7,8 @@ export default function SpeakingStyleStep({
   update: (d: Partial<{ customStyle: string }>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">TA 有什么说话习惯？</h2>
         <p className="text-sm text-muted-foreground">颜文字、口癖、口头禅等，可选填</p>
       </div>

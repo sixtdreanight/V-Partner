@@ -13,8 +13,8 @@ export default function RelationshipTypeStep({
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">你希望 TA 是你的？</h2>
         <p className="text-sm text-muted-foreground">选择你想要的伴侣角色</p>
       </div>

@@ -16,8 +16,8 @@ export default function TimezoneStep({
   update: (d: Partial<{ timezone: string }>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">你的时区是？</h2>
         <p className="text-sm text-muted-foreground">TA 会根据你的时间说早晚安</p>
       </div>

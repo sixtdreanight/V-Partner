@@ -18,40 +18,52 @@ export default function MessageBubble({
 
   return (
     <div
-      className={`flex items-start gap-2.5 pt-2 pb-0.5 float-up ${
-        isPartner ? "" : "flex-row-reverse"
-      }`}
+      className="float-up"
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 12,
+        padding: "6px 0",
+        flexDirection: isPartner ? "row" : "row-reverse",
+      }}
     >
-      <div className="shrink-0 mt-0.5">
+      <div style={{ flexShrink: 0, marginTop: 2 }}>
         {showAvatar ? (
           <Avatar
-            className={`${isPartner ? "w-7 h-7" : "w-7 h-7"}`}
-            style={isPartner
-              ? { background: "var(--vp-primary-soft)" }
-              : { background: "var(--muted)" }
-            }
+            style={{
+              width: 32, height: 32,
+              background: isPartner ? "var(--vp-primary-soft)" : "var(--muted)",
+            }}
           >
             <AvatarFallback className="bg-transparent">
               {isPartner
-                ? <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />
-                : <Smile className="w-3.5 h-3.5" />
+                ? <Heart size={16} style={{ color: "var(--primary)" }} fill="currentColor" />
+                : <Smile size={16} />
               }
             </AvatarFallback>
           </Avatar>
         ) : (
-          <div className="w-7" />
+          <div style={{ width: 32 }} />
         )}
       </div>
 
-      <div className={`flex flex-col max-w-[75%] ${isPartner ? "" : "items-end"}`}>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        maxWidth: "75%",
+        alignItems: isPartner ? "flex-start" : "flex-end",
+      }}>
         <div
-          className="px-3.5 py-2.5 text-[15px] leading-relaxed break-words"
           style={{
+            padding: "10px 14px",
+            fontSize: 15,
+            lineHeight: 1.65,
+            wordBreak: "break-word",
             background: isPartner ? "var(--vp-bubble-partner)" : "var(--vp-bubble-user)",
             color: isPartner ? "var(--vp-bubble-partner-text)" : "var(--vp-bubble-user-text)",
             borderRadius: isPartner
-              ? "16px 16px 16px 4px"
-              : "16px 16px 4px 16px",
+              ? "18px 18px 18px 4px"
+              : "18px 18px 4px 18px",
             border: isPartner ? "1px solid var(--border)" : "none",
           }}
         >
@@ -59,7 +71,13 @@ export default function MessageBubble({
         </div>
 
         {showAvatar && (
-          <time className="text-[10px] mt-1 px-1 font-mono text-muted-foreground">
+          <time style={{
+            fontSize: 10,
+            marginTop: 6,
+            padding: "0 4px",
+            fontFamily: "var(--vp-font-mono)",
+            color: "var(--muted-foreground)",
+          }}>
             {formatTime(message.time)}
           </time>
         )}

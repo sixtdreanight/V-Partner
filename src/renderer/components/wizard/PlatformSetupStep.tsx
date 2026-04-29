@@ -86,8 +86,8 @@ export default function PlatformSetupStep({
   const wcCanStart = ["stopped", "error", "no-docker"].includes(wechatStatus);
 
   return (
-    <div className="space-y-5">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">连接聊天平台</h2>
         <p className="text-sm text-muted-foreground">让 TA 能在 QQ 或微信上和你聊天</p>
       </div>

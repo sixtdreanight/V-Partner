@@ -30,8 +30,8 @@ export default function SummaryStep({
   ] as Array<[string, string]>).filter(([, v]) => v);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold">确认信息</h2>

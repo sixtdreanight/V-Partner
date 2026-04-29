@@ -174,7 +174,7 @@ export function useSetupWizard() {
       await new Promise((r) => setTimeout(r, 400));
 
       clearTimeout(timeoutId);
-      window.location.hash = "#/chat";
+      window.location.replace("/#/chat");
     } catch (err) {
       setError(`保存出错: ${err instanceof Error ? err.message : String(err)}`);
     } finally {

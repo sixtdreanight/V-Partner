@@ -1,24 +1,17 @@
 import { useState, useEffect } from "react";
-import { Heart } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { Slider } from "../ui/slider";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import {
+  Dialog, Tabs, Select, Slider, TextField, Button,
+  Flex, Text, Heading, IconButton,
+} from "@radix-ui/themes";
+import { Heart, X } from "lucide-react";
 
 const ANTHROPIC_MODELS = [
-  { value: "claude-sonnet-4-20250514", label: "Claude Sonnet 4" },
-  { value: "claude-opus-4-20250514", label: "Claude Opus 4" },
-  { value: "claude-haiku-4-20250514", label: "Claude Haiku 4" },
+  "claude-sonnet-4-20250514",
+  "claude-opus-4-20250514",
+  "claude-haiku-4-20250514",
 ];
 
-const OPENAI_MODELS = [
-  { value: "gpt-4o", label: "GPT-4o" },
-  { value: "gpt-4o-mini", label: "GPT-4o Mini" },
-  { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
-];
+const OPENAI_MODELS = ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"];
 
 function getModels(provider: string) {
   if (provider === "anthropic") return ANTHROPIC_MODELS;
@@ -26,19 +19,16 @@ function getModels(provider: string) {
   return [];
 }
 
-export default function SettingsDialog({
-  onClose,
-}: {
-  onClose: () => void;
-  onOpenNapCat?: () => void;
-}) {
-  // AI edit state
-  const [aiProvider, setAiProvider] = useState("");
+export default function SettingsDialog({ onClose }: { onClose: () => void }) {
+  const [resetStep, setResetStep] = useState(0);
+  const [resetInput, setResetInput] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [aiProvider, setAiProvider] = useState("anthropic");
   const [aiModel, setAiModel] = useState("");
   const [aiApiKey, setAiApiKey] = useState("");
   const [aiBaseUrl, setAiBaseUrl] = useState("");
-  const [aiMaxTokens, setAiMaxTokens] = useState(2048);
-  const [aiTemperature, setAiTemperature] = useState(0.85);
+  const [aiMaxTokens, setAiMaxTokens] = useState([2048]);
+  const [aiTemperature, setAiTemperature] = useState([0.85]);
   const [aiSaving, setAiSaving] = useState(false);
   const [aiSaved, setAiSaved] = useState(false);
 
@@ -51,8 +41,8 @@ export default function SettingsDialog({
         setAiModel((ai.model as string) || "");
         setAiApiKey((ai.apiKey as string) || "");
         setAiBaseUrl((ai.baseUrl as string) || "");
-        setAiMaxTokens((ai.maxTokens as number) || 2048);
-        setAiTemperature((ai.temperature as number) || 0.85);
+        setAiMaxTokens([(ai.maxTokens as number) || 2048]);
+        setAiTemperature([(ai.temperature as number) || 0.85]);
       }
     });
   }, []);
@@ -66,8 +56,8 @@ export default function SettingsDialog({
         model: aiModel,
         apiKey: aiApiKey,
         baseUrl: aiBaseUrl || undefined,
-        maxTokens: aiMaxTokens,
-        temperature: aiTemperature,
+        maxTokens: aiMaxTokens[0],
+        temperature: aiTemperature[0],
       },
     });
     setAiSaving(false);
@@ -75,163 +65,217 @@ export default function SettingsDialog({
     setTimeout(() => setAiSaved(false), 2000);
   };
 
+  const handleReset = async () => {
+    if (resetStep === 0) {
+      setResetStep(1);
+      return;
+    }
+    if (resetStep === 1 && resetInput === "RESET") {
+      setResetLoading(true);
+      const result = await window.api.resetAllData();
+      if ((result as { success: boolean }).success) {
+        window.location.hash = "#/setup";
+        window.location.reload();
+      }
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetCancel = () => {
+    setResetStep(0);
+    setResetInput("");
+    setResetLoading(false);
+  };
+
   return (
-    <Sheet open onOpenChange={onClose}>
-      <SheetContent
-        className="w-[400px] glass border-l border-border p-0 z-overlay"
-        style={{ boxShadow: "var(--vp-shadow-xl)" }}
-      >
-        <div className="flex flex-col h-full">
-          <SheetHeader className="px-5 py-4 border-b border-border shrink-0">
-            <SheetTitle className="text-sm font-medium">设置</SheetTitle>
-          </SheetHeader>
+    <Dialog.Root open onOpenChange={onClose}>
+      <Dialog.Content maxWidth="420px" style={{ padding: 0 }}>
+        <Flex direction="column" height="520px">
+          <Flex align="center" justify="between" px="5" py="4" style={{ borderBottom: "1px solid var(--gray-4)" }}>
+            <Heading size="3">设置</Heading>
+            <IconButton variant="ghost" size="2" onClick={onClose}>
+              <X size={16} />
+            </IconButton>
+          </Flex>
 
-          <Tabs defaultValue="ai" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid grid-cols-2 mx-5 mt-3">
-              <TabsTrigger value="ai" className="text-xs">AI 配置</TabsTrigger>
-              <TabsTrigger value="about" className="text-xs">关于</TabsTrigger>
-            </TabsList>
+          <Tabs.Root defaultValue="ai" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <Tabs.List mx="5" mt="3">
+              <Tabs.Trigger value="ai">AI 配置</Tabs.Trigger>
+              <Tabs.Trigger value="data">数据</Tabs.Trigger>
+              <Tabs.Trigger value="about">关于</Tabs.Trigger>
+            </Tabs.List>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              <TabsContent value="ai" className="space-y-3 mt-0">
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">服务商</label>
-                    <Select value={aiProvider} onValueChange={(v) => { setAiProvider(v); setAiModel(""); }}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="anthropic">Claude (Anthropic)</SelectItem>
-                        <SelectItem value="openai">OpenAI (GPT 系列)</SelectItem>
-                        <SelectItem value="openai-compatible">其他兼容接口</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+            <Flex direction="column" p="5" gap="4" flexGrow="1" overflowY="auto" style={{ flex: 1 }}>
+              <Tabs.Content value="ai">
+                <Flex direction="column" gap="4">
+                  <Flex direction="column" gap="2">
+                    <Text size="1" color="gray">服务商</Text>
+                    <Select.Root value={aiProvider} onValueChange={(v) => { setAiProvider(v); setAiModel(""); }}>
+                      <Select.Trigger />
+                      <Select.Content>
+                        <Select.Item value="anthropic">Claude (Anthropic)</Select.Item>
+                        <Select.Item value="openai">OpenAI (GPT 系列)</Select.Item>
+                        <Select.Item value="openai-compatible">其他兼容接口</Select.Item>
+                      </Select.Content>
+                    </Select.Root>
+                  </Flex>
 
                   {aiProvider !== "openai-compatible" && getModels(aiProvider).length > 0 && (
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-muted-foreground">模型</label>
-                      <Select value={aiModel} onValueChange={setAiModel}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择模型..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>可用模型</SelectLabel>
-                            {getModels(aiProvider).map((m) => (
-                              <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Flex direction="column" gap="2">
+                      <Text size="1" color="gray">模型</Text>
+                      <Select.Root value={aiModel} onValueChange={setAiModel}>
+                        <Select.Trigger placeholder="选择模型..." />
+                        <Select.Content>
+                          {getModels(aiProvider).map((m) => (
+                            <Select.Item key={m} value={m}>{m}</Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select.Root>
+                    </Flex>
                   )}
 
                   {aiProvider === "openai-compatible" && (
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-muted-foreground">模型名称</label>
-                      <Input
-                        type="text"
+                    <Flex direction="column" gap="2">
+                      <Text size="1" color="gray">模型名称</Text>
+                      <TextField.Root
                         value={aiModel}
                         onChange={(e) => setAiModel(e.target.value)}
                         placeholder="deepseek-chat / gpt-4o-mini"
                       />
-                    </div>
+                    </Flex>
                   )}
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">API Key</label>
-                    <Input
+                  <Flex direction="column" gap="2">
+                    <Text size="1" color="gray">API Key</Text>
+                    <TextField.Root
                       type="password"
                       value={aiApiKey}
                       onChange={(e) => setAiApiKey(e.target.value)}
                       placeholder="sk-..."
                     />
-                  </div>
+                  </Flex>
 
                   {aiProvider === "openai-compatible" && (
-                    <div className="space-y-1.5 fade-in">
-                      <label className="text-xs font-medium text-muted-foreground">API 地址</label>
-                      <Input
-                        type="text"
+                    <Flex direction="column" gap="2">
+                      <Text size="1" color="gray">API 地址</Text>
+                      <TextField.Root
                         value={aiBaseUrl}
                         onChange={(e) => setAiBaseUrl(e.target.value)}
                         placeholder="https://api.deepseek.com"
                       />
-                    </div>
+                    </Flex>
                   )}
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      最大输出 Token: {aiMaxTokens}
-                    </label>
-                    <Slider
-                      value={[aiMaxTokens]}
-                      onValueChange={([v]) => setAiMaxTokens(v)}
-                      min={256}
-                      max={8192}
-                      step={256}
-                    />
-                    <div className="flex justify-between text-[11px] text-muted-foreground">
-                      <span>256</span>
-                      <span>8192</span>
-                    </div>
-                  </div>
+                  <Flex direction="column" gap="2">
+                    <Text size="1" color="gray">最大输出 Token: {aiMaxTokens[0]}</Text>
+                    <Slider value={aiMaxTokens} onValueChange={setAiMaxTokens} min={256} max={8192} step={256} />
+                    <Flex justify="between">
+                      <Text size="1" color="gray">256</Text>
+                      <Text size="1" color="gray">8192</Text>
+                    </Flex>
+                  </Flex>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      温度: {aiTemperature.toFixed(2)}
-                    </label>
-                    <Slider
-                      value={[aiTemperature]}
-                      onValueChange={([v]) => setAiTemperature(v)}
-                      min={0}
-                      max={2}
-                      step={0.05}
-                    />
-                    <div className="flex justify-between text-[11px] text-muted-foreground">
-                      <span>0 (精确)</span>
-                      <span>2 (创意)</span>
-                    </div>
-                  </div>
+                  <Flex direction="column" gap="2">
+                    <Text size="1" color="gray">温度: {aiTemperature[0].toFixed(2)}</Text>
+                    <Slider value={aiTemperature} onValueChange={setAiTemperature} min={0} max={2} step={0.05} />
+                    <Flex justify="between">
+                      <Text size="1" color="gray">0 (精确)</Text>
+                      <Text size="1" color="gray">2 (创意)</Text>
+                    </Flex>
+                  </Flex>
 
-                  <Button
-                    variant="primary"
-                    className="w-full"
-                    onClick={handleAiSave}
-                    loading={aiSaving}
-                    disabled={!aiApiKey.trim()}
-                  >
+                  <Button onClick={handleAiSave} disabled={aiSaving || !aiApiKey.trim()}>
                     {aiSaved ? "已保存" : "保存 AI 配置"}
                   </Button>
-                </div>
-              </TabsContent>
+                </Flex>
+              </Tabs.Content>
 
-              <TabsContent value="about" className="space-y-4 mt-0">
-                <div className="flex flex-col items-center gap-3 py-4">
-                  <Avatar
-                    className="w-14 h-14 rounded-2xl"
-                    style={{ background: "var(--vp-primary-soft)" }}
+              <Tabs.Content value="data">
+                <Flex direction="column" gap="4">
+                  <Text size="2" weight="medium">数据管理</Text>
+                  <Text size="1" color="gray">
+                    重置将删除所有数据，包括角色卡、AI 配置、聊天记录和记忆数据。操作后需要重新进行初始化设置。
+                  </Text>
+
+                  {resetStep === 0 && (
+                    <Button color="red" variant="outline" size="2" onClick={handleReset}>
+                      重置所有数据...
+                    </Button>
+                  )}
+
+                  {resetStep === 1 && (
+                    <Flex direction="column" gap="3" style={{
+                      padding: 14,
+                      border: "1px solid var(--red-8)",
+                      borderRadius: "var(--radius-3)",
+                      background: "var(--red-3)",
+                    }}>
+                      <Text size="1" weight="medium" style={{ color: "var(--red-9)" }}>
+                        此操作不可撤销！所有数据将被永久删除。
+                      </Text>
+                      <Text size="1" color="gray">
+                        请输入 "RESET" 确认删除：
+                      </Text>
+                      <TextField.Root
+                        value={resetInput}
+                        onChange={(e) => setResetInput(e.target.value)}
+                        placeholder="输入 RESET"
+                      />
+                      <Flex gap="2">
+                        <Button
+                          color="red"
+                          size="2"
+                          disabled={resetInput !== "RESET" || resetLoading}
+                          onClick={handleReset}
+                        >
+                          {resetLoading ? "删除中..." : "确认删除"}
+                        </Button>
+                        <Button variant="ghost" size="2" onClick={handleResetCancel}>
+                          取消
+                        </Button>
+                      </Flex>
+                    </Flex>
+                  )}
+                </Flex>
+              </Tabs.Content>
+
+              <Tabs.Content value="about">
+                <Flex direction="column" align="center" gap="4" py="6">
+                  <Flex
+                    width="56px" height="56px" align="center" justify="center"
+                    style={{ borderRadius: "var(--radius-4)", background: "var(--accent-3)" }}
                   >
-                    <AvatarFallback className="bg-transparent">
-                      <Heart className="w-6 h-6 text-primary" fill="currentColor" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-center">
-                    <h4 className="text-sm font-medium">V-Partner</h4>
-                    <p className="text-xs mt-0.5 text-muted-foreground">v1.0.0-beta.6 — AI 伴侣桌面应用</p>
-                  </div>
-                </div>
-                <p className="text-xs leading-relaxed text-center px-4 text-muted-foreground">
-                  仅供学习娱乐，AI 生成内容不代表作者立场。<br />
-                  因使用本软件产生的任何后果由用户自担。
-                </p>
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
-      </SheetContent>
-    </Sheet>
+                    <Heart size={24} color="var(--accent-9)" fill="var(--accent-9)" />
+                  </Flex>
+                  <Flex direction="column" align="center" gap="1">
+                    <Heading size="4">V-Partner</Heading>
+                    <Text size="1" color="gray">v1.0.0-beta.6</Text>
+                  </Flex>
+                </Flex>
+
+                <Flex direction="column" gap="3" style={{ borderTop: "1px solid var(--gray-4)", paddingTop: 16 }}>
+                  <Flex direction="column" gap="1">
+                    <Text size="1" color="gray" align="center">
+                      作者：梦夜十六
+                    </Text>
+                    <Text size="1" color="gray" align="center">
+                      AI 伴侣桌面应用 — 基于 Electron + React 构建。<br />
+                      支持 QQ、微信及应用内聊天，内置性格设定与长期记忆。
+                    </Text>
+                  </Flex>
+                  <Text size="1" color="gray" align="center">
+                    仅供学习娱乐，AI 生成内容不代表作者立场。<br />
+                    因使用本软件产生的任何后果由用户自担。
+                  </Text>
+                  <Text size="1" color="gray" align="center" mt="1">
+                    Made by DreamNight
+                  </Text>
+                </Flex>
+              </Tabs.Content>
+            </Flex>
+          </Tabs.Root>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
   );
 }

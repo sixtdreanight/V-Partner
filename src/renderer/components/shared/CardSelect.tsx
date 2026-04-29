@@ -1,5 +1,5 @@
-import { Check } from "lucide-react";
-import { Card } from "../ui/card";
+import { Flex, Button } from "@radix-ui/themes";
+import { Heart, Check } from "lucide-react";
 
 interface Option<T extends string> {
   value: T;
@@ -18,44 +18,37 @@ export default function CardSelect<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="space-y-2">
+    <Flex direction="column" gap="2">
       {options.map((opt) => {
         const active = value === opt.value;
         return (
-          <button
+          <Button
             key={opt.value}
+            variant={active ? "solid" : "outline"}
+            color={active ? undefined : "gray"}
             onClick={() => onChange(opt.value)}
-            className="w-full text-left transition-all duration-200 active:scale-[0.98] hover:scale-[1.01]"
+            style={{ justifyContent: "flex-start", height: "auto", padding: "12px 16px" }}
           >
-            <Card
-              className={`p-4 transition-all duration-200 ${
-                active
-                  ? "ring-2 ring-primary border-primary bg-primary/5"
-                  : "hover:border-primary/30"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {opt.icon && <span className="text-xl">{opt.icon}</span>}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium">
-                    {opt.label}
-                  </div>
-                  {opt.desc && (
-                    <div className="text-xs mt-0.5 text-muted-foreground">
-                      {opt.desc}
-                    </div>
-                  )}
-                </div>
-                {active && (
-                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-primary-foreground" />
-                  </div>
+            <Flex align="center" gap="3" flexGrow="1">
+              {opt.icon && <Heart size={18} />}
+              <Flex direction="column" flexGrow="1" style={{ textAlign: "left" }}>
+                <span style={{ fontWeight: 500 }}>{opt.label}</span>
+                {opt.desc && (
+                  <span style={{ fontSize: 12, color: "var(--gray-10)", fontWeight: 400, marginTop: 2 }}>
+                    {opt.desc}
+                  </span>
                 )}
-              </div>
-            </Card>
-          </button>
+              </Flex>
+              {active && (
+                <Flex width="20px" height="20px" align="center" justify="center"
+                  style={{ borderRadius: "50%", background: "var(--accent-9)" }}>
+                  <Check size={12} color="white" />
+                </Flex>
+              )}
+            </Flex>
+          </Button>
         );
       })}
-    </div>
+    </Flex>
   );
 }

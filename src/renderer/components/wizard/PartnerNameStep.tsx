@@ -7,8 +7,8 @@ export default function PartnerNameStep({
   update: (d: Partial<{ name: string }>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">她叫什么名字？</h2>
         <p className="text-sm text-muted-foreground">给 TA 取一个你喜欢的名字</p>
       </div>

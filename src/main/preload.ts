@@ -4,6 +4,7 @@ import { contextBridge, ipcRenderer } from "electron";
 const api = {
   // 应用状态
   getState: () => ipcRenderer.invoke("app:get-state"),
+  getPlatform: () => process.platform,
 
   // 设置向导
   parseDescription: (desc: string) =>
@@ -34,6 +35,13 @@ const api = {
   getConfig: () => ipcRenderer.invoke("settings:get-config"),
   updateConfig: (config: Record<string, unknown>) =>
     ipcRenderer.invoke("settings:update-config", config),
+
+  // 头像
+  pickAvatar: () => ipcRenderer.invoke("app:pick-avatar"),
+  getAvatar: () => ipcRenderer.invoke("app:get-avatar"),
+
+  // 重置数据
+  resetAllData: () => ipcRenderer.invoke("app:reset-data"),
 
   // 自动更新
   checkUpdate: () => ipcRenderer.invoke("app:check-update"),

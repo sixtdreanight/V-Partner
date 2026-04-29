@@ -1,33 +1,32 @@
 import { useState, useEffect } from "react";
 import { Flex, Text, Button, IconButton, Heading } from "@radix-ui/themes";
-import { Cat, ArrowLeft } from "lucide-react";
+import { Container, ArrowLeft } from "lucide-react";
 import TitleBar from "../components/shared/TitleBar";
 
-export default function NapCatSetup({ onBack }: { onBack: () => void }) {
+export default function WeChatSetup({ onBack }: { onBack: () => void }) {
   const [status, setStatus] = useState<Record<string, unknown>>({ status: "stopped", message: "" });
-  const [qrData, setQrData] = useState<string | null>(null);
 
   useEffect(() => {
-    window.api.getNapCatStatus().then((s: unknown) => setStatus(s as Record<string, unknown>));
-    const unsub1 = window.api.on("napcat:status-changed", (s: unknown) => {
+    window.api.getWeChatStatus().then((s: unknown) => setStatus(s as Record<string, unknown>));
+    const unsub = window.api.on("wechat:status-changed", (s: unknown) => {
       setStatus(s as Record<string, unknown>);
     });
-    const unsub2 = window.api.on("napcat:qr-ready", (data: unknown) => {
-      setQrData((data as { qrData: string }).qrData);
-    });
-    return () => { unsub1(); unsub2(); };
+    return () => { unsub(); };
   }, []);
 
   const handleStart = async () => {
-    setQrData(null);
-    const result = await window.api.startNapCat();
+    const result = await window.api.startWeChat();
     if (!(result as { success: boolean }).success) {
       setStatus({ status: "error", message: (result as { error: string }).error });
     }
   };
 
+  const handleStop = async () => {
+    await window.api.stopWeChat();
+  };
+
   const s = status.status as string;
-  const isWorking = ["downloading", "extracting", "configuring", "starting"].includes(s);
+  const isWorking = ["checking", "pulling", "starting"].includes(s);
 
   return (
     <Flex direction="column" height="100vh" className="page-enter"
@@ -36,34 +35,26 @@ export default function NapCatSetup({ onBack }: { onBack: () => void }) {
         <IconButton variant="ghost" size="2" onClick={onBack} style={{ WebkitAppRegion: "no-drag" }}>
           <ArrowLeft size={16} />
         </IconButton>
-        <Heading size="3" ml="3">QQ 登录</Heading>
+        <Heading size="3" ml="3">微信登录</Heading>
       </TitleBar>
 
       <Flex flexGrow="1" align="center" justify="center" p="8">
         <Flex direction="column" align="center" gap="6" style={{ maxWidth: 384, width: "100%" }}>
 
-          {(s === "waiting-qr" || qrData) && (
-            <Flex direction="column" align="center" gap="4" className="scale-in">
-              <Flex direction="column" align="center" gap="3" p="4"
-                style={{ border: "1px solid var(--gray-4)", borderRadius: "var(--radius-4)", background: "var(--gray-1)" }}>
-                <Flex width="144px" height="144px" align="center" justify="center"
-                  style={{ background: "var(--gray-3)", borderRadius: "var(--radius-3)" }}>
-                  <Text size="1" color="gray">
-                    {qrData ? "QR 码" : "准备中..."}
-                  </Text>
-                </Flex>
-                <Text size="1" color="gray">
-                  {qrData ? "请用手机 QQ 扫描" : "准备中..."}
-                </Text>
-              </Flex>
-              <Text size="2" color="gray">请使用手机 QQ 扫描二维码登录</Text>
-            </Flex>
-          )}
-
           {isWorking && (
             <Flex direction="column" align="center" gap="4" className="scale-in">
               <div className="animate-spin" style={{ width: 48, height: 48, borderRadius: "50%", border: "2px solid var(--gray-5)", borderTopColor: "var(--accent-9)" }} />
               <Text size="2" color="gray">{status.message as string || "处理中..."}</Text>
+            </Flex>
+          )}
+
+          {s === "waiting-qr" && (
+            <Flex direction="column" align="center" gap="4" className="scale-in">
+              <Flex direction="column" align="center" gap="3" p="4"
+                style={{ border: "1px solid var(--gray-4)", borderRadius: "var(--radius-4)", background: "var(--gray-1)" }}>
+                <Text size="2" color="gray">等待服务就绪...</Text>
+                <Text size="1" color="gray">请确保 Docker 正在运行</Text>
+              </Flex>
             </Flex>
           )}
 
@@ -75,7 +66,8 @@ export default function NapCatSetup({ onBack }: { onBack: () => void }) {
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
               </Flex>
-              <Text size="3" weight="semibold" style={{ color: "var(--green-9)" }}>QQ 已成功连接</Text>
+              <Text size="3" weight="semibold" style={{ color: "var(--green-9)" }}>微信已成功连接</Text>
+              <Button color="red" variant="soft" onClick={handleStop} style={{ width: "100%" }}>停止服务</Button>
               <Button onClick={onBack} style={{ width: "100%" }}>返回聊天</Button>
             </Flex>
           )}
@@ -94,20 +86,38 @@ export default function NapCatSetup({ onBack }: { onBack: () => void }) {
             </Flex>
           )}
 
-          {s !== "waiting-qr" && !qrData && !isWorking && s !== "connected" && s !== "error" && (
+          {s === "no-docker" && (
+            <Flex direction="column" align="center" gap="4" className="scale-in">
+              <Flex width="64px" height="64px" align="center" justify="center"
+                style={{ borderRadius: "50%", background: "var(--amber-3)" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--amber-9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v4M12 16h.01" />
+                </svg>
+              </Flex>
+              <Text size="3" weight="semibold">未检测到 Docker</Text>
+              <Text size="2" color="gray" align="center">
+                微信接入需要 Docker 环境运行 Gewechat 服务。<br />
+                请先安装 <a href="https://www.docker.com" target="_blank" rel="noreferrer">Docker Desktop</a>
+              </Text>
+              <Button onClick={handleStart} style={{ width: "100%" }}>重新检测</Button>
+            </Flex>
+          )}
+
+          {s !== "waiting-qr" && !isWorking && s !== "connected" && s !== "error" && s !== "no-docker" && (
             <Flex direction="column" align="center" gap="6" className="scale-in">
               <Flex width="64px" height="64px" align="center" justify="center"
                 style={{ borderRadius: "50%", background: "var(--accent-3)" }}>
-                <Cat size={28} color="var(--accent-9)" />
+                <Container size={28} color="var(--accent-9)" />
               </Flex>
               <Flex direction="column" align="center" gap="1">
-                <Heading size="5">连接 QQ 机器人</Heading>
+                <Heading size="5">连接微信机器人</Heading>
                 <Text size="2" color="gray" align="center">
-                  启动后需要扫码登录 QQ<br />建议使用小号，存在封号风险
+                  通过 Docker 运行 Gewechat 服务<br />需要先安装 Docker Desktop
                 </Text>
               </Flex>
               <Button size="4" onClick={handleStart} style={{ width: "100%" }}>
-                启动 NapCatQQ
+                启动微信服务
               </Button>
               <Text size="2" color="gray" onClick={onBack} style={{ cursor: "pointer" }}>
                 暂时跳过

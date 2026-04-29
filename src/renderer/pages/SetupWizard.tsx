@@ -1,5 +1,7 @@
+import { Flex, Text, Button, Progress } from "@radix-ui/themes";
 import { Sparkles, AlertTriangle } from "lucide-react";
 import { useSetupWizard } from "../hooks/useSetupWizard";
+import TitleBar from "../components/shared/TitleBar";
 import WelcomeStep from "../components/wizard/WelcomeStep";
 import PartnerNameStep from "../components/wizard/PartnerNameStep";
 import PartnerDescriptionStep from "../components/wizard/PartnerDescriptionStep";
@@ -14,7 +16,6 @@ import MemeStyleStep from "../components/wizard/MemeStyleStep";
 import AIProviderStep from "../components/wizard/AIProviderStep";
 import PlatformSetupStep from "../components/wizard/PlatformSetupStep";
 import SummaryStep from "../components/wizard/SummaryStep";
-import { Button } from "../components/ui/button";
 
 const STEPS = [
   WelcomeStep, PartnerNameStep, PartnerDescriptionStep,
@@ -31,94 +32,83 @@ export default function SetupWizard() {
 
   if (transitioning) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4 bounce-in">
-          <div
-            className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center"
-            style={{ background: transitionTimedOut ? "var(--vp-error-soft)" : "var(--vp-primary-soft)" }}
-          >
-            {transitionTimedOut
-              ? <AlertTriangle className="w-8 h-8 text-destructive" />
-              : <Sparkles className="w-8 h-8 text-primary" />
-            }
-          </div>
-          <div>
-            <h2 className="text-base font-semibold">
-              {transitionTimedOut ? "启动超时" : "正在创建你的 AI 伴侣..."}
-            </h2>
-            <p className="text-sm mt-1 text-muted-foreground">
-              {transitionTimedOut ? "窗口切换可能未响应，请手动重试" : "一切准备就绪"}
-            </p>
-          </div>
-          {transitionTimedOut && (
-            <Button variant="primary" size="sm" onClick={saveProfile}>
-              点击重试
-            </Button>
-          )}
-        </div>
-      </div>
+      <Flex direction="column" align="center" justify="center" height="100vh" gap="4" className="bounce-in"
+        style={{ background: "var(--color-background)" }}>
+        <Flex width="64px" height="64px" align="center" justify="center"
+          style={{
+            borderRadius: "var(--radius-4)",
+            background: transitionTimedOut ? "var(--red-3)" : "var(--accent-3)",
+          }}>
+          {transitionTimedOut
+            ? <AlertTriangle size={32} color="var(--red-9)" />
+            : <Sparkles size={32} color="var(--accent-9)" />
+          }
+        </Flex>
+        <Flex direction="column" align="center" gap="1">
+          <Text size="4" weight="semibold">
+            {transitionTimedOut ? "启动超时" : "正在创建你的 AI 伴侣..."}
+          </Text>
+          <Text size="2" color="gray">
+            {transitionTimedOut ? "窗口切换可能未响应，请手动重试" : "一切准备就绪"}
+          </Text>
+        </Flex>
+        {transitionTimedOut && (
+          <Button size="2" onClick={saveProfile}>点击重试</Button>
+        )}
+      </Flex>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col select-none bg-background">
-      <div className="h-[2px] shrink-0 bg-muted">
-        <div
-          className="h-full bg-primary transition-all"
-          style={{
-            width: `${progress}%`,
-            transition: "width 600ms var(--ease-spring)",
-          }}
-        />
-      </div>
+    <Flex direction="column" height="100vh" style={{ background: "var(--color-background)" }}>
+      <TitleBar borderColor="transparent" background="transparent">
+        <Flex direction="column" width="100%" gap="1">
+          <Progress value={progress} size="1" variant="soft" radius="none" />
+          <Flex justify="center" gap="1">
+            {STEPS.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i === step ? 22 : 6,
+                  height: 6,
+                  borderRadius: 999,
+                  background: i === step ? "var(--accent-9)" : i < step ? "var(--accent-5)" : "var(--gray-5)",
+                  transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              />
+            ))}
+          </Flex>
+        </Flex>
+      </TitleBar>
 
-      <div className="flex justify-center gap-1.5 py-3 shrink-0">
-        {STEPS.map((_, i) => (
-          <div
-            key={i}
-            className="rounded-full transition-all"
-            style={{
-              width: i === step ? 22 : 6,
-              height: 6,
-              background:
-                i === step
-                  ? "var(--primary)"
-                  : i < step
-                    ? "var(--vp-primary-light)"
-                    : "var(--border)",
-              transition: "all 400ms var(--ease-spring)",
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="flex-1 flex items-center justify-center px-6 py-4 overflow-y-auto">
-        <div className="w-full max-w-sm" key={step}>
+      <Flex flexGrow="1" align="center" justify="center" px="6" py="4" style={{ overflowY: "auto" }}>
+        <div style={{ width: "100%", maxWidth: 384 }} key={step}>
           <div className="fade-in">
             <StepComponent {...(wizard as any)} />
           </div>
         </div>
-      </div>
+      </Flex>
 
-      <div className="h-12 flex items-center justify-between px-6 shrink-0 border-t border-border" style={{ background: "var(--background)" }}>
+      <Flex height="56px" align="center" justify="between" px="5" flexShrink="0"
+        style={{ borderTop: "1px solid var(--gray-4)", background: "var(--color-background)" }}>
         <div>
           {step > 0 && (
-            <Button variant="ghost" size="sm" onClick={back}>← 上一步</Button>
+            <Button variant="ghost" size="2" onClick={back}>← 上一步</Button>
           )}
         </div>
 
-        <span className="text-xs font-mono text-muted-foreground">
+        <Text size="1" color="gray" style={{ fontFamily: "var(--default-font-family)" }}>
           {step + 1}/{STEPS.length}
-        </span>
+        </Text>
 
         <div>
           {step < STEPS.length - 1 && (
-            <Button variant="primary" size="sm" onClick={next} disabled={!canNext}>
+            <Button size="2" onClick={next} disabled={!canNext}>
               下一步
             </Button>
           )}
         </div>
-      </div>
-    </div>
+      </Flex>
+    </Flex>
   );
 }

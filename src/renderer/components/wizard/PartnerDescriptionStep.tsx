@@ -16,8 +16,8 @@ export default function PartnerDescriptionStep({
   const hobbies = parsePreview.hobbies as string[] | undefined;
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">简单介绍她一下</h2>
         <p className="text-sm text-muted-foreground">用一句话描述你心目中的她</p>
       </div>
@@ -32,7 +32,7 @@ export default function PartnerDescriptionStep({
       {Object.keys(parsePreview).length > 0 && (
         <div className="rounded-xl p-4 space-y-2 fade-in bg-violet-50 dark:bg-violet-950 border border-violet-200 dark:border-violet-800">
           <Badge variant="primary" size="md">AI 解析结果</Badge>
-          <div className="space-y-1.5 mt-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
             {fields.map(({ k, l }) => {
               const v = parsePreview[k];
               if (v == null) return null;

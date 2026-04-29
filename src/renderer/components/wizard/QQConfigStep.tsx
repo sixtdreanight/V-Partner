@@ -43,8 +43,8 @@ export default function QQConfigStep({
   const badgeVariant = isConnected ? "success" : napCatStatus === "error" ? "error" : "default";
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <h2 className="text-lg font-semibold">配置 QQ 机器人</h2>
         <p className="text-sm text-muted-foreground">让 TA 能在 QQ 上和你聊天</p>
       </div>
@@ -75,7 +75,7 @@ export default function QQConfigStep({
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Field label="WebSocket 地址（可选，自动填充）">
           <Input
             type="text"
