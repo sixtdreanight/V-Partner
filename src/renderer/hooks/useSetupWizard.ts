@@ -15,6 +15,8 @@ export interface WizardData {
   aiModel: string;
   aiApiKey: string;
   aiBaseUrl: string;
+  aiMaxTokens: number;
+  aiTemperature: number;
   qqEnabled: boolean;
   wechatEnabled: boolean;
   qqWsUrl: string;
@@ -40,6 +42,8 @@ const DEFAULTS: WizardData = {
   aiModel: "",
   aiApiKey: "",
   aiBaseUrl: "",
+  aiMaxTokens: 2048,
+  aiTemperature: 0.85,
   qqEnabled: false,
   wechatEnabled: false,
   qqWsUrl: "ws://127.0.0.1:3001",
@@ -142,6 +146,8 @@ export function useSetupWizard() {
           model: data.aiModel || undefined,
           apiKey: data.aiApiKey,
           baseUrl: data.aiBaseUrl || undefined,
+          maxTokens: data.aiMaxTokens,
+          temperature: data.aiTemperature,
         },
         qq: data.qqEnabled ? {
           wsUrl: data.qqWsUrl,

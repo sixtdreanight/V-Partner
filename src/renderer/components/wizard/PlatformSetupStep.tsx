@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import Badge from "../ui/Badge";
-import Button from "../ui/Button";
+import { MessageCircle, MessageSquare } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 const QQ_STATUS_LABELS: Record<string, string> = {
   stopped: "未启动",
@@ -87,16 +88,16 @@ export default function PlatformSetupStep({
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">连接聊天平台</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">让 TA 能在 QQ 或微信上和你聊天</p>
+        <h2 className="text-lg font-semibold">连接聊天平台</h2>
+        <p className="text-sm text-muted-foreground">让 TA 能在 QQ 或微信上和你聊天</p>
       </div>
 
       {/* QQ Card */}
-      <div className="rounded-xl p-4 space-y-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+      <div className="rounded-xl p-4 space-y-3 bg-card border shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🐧</span>
-            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">QQ</span>
+            <MessageCircle className="w-5 h-5 text-primary" />
+            <span className="text-sm font-semibold">QQ</span>
           </div>
           <Badge
             variant={qqConnected ? "success" : qqStatus === "error" ? "error" : "default"}
@@ -106,7 +107,7 @@ export default function PlatformSetupStep({
           </Badge>
         </div>
 
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+        <p className="text-xs text-muted-foreground">
           自动下载并启动 NapCatQQ，扫码即可登录。建议使用小号。
         </p>
 
@@ -124,7 +125,7 @@ export default function PlatformSetupStep({
         {!data.qqEnabled && (
           <button
             onClick={() => update({ qqEnabled: false })}
-            className="w-full text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             跳过 QQ 配置
           </button>
@@ -132,11 +133,11 @@ export default function PlatformSetupStep({
       </div>
 
       {/* WeChat Card */}
-      <div className="rounded-xl p-4 space-y-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+      <div className="rounded-xl p-4 space-y-3 bg-card border shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">💬</span>
-            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">微信</span>
+            <MessageSquare className="w-5 h-5 text-emerald-500" />
+            <span className="text-sm font-semibold">微信</span>
           </div>
           <Badge
             variant={wcConnected ? "success" : wechatStatus === "error" || wechatStatus === "no-docker" ? "error" : "default"}
@@ -146,7 +147,7 @@ export default function PlatformSetupStep({
           </Badge>
         </div>
 
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+        <p className="text-xs text-muted-foreground">
           自动启动 Gewechat Docker 容器。需预先安装 Docker。
         </p>
 
@@ -164,14 +165,14 @@ export default function PlatformSetupStep({
         {!data.wechatEnabled && (
           <button
             onClick={() => update({ wechatEnabled: false })}
-            className="w-full text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             跳过微信配置
           </button>
         )}
       </div>
 
-      <p className="text-xs text-center text-zinc-400 dark:text-zinc-500">
+      <p className="text-xs text-center text-muted-foreground">
         也可稍后在设置中配置，不影响应用内聊天
       </p>
     </div>

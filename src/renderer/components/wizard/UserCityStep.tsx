@@ -1,4 +1,4 @@
-import { Input } from "../ui/Input";
+import { Input } from "../ui/input";
 
 export default function UserCityStep({
   data, update,
@@ -9,8 +9,8 @@ export default function UserCityStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">你在哪个城市？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">TA 会和你聊天气、本地话题</p>
+        <h2 className="text-lg font-semibold">你在哪个城市？</h2>
+        <p className="text-sm text-muted-foreground">TA 会和你聊天气、本地话题</p>
       </div>
       <Input
         type="text"

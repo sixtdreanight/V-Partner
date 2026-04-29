@@ -1,44 +1,72 @@
-import type { ReactNode } from "react";
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "src/renderer/lib/utils";
 
-type Variant = "default" | "primary" | "success" | "warning" | "error";
+const badgeVariants = cva(
+  "inline-flex items-center gap-1.5 rounded-full border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        primary:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        success:
+          "border-transparent bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400",
+        warning:
+          "border-transparent bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        error:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+      },
+      size: {
+        sm: "px-2 py-0.5 text-[11px]",
+        md: "px-3 py-1 text-xs",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "sm",
+    },
+  },
+);
 
-interface Props {
-  children: ReactNode;
-  variant?: Variant;
-  size?: "sm" | "md";
+interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {
   dot?: boolean;
-  className?: string;
 }
 
-const variants: Record<Variant, string> = {
-  default:
-    "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700",
-  primary:
-    "bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800",
-  success:
-    "bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-  warning:
-    "bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  error:
-    "bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800",
-};
-
-const dotColors: Record<Variant, string> = {
-  default: "bg-zinc-400",
-  primary: "bg-violet-500",
+const dotColors: Record<string, string> = {
+  default: "bg-white/60",
+  primary: "bg-white/60",
+  secondary: "bg-zinc-400",
   success: "bg-emerald-500",
   warning: "bg-amber-500",
   error: "bg-red-500",
+  destructive: "bg-red-500",
+  outline: "bg-zinc-400",
 };
 
-export default function Badge({ children, variant = "default", size = "sm", dot, className = "" }: Props) {
-  const sizeClass = size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-3 py-1 text-xs";
+function Badge({ className, variant, size, dot, children, ...props }: BadgeProps) {
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border font-medium ${sizeClass} ${variants[variant]} ${className}`}
-    >
-      {dot && <span className={`w-1.5 h-1.5 rounded-full ${dotColors[variant]}`} />}
+    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
+      {dot && (
+        <span
+          className={cn(
+            "w-1.5 h-1.5 rounded-full",
+            variant ? dotColors[variant] : dotColors.default,
+          )}
+        />
+      )}
       {children}
-    </span>
+    </div>
   );
 }
+
+export default Badge;
+export { Badge, badgeVariants };

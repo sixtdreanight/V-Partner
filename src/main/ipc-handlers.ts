@@ -92,6 +92,8 @@ export function registerIpcHandlers() {
             model: ai.model,
             apiKey: ai.apiKey,
             baseUrl: ai.baseUrl,
+            maxTokens: ai.maxTokens as number | undefined,
+            temperature: ai.temperature as number | undefined,
           } : undefined,
           qq: qq ? {
             wsUrl: qq.wsUrl,

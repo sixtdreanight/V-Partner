@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, type KeyboardEvent } from "react";
+import { Smile } from "lucide-react";
 
 export default function MessageInput({
   onSend, disabled,
@@ -38,19 +39,12 @@ export default function MessageInput({
   return (
     <div className="px-4 py-3">
       <div className="max-w-2xl mx-auto flex items-end gap-2">
-        {/* Placeholder extra actions — emoji / attachment */}
         <button
-          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 opacity-50 hover:opacity-100"
-          style={{ color: "var(--vp-text-muted)" }}
+          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 opacity-40 hover:opacity-100 text-muted-foreground"
           title="表情"
           disabled
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-            <line x1="9" y1="9" x2="9.01" y2="9" />
-            <line x1="15" y1="9" x2="15.01" y2="9" />
-          </svg>
+          <Smile className="w-[18px] h-[18px]" />
         </button>
 
         <div

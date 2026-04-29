@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Button from "../ui/Button";
+import { Button } from "../ui/button";
 
 export default function UpdateToast() {
   const [visible, setVisible] = useState(false);
@@ -48,38 +48,33 @@ export default function UpdateToast() {
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 fade-in">
-      <div
-        className="glass rounded-2xl shadow-lg px-5 py-3 flex items-center gap-4 min-w-[320px]"
-        style={{ border: "1px solid var(--vp-border)" }}
-      >
+      <div className="glass rounded-2xl shadow-lg px-5 py-3 flex items-center gap-4 min-w-[320px] border border-border">
         <div className="flex-1">
           {status === "available" && (
             <div className="text-sm">
-              <span className="font-medium" style={{ color: "var(--vp-text)" }}>发现新版本</span>
-              <span className="ml-1" style={{ color: "var(--vp-text-muted)" }}>v{version}</span>
+              <span className="font-medium">发现新版本</span>
+              <span className="ml-1 text-muted-foreground">v{version}</span>
             </div>
           )}
           {status === "downloading" && (
             <div className="text-sm">
-              <span style={{ color: "var(--vp-text-secondary)" }}>正在下载更新… {progress}%</span>
-              <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: "var(--vp-border)" }}>
+              <span className="text-muted-foreground">正在下载更新… {progress}%</span>
+              <div className="mt-1.5 h-1 rounded-full overflow-hidden bg-border">
                 <div
                   className="h-full transition-all duration-300"
                   style={{
                     width: `${progress}%`,
-                    background: "linear-gradient(to right, var(--vp-primary), var(--vp-accent))",
+                    background: "linear-gradient(to right, var(--primary), var(--vp-accent))",
                   }}
                 />
               </div>
             </div>
           )}
           {status === "downloaded" && (
-            <div className="text-sm font-medium" style={{ color: "var(--vp-text)" }}>
-              更新已下载，重启后安装
-            </div>
+            <div className="text-sm font-medium">更新已下载，重启后安装</div>
           )}
           {status === "error" && (
-            <div className="text-sm" style={{ color: "var(--vp-error)" }}>更新检查失败</div>
+            <div className="text-sm text-destructive">更新检查失败</div>
           )}
         </div>
 

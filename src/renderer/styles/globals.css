@@ -1,8 +1,68 @@
 @import "tailwindcss";
 
-/* ===== Design Tokens ===== */
+/* ===== shadcn/ui Design Tokens ===== */
 :root {
-  --vp-primary: #7c3aed;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #a1a1aa;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #7c3aed;
+  --radius: 0.5rem;
+
+  --chart-1: #7c3aed;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #6366f1;
+  --chart-5: #f43f5e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090b;
+    --foreground: #fafafa;
+    --card: #18181b;
+    --card-foreground: #fafafa;
+    --popover: #18181b;
+    --popover-foreground: #fafafa;
+    --primary: #7c3aed;
+    --primary-foreground: #ffffff;
+    --secondary: #27272a;
+    --secondary-foreground: #fafafa;
+    --muted: #27272a;
+    --muted-foreground: #71717a;
+    --accent: #27272a;
+    --accent-foreground: #fafafa;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #7c3aed;
+
+    --chart-1: #a78bfa;
+    --chart-2: #34d399;
+    --chart-3: #fbbf24;
+    --chart-4: #818cf8;
+    --chart-5: #fb7185;
+  }
+}
+
+/* ===== V-Partner Design Tokens (aliases + chat-specific) ===== */
+:root {
+  --vp-primary: var(--primary);
   --vp-primary-light: #a78bfa;
   --vp-primary-dim: #5b21b6;
   --vp-primary-soft: #ede9fe;
@@ -11,26 +71,26 @@
   --vp-rose: #f43f5e;
   --vp-amber: #f59e0b;
 
-  --vp-bg: #fafafa;
-  --vp-bg-secondary: #f4f4f5;
-  --vp-surface: #ffffff;
+  --vp-bg: var(--background);
+  --vp-bg-secondary: var(--secondary);
+  --vp-surface: var(--card);
   --vp-surface-hover: #f8f8fa;
   --vp-surface-active: #f0f0f3;
 
-  --vp-border: #e4e4e7;
+  --vp-border: var(--border);
   --vp-border-light: #f0f0f2;
   --vp-border-hover: #d4d4d8;
 
-  --vp-text: #18181b;
+  --vp-text: var(--foreground);
   --vp-text-secondary: #52525b;
-  --vp-text-muted: #a1a1aa;
+  --vp-text-muted: var(--muted-foreground);
   --vp-text-inverse: #ffffff;
 
   --vp-success: #10b981;
   --vp-success-soft: #ecfdf5;
   --vp-warning: #f59e0b;
   --vp-warning-soft: #fffbeb;
-  --vp-error: #ef4444;
+  --vp-error: var(--destructive);
   --vp-error-soft: #fef2f2;
 
   --vp-radius-xs: 6px;
@@ -43,11 +103,11 @@
   /* IM chat tokens */
   --vp-bubble-user: linear-gradient(135deg, #7c3aed, #6366f1);
   --vp-bubble-user-text: #ffffff;
-  --vp-bubble-partner: var(--vp-surface);
-  --vp-bubble-partner-text: var(--vp-text);
+  --vp-bubble-partner: var(--card);
+  --vp-bubble-partner-text: var(--foreground);
   --vp-bg-chat: #f0f2f5;
-  --vp-time-label: var(--vp-text-muted);
-  --vp-separator: var(--vp-border);
+  --vp-time-label: var(--muted-foreground);
+  --vp-separator: var(--border);
 
   --vp-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
   --vp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -65,19 +125,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --vp-bg: #09090b;
-    --vp-bg-secondary: #121214;
-    --vp-surface: #18181b;
+    --vp-bg: var(--background);
+    --vp-bg-secondary: var(--secondary);
+    --vp-surface: var(--card);
     --vp-surface-hover: #202024;
     --vp-surface-active: #27272a;
 
-    --vp-border: #27272a;
+    --vp-border: var(--border);
     --vp-border-light: #1f1f23;
     --vp-border-hover: #3f3f46;
 
-    --vp-text: #fafafa;
+    --vp-text: var(--foreground);
     --vp-text-secondary: #a1a1aa;
-    --vp-text-muted: #71717a;
+    --vp-text-muted: var(--muted-foreground);
 
     --vp-primary-soft: #1e1345;
     --vp-success-soft: #022c22;
@@ -92,7 +152,7 @@
 
     /* IM chat tokens — dark */
     --vp-bg-chat: #0a0a0b;
-    --vp-bubble-partner: var(--vp-surface);
+    --vp-bubble-partner: var(--card);
   }
 }
 
@@ -110,8 +170,8 @@ html {
 
 body {
   font-family: var(--vp-font);
-  background: var(--vp-bg);
-  color: var(--vp-text);
+  background: var(--background);
+  color: var(--foreground);
   overflow: hidden;
   font-size: 14px;
   line-height: 1.6;
@@ -127,11 +187,11 @@ body {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--vp-border);
+  background: var(--border);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--vp-text-muted);
+  background: var(--muted-foreground);
 }
 
 /* ===== Focus ring ===== */
@@ -139,14 +199,14 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--vp-primary-light);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
 /* ===== Selection ===== */
 ::selection {
   background: var(--vp-primary-soft);
-  color: var(--vp-primary);
+  color: var(--primary);
 }
 
 /* ===== Glass utility ===== */
@@ -163,7 +223,7 @@ button:focus-visible {
 
 /* ===== Gradient text ===== */
 .gradient-text {
-  background: linear-gradient(135deg, var(--vp-primary), var(--vp-accent));
+  background: linear-gradient(135deg, var(--primary), var(--vp-accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -236,7 +296,7 @@ button:focus-visible {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--vp-text-muted);
+  background: var(--muted-foreground);
   animation: bounce 1.4s infinite ease-in-out both;
 }
 .bounce-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -247,7 +307,7 @@ button:focus-visible {
   background: linear-gradient(
     90deg,
     var(--vp-border-light) 0%,
-    var(--vp-border) 40%,
+    var(--border) 40%,
     var(--vp-border-light) 80%
   );
   background-size: 200% 100%;

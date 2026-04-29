@@ -1,5 +1,6 @@
+import { Heart, Smile } from "lucide-react";
 import type { ChatMessage } from "../../hooks/useChat";
-import Avatar from "../ui/Avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -23,14 +24,26 @@ export default function MessageBubble({
     >
       <div className="shrink-0 mt-0.5">
         {showAvatar ? (
-          <Avatar emoji={isPartner ? "💕" : "😊"} size="sm" gradient={isPartner} />
+          <Avatar
+            className={`${isPartner ? "w-7 h-7" : "w-7 h-7"}`}
+            style={isPartner
+              ? { background: "linear-gradient(135deg, var(--vp-primary-soft), #ede9fe)" }
+              : { background: "var(--muted)" }
+            }
+          >
+            <AvatarFallback className="bg-transparent">
+              {isPartner
+                ? <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />
+                : <Smile className="w-3.5 h-3.5" />
+              }
+            </AvatarFallback>
+          </Avatar>
         ) : (
           <div className="w-7" />
         )}
       </div>
 
       <div className={`flex flex-col max-w-[70%] ${isPartner ? "" : "items-end"}`}>
-        {/* Bubble */}
         <div
           className="relative px-3.5 py-2.5 text-sm leading-relaxed break-words"
           style={{
@@ -47,7 +60,6 @@ export default function MessageBubble({
             boxShadow: isPartner ? "var(--vp-shadow-xs)" : "0 2px 8px rgba(124, 58, 237, 0.25)",
           }}
         >
-          {/* Partner bubble tail */}
           {isPartner && showAvatar && (
             <div
               className="absolute left-0 top-0"
@@ -67,7 +79,7 @@ export default function MessageBubble({
         </div>
 
         {showAvatar && (
-          <time className="text-[10px] mt-1 px-1 font-mono" style={{ color: "var(--vp-text-muted)" }}>
+          <time className="text-[10px] mt-1 px-1 font-mono text-muted-foreground">
             {formatTime(message.time)}
           </time>
         )}

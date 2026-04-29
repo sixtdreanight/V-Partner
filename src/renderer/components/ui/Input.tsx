@@ -1,23 +1,39 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import * as React from "react";
+import { cn } from "src/renderer/lib/utils";
 
-const inputBase =
-  "w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 outline-none transition-all duration-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-violet-400 dark:focus:border-violet-500 focus:ring-4 focus:ring-violet-50 dark:focus:ring-violet-900/20";
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-10 w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+Input.displayName = "Input";
 
-export function Input({ className = "", ...rest }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={`${inputBase} ${className}`} {...rest} />;
-}
-
-export function Textarea({
-  className = "",
-  ...rest
-}: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+const Textarea = React.forwardRef<
+  HTMLTextAreaElement,
+  React.ComponentProps<"textarea">
+>(({ className, ...props }, ref) => {
   return (
     <textarea
-      className={`${inputBase} resize-none ${className}`}
-      {...rest}
+      className={cn(
+        "flex min-h-[80px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none",
+        className,
+      )}
+      ref={ref}
+      {...props}
     />
   );
-}
+});
+Textarea.displayName = "Textarea";
 
 interface FieldProps {
   label?: string;
@@ -27,21 +43,21 @@ interface FieldProps {
   className?: string;
 }
 
-export function Field({ label, hint, error, children, className = "" }: FieldProps) {
+function Field({ label, hint, error, children, className = "" }: FieldProps) {
   return (
-    <div className={`space-y-1.5 ${className}`}>
+    <div className={cn("space-y-1.5", className)}>
       {label && (
-        <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        <label className="block text-xs font-medium text-muted-foreground">
           {label}
         </label>
       )}
       {children}
       {hint && !error && (
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">{hint}</p>
+        <p className="text-xs text-muted-foreground">{hint}</p>
       )}
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
+
+export { Input, Textarea, Field };

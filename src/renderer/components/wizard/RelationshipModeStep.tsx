@@ -1,3 +1,4 @@
+import { AlertTriangle } from "lucide-react";
 import CardSelect from "../shared/CardSelect";
 import { useState } from "react";
 
@@ -19,19 +20,19 @@ export default function RelationshipModeStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">你希望怎么开始你们的关系？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">选择你们故事的起点</p>
+        <h2 className="text-lg font-semibold">你希望怎么开始你们的关系？</h2>
+        <p className="text-sm text-muted-foreground">选择你们故事的起点</p>
       </div>
       <CardSelect options={options} value={data.relationshipMode} onChange={(v) => update({ relationshipMode: v })} />
 
-      {/* Risk notice */}
       <div className="rounded-xl overflow-hidden bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
         <button
           onClick={() => setShowRisk(!showRisk)}
           className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-amber-100/50 dark:hover:bg-amber-900/50 transition-colors"
         >
-          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-            ⚠️ 重要风险提示（请务必阅读）
+          <span className="text-sm font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            重要风险提示（请务必阅读）
           </span>
           <span
             className="text-xs text-amber-500 transition-transform duration-200"

@@ -1,4 +1,4 @@
-import { Textarea } from "../ui/Input";
+import { Textarea } from "../ui/textarea";
 
 export default function SpeakingStyleStep({
   data, update,
@@ -9,8 +9,8 @@ export default function SpeakingStyleStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">TA 有什么说话习惯？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">颜文字、口癖、口头禅等，可选填</p>
+        <h2 className="text-lg font-semibold">TA 有什么说话习惯？</h2>
+        <p className="text-sm text-muted-foreground">颜文字、口癖、口头禅等，可选填</p>
       </div>
       <Textarea
         value={data.customStyle}

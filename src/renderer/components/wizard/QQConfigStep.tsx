@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Input, Field } from "../ui/Input";
-import Badge from "../ui/Badge";
-import Button from "../ui/Button";
+import { Input, Field } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 const STATUS_LABELS: Record<string, string> = {
   stopped: "未启动",
@@ -45,14 +45,13 @@ export default function QQConfigStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">配置 QQ 机器人</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">让 TA 能在 QQ 上和你聊天</p>
+        <h2 className="text-lg font-semibold">配置 QQ 机器人</h2>
+        <p className="text-sm text-muted-foreground">让 TA 能在 QQ 上和你聊天</p>
       </div>
 
-      {/* NapCatQQ status card */}
-      <div className="rounded-xl p-4 space-y-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+      <div className="rounded-xl p-4 space-y-3 bg-card border shadow-sm">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">NapCatQQ</span>
+          <span className="text-sm font-semibold">NapCatQQ</span>
           <Badge variant={badgeVariant} dot>
             {STATUS_LABELS[napCatStatus] || napCatStatus}
           </Badge>
@@ -60,8 +59,8 @@ export default function QQConfigStep({
 
         {isWorking && (
           <div className="flex items-center gap-2 fade-in">
-            <div className="w-4 h-4 rounded-full border-2 border-zinc-200 dark:border-zinc-700 border-t-violet-500 animate-spin" />
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">{STATUS_LABELS[napCatStatus]}</span>
+            <div className="w-4 h-4 rounded-full border-2 border-muted border-t-primary animate-spin" />
+            <span className="text-xs text-muted-foreground">{STATUS_LABELS[napCatStatus]}</span>
           </div>
         )}
 
@@ -76,7 +75,6 @@ export default function QQConfigStep({
         </Button>
       </div>
 
-      {/* Manual config fields */}
       <div className="space-y-3">
         <Field label="WebSocket 地址（可选，自动填充）">
           <Input
@@ -96,7 +94,7 @@ export default function QQConfigStep({
         </Field>
       </div>
 
-      <p className="text-xs text-center text-zinc-400 dark:text-zinc-500">
+      <p className="text-xs text-center text-muted-foreground">
         也可稍后在设置中配置，或使用终端模式不依赖 QQ
       </p>
     </div>

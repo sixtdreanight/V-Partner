@@ -1,5 +1,5 @@
-import { Textarea } from "../ui/Input";
-import Badge from "../ui/Badge";
+import { Textarea } from "../ui/textarea";
+import { Badge } from "../ui/badge";
 
 export default function PartnerDescriptionStep({
   data, update, handleDescriptionParse, parsePreview,
@@ -18,8 +18,8 @@ export default function PartnerDescriptionStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">简单介绍她一下</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">用一句话描述你心目中的她</p>
+        <h2 className="text-lg font-semibold">简单介绍她一下</h2>
+        <p className="text-sm text-muted-foreground">用一句话描述你心目中的她</p>
       </div>
       <Textarea
         value={data.description}
@@ -38,15 +38,15 @@ export default function PartnerDescriptionStep({
               if (v == null) return null;
               return (
                 <div key={k} className="flex text-sm">
-                  <span className="w-12 shrink-0 text-zinc-400 dark:text-zinc-500">{l}</span>
-                  <span className="text-zinc-700 dark:text-zinc-300">{String(v)}</span>
+                  <span className="w-12 shrink-0 text-muted-foreground">{l}</span>
+                  <span className="text-foreground">{String(v)}</span>
                 </div>
               );
             })}
             {hobbies && hobbies.length > 0 && (
               <div className="flex text-sm">
-                <span className="w-12 shrink-0 text-zinc-400 dark:text-zinc-500">爱好</span>
-                <span className="text-zinc-700 dark:text-zinc-300">{hobbies.join("、")}</span>
+                <span className="w-12 shrink-0 text-muted-foreground">爱好</span>
+                <span className="text-foreground">{hobbies.join("、")}</span>
               </div>
             )}
           </div>

@@ -27,6 +27,11 @@ export default defineConfig({
   },
   renderer: {
     root: resolve(__dirname, "src/renderer"),
+    resolve: {
+      alias: {
+        src: resolve(__dirname, "src"),
+      },
+    },
     plugins: [react(), tailwindcss()],
     build: {
       outDir: resolve(__dirname, "dist/renderer"),

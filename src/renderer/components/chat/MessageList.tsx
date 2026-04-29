@@ -1,7 +1,8 @@
 import { type RefObject, useEffect, useRef, useMemo } from "react";
+import { MessageSquare, Heart } from "lucide-react";
 import type { ChatMessage } from "../../hooks/useChat";
 import MessageBubble from "./MessageBubble";
-import Avatar from "../ui/Avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 function formatDateLabel(ts: string): string | null {
   const d = new Date(ts);
@@ -57,10 +58,10 @@ export default function MessageList({
             className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4"
             style={{ background: "linear-gradient(135deg, var(--vp-primary-soft), #ede9fe)" }}
           >
-            <span className="text-3xl">💬</span>
+            <MessageSquare className="w-9 h-9 text-primary" />
           </div>
-          <h3 className="text-base font-semibold text-zinc-700 dark:text-zinc-200">开始聊天吧</h3>
-          <p className="text-sm mt-1.5 text-zinc-400 dark:text-zinc-500">
+          <h3 className="text-base font-semibold">开始聊天吧</h3>
+          <p className="text-sm mt-1.5 text-muted-foreground">
             发送第一条消息，TA 会回复你
           </p>
         </div>
@@ -73,7 +74,6 @@ export default function MessageList({
       <div className="max-w-2xl mx-auto px-5 py-4 space-y-0.5">
         {groups.map((group, gi) => (
           <div key={gi}>
-            {/* Date separator */}
             {group.label && (
               <div className="flex items-center justify-center py-3">
                 <span
@@ -100,7 +100,14 @@ export default function MessageList({
 
         {typing && (
           <div className="flex items-start gap-2.5 pt-2 slide-up">
-            <Avatar emoji="💕" size="sm" />
+            <Avatar
+              className="w-7 h-7"
+              style={{ background: "linear-gradient(135deg, var(--vp-primary-soft), #ede9fe)" }}
+            >
+              <AvatarFallback className="bg-transparent">
+                <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />
+              </AvatarFallback>
+            </Avatar>
             <div
               className="px-4 py-3 rounded-2xl"
               style={{

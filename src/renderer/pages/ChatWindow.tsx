@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Heart } from "lucide-react";
 import { useChat } from "../hooks/useChat";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
@@ -6,7 +7,7 @@ import SettingsDialog from "../components/shared/SettingsDialog";
 import UpdateToast from "../components/shared/UpdateToast";
 import SurveyDialog, { shouldShowSurvey } from "../components/shared/SurveyDialog";
 import NapCatSetup from "./NapCatSetup";
-import Avatar from "../components/ui/Avatar";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 
 export default function ChatWindow() {
   const { messages, typing, profile, messagesEndRef, sendMessage } = useChat();
@@ -24,7 +25,6 @@ export default function ChatWindow() {
     return () => clearInterval(t);
   }, []);
 
-  // 消息数量变化时检查是否需要显示问卷
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].role === "partner") {
       if (shouldShowSurvey()) {
@@ -43,15 +43,21 @@ export default function ChatWindow() {
     <div className="h-screen flex flex-col page-enter" style={{ background: "var(--vp-bg-chat)" }}>
       <UpdateToast />
 
-      {/* Header */}
       <header
         className="h-14 flex items-center justify-between px-5 shrink-0 glass border-b"
         style={{ borderColor: "var(--vp-separator)" }}
       >
         <div className="flex items-center gap-3">
-          <Avatar emoji="💕" size="sm" />
+          <Avatar
+            className="w-7 h-7"
+            style={{ background: "linear-gradient(135deg, var(--vp-primary-soft), #ede9fe)" }}
+          >
+            <AvatarFallback className="bg-transparent">
+              <Heart className="w-3.5 h-3.5 text-primary" fill="currentColor" />
+            </AvatarFallback>
+          </Avatar>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold" style={{ color: "var(--vp-text)" }}>{name}</span>
+            <span className="text-sm font-semibold text-foreground">{name}</span>
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 pulse-ring" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -60,11 +66,10 @@ export default function ChatWindow() {
         </div>
 
         <div className="flex items-center gap-2">
-          <time className="text-xs font-mono tabular-nums" style={{ color: "var(--vp-text-muted)" }}>{time}</time>
+          <time className="text-xs font-mono tabular-nums text-muted-foreground">{time}</time>
           <button
             onClick={() => setShowSettings(true)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ color: "var(--vp-text-muted)" }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <circle cx="8" cy="8" r="2.5" />
@@ -74,10 +79,8 @@ export default function ChatWindow() {
         </div>
       </header>
 
-      {/* Messages */}
       <MessageList messages={messages} typing={typing} messagesEndRef={messagesEndRef} />
 
-      {/* Input area */}
       <div className="shrink-0 glass" style={{ borderTop: "1px solid var(--vp-separator)" }}>
         <div className="gradient-line" />
         <MessageInput onSend={sendMessage} disabled={typing} />

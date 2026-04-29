@@ -1,3 +1,5 @@
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+
 const ZONES = [
   "Asia/Shanghai", "Asia/Tokyo", "Asia/Seoul", "Asia/Singapore",
   "Asia/Hong_Kong", "Asia/Taipei", "Asia/Bangkok", "Asia/Kolkata",
@@ -16,25 +18,40 @@ export default function TimezoneStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">你的时区是？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">TA 会根据你的时间说早晚安</p>
+        <h2 className="text-lg font-semibold">你的时区是？</h2>
+        <p className="text-sm text-muted-foreground">TA 会根据你的时间说早晚安</p>
       </div>
-      <div className="relative">
-        <select
-          value={data.timezone}
-          onChange={(e) => update({ timezone: e.target.value })}
-          className="w-full px-4 py-3 rounded-xl text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 outline-none transition-all duration-200 appearance-none cursor-pointer focus:border-violet-400 dark:focus:border-violet-500 focus:ring-4 focus:ring-violet-50 dark:focus:ring-violet-900/20"
-        >
-          {ZONES.map((z) => (
-            <option key={z} value={z}>{z}</option>
-          ))}
-        </select>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 dark:text-zinc-500">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M3 5l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      </div>
+      <Select value={data.timezone} onValueChange={(v) => update({ timezone: v })}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="选择时区..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>亚洲</SelectLabel>
+            {ZONES.filter((z) => z.startsWith("Asia")).map((z) => (
+              <SelectItem key={z} value={z}>{z}</SelectItem>
+            ))}
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>欧洲</SelectLabel>
+            {ZONES.filter((z) => z.startsWith("Europe")).map((z) => (
+              <SelectItem key={z} value={z}>{z}</SelectItem>
+            ))}
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>美洲</SelectLabel>
+            {ZONES.filter((z) => z.startsWith("America")).map((z) => (
+              <SelectItem key={z} value={z}>{z}</SelectItem>
+            ))}
+          </SelectGroup>
+          <SelectGroup>
+            <SelectLabel>大洋洲 / 太平洋</SelectLabel>
+            {ZONES.filter((z) => z.startsWith("Australia") || z.startsWith("Pacific")).map((z) => (
+              <SelectItem key={z} value={z}>{z}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

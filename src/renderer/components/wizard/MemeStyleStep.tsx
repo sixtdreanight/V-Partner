@@ -15,8 +15,8 @@ export default function MemeStyleStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">TA 的网络梗风格？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">决定 TA 能不能和你一起玩梗</p>
+        <h2 className="text-lg font-semibold">TA 的网络梗风格？</h2>
+        <p className="text-sm text-muted-foreground">决定 TA 能不能和你一起玩梗</p>
       </div>
       <CardSelect options={options} value={data.memeStyle} onChange={(v) => update({ memeStyle: v })} />
     </div>

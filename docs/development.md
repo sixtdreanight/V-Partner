@@ -41,13 +41,14 @@ src/
 └── renderer/       # React 渲染进程
     ├── App.tsx         # HashRouter (/setup, /chat)
     ├── pages/          # 页面级组件
-    ├── components/     # 可复用组件 (wizard/, chat/, shared/)
-    │   └── shared/
-    │       ├── SettingsDialog.tsx
-    │       ├── UpdateToast.tsx      # 自动更新提示
-    │       └── SurveyDialog.tsx     # 测试版问卷
+    ├── components/     # 可复用组件
+    │   ├── ui/         # shadcn/ui 组件 (Button/Badge/Card/Dialog/Select/Slider/Sheet/Tabs)
+    │   ├── wizard/     # 14 个设置向导步骤
+    │   ├── chat/       # 聊天组件 (MessageBubble/MessageList/MessageInput)
+    │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog / ErrorBoundary / CardSelect
     ├── hooks/          # 自定义 hooks (useSetupWizard, useChat)
-    ├── styles/         # globals.css (设计令牌 + 基础样式)
+    ├── lib/            # cn() 工具函数
+    ├── styles/         # globals.css (shadcn + V-Partner 设计令牌)
     └── types.ts        # Window.api 类型声明
 ```
 
@@ -81,7 +82,9 @@ src/
 
 ### 样式
 - Tailwind CSS 4 的原子类为主
-- 动态样式使用 inline style + CSS 变量（`var(--vp-*)`）
+- UI 组件使用 shadcn/ui + Radix UI 原语
+- 图标使用 lucide-react
+- 动态样式使用 inline style + CSS 变量（`var(--vp-*)` 或 shadcn 令牌）
 - 颜色必须使用设计令牌，不要硬编码色值
 - 支持暗色模式（`prefers-color-scheme: dark`）
 
@@ -165,7 +168,7 @@ npm run package:win
 npm run package:linux
 ```
 
-输出在 `dist/` 目录。
+输出在 `release/` 目录。
 
 ### CI 自动发布
 

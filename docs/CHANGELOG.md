@@ -1,5 +1,33 @@
 # Changelog
 
+## v1.0.0-beta.5 (2026-04-28)
+
+### UI 重构
+- 引入 shadcn/ui + Radix UI 组件库，替换全部手写 UI 原语（Button/Badge/Avatar/Input/Card/Dialog/Select/Slider/Sheet/Tabs）
+- 引入 lucide-react 图标库，替换所有 emoji（Heart/Sparkles/AlertTriangle/Star/MessageCircle/MessageSquare/Cat/Smile/Users）
+- 设置向导 14 步全部使用 shadcn 组件，TimezoneStep 使用 Select 替换原生 select
+- 聊天界面 IM 风格更新：Avatar 使用 lucide Heart/Smile 图标代替 emoji
+- ErrorBoundary/SurveyDialog/UpdateToast 使用 shadcn 设计令牌替换硬编码色值
+
+### AI 配置全 GUI 化
+- AIProviderStep 新增模型下拉选择（按 provider 动态切换 Claude/OpenAI 模型列表）
+- 新增 maxTokens 滑块（256–8192）、temperature 滑块（0–2）
+- `AI_MAX_TOKENS` / `AI_TEMPERATURE` 可用 .env 持久化
+- SettingsDialog AI 标签页改为完整可编辑表单，支持实时保存
+
+### 应用图标
+- 全新几何图标：紫→靛蓝渐变圆角方形 + 白色心形
+- 同时更新 .icns (macOS) / .ico (Windows) / .png (Linux)
+
+### CI/CD
+- 修复 `.github/workflows/release.yml` 缺少 `permissions: contents: write`，Release 可正常发布资产
+
+### 文档
+- 更新 README 版本号、技术栈、目录结构
+- 更新 CHANGELOG beta.5 条目
+
+---
+
 ## v1.0.0-beta.4 (2026-04-28)
 
 ### Bug 修复

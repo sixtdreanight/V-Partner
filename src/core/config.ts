@@ -154,6 +154,8 @@ export function writeEnvFile(partial: {
     setEnv("AI_MODEL", partial.ai.model);
     setEnv("AI_API_KEY", partial.ai.apiKey);
     if (partial.ai.baseUrl) setEnv("AI_BASE_URL", partial.ai.baseUrl);
+    if (partial.ai.maxTokens !== undefined) setEnv("AI_MAX_TOKENS", String(partial.ai.maxTokens));
+    if (partial.ai.temperature !== undefined) setEnv("AI_TEMPERATURE", String(partial.ai.temperature));
   }
   if (partial.qq) {
     setEnv("QQ_WS_URL", partial.qq.wsUrl);
@@ -202,8 +204,8 @@ function loadEnvConfig(): { ai: AIConfig; qq: QQConfig; wechat: WeChatConfig } {
       model,
       apiKey,
       baseUrl: process.env.AI_BASE_URL,
-      maxTokens: 2048,
-      temperature: 0.85,
+      maxTokens: Number(process.env.AI_MAX_TOKENS) || 2048,
+      temperature: Number(process.env.AI_TEMPERATURE) || 0.85,
     },
     qq: {
       wsUrl: process.env.QQ_WS_URL || "ws://127.0.0.1:3001",

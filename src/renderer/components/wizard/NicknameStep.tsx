@@ -1,4 +1,4 @@
-import { Input } from "../ui/Input";
+import { Input } from "../ui/input";
 
 export default function NicknameStep({
   data, update,
@@ -9,8 +9,8 @@ export default function NicknameStep({
   return (
     <div className="space-y-6">
       <div className="space-y-1.5">
-        <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">TA 怎么称呼你？</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">你想让 TA 叫你什么？</p>
+        <h2 className="text-lg font-semibold">TA 怎么称呼你？</h2>
+        <p className="text-sm text-muted-foreground">你想让 TA 叫你什么？</p>
       </div>
       <Input
         type="text"

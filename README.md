@@ -2,7 +2,7 @@
 
 > 创建属于你的 AI 伴侣 — 桌面应用，开箱即用
 
-**当前版本：v1.0.0-beta.4**
+**当前版本：v1.0.0-beta.5**
 
 V-Partner 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情绪和记忆，可以通过 QQ、微信或应用内直接聊天。双击安装、填写向导、即可使用。
 
@@ -26,7 +26,7 @@ V-Partner 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情
 
 ## 版本状态
 
-**v1.0.0-beta.1** — 当前为测试版，功能持续迭代中。使用后欢迎通过内置问卷提交反馈。
+**v1.0.0-beta.5** — 当前为测试版，功能持续迭代中。使用后欢迎通过内置问卷提交反馈。
 
 ---
 
@@ -67,6 +67,7 @@ npm run setup
 | 桌面框架 | Electron 41 |
 | 构建工具 | electron-vite 5 |
 | 前端 | React 19 + TypeScript + Tailwind CSS 4 |
+| UI 组件 | shadcn/ui + Radix UI + lucide-react |
 | AI 引擎 | Vercel AI SDK (Claude / GPT / DeepSeek) |
 | QQ 适配 | NapCatQQ (OneBot v11) |
 | 微信适配 | Gewechat HTTP API |
@@ -106,9 +107,12 @@ v-partner/
 │       ├── App.tsx         # HashRouter 路由
 │       ├── pages/          # SetupWizard / ChatWindow / NapCatSetup
 │       ├── components/     # wizard/ chat/ shared/
-│       │   ├── wizard/     # PlatformSetupStep / SummaryStep ...
-│       │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog
+│       │   ├── ui/         # shadcn/ui 组件 (Button/Badge/Card/Dialog/Select/Slider/Sheet/Tabs)
+│       │   ├── wizard/     # 14 个设置向导步骤
+│       │   ├── chat/       # MessageBubble / MessageList / MessageInput
+│       │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog / ErrorBoundary / CardSelect
 │       ├── hooks/          # useSetupWizard / useChat
+│       ├── lib/            # cn() 工具函数
 │       └── styles/         # globals.css (设计令牌)
 ├── data/                # 运行时数据（谈话记录、配置）
 ├── dist/                # 构建输出
