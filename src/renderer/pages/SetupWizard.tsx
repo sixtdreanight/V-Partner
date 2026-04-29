@@ -3,9 +3,11 @@ import { Sparkles, AlertTriangle } from "lucide-react";
 import { useSetupWizard } from "../hooks/useSetupWizard";
 import TitleBar from "../components/shared/TitleBar";
 import WelcomeStep from "../components/wizard/WelcomeStep";
+import QuickStartStep from "../components/wizard/QuickStartStep";
 import PartnerNameStep from "../components/wizard/PartnerNameStep";
 import PartnerDescriptionStep from "../components/wizard/PartnerDescriptionStep";
 import UserGenderStep from "../components/wizard/UserGenderStep";
+import PartnerGenderStep from "../components/wizard/PartnerGenderStep";
 import RelationshipTypeStep from "../components/wizard/RelationshipTypeStep";
 import RelationshipModeStep from "../components/wizard/RelationshipModeStep";
 import TimezoneStep from "../components/wizard/TimezoneStep";
@@ -18,8 +20,8 @@ import PlatformSetupStep from "../components/wizard/PlatformSetupStep";
 import SummaryStep from "../components/wizard/SummaryStep";
 
 const STEPS = [
-  WelcomeStep, PartnerNameStep, PartnerDescriptionStep,
-  UserGenderStep, RelationshipTypeStep, RelationshipModeStep,
+  WelcomeStep, QuickStartStep, PartnerNameStep, PartnerDescriptionStep,
+  UserGenderStep, PartnerGenderStep, RelationshipTypeStep, RelationshipModeStep,
   TimezoneStep, UserCityStep, NicknameStep,
   SpeakingStyleStep, MemeStyleStep, AIProviderStep,
   PlatformSetupStep, SummaryStep,

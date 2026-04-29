@@ -4,10 +4,15 @@
 
 ### Q: NapCatQQ 启动失败怎么办？
 
-1. 确认网络连接正常（NapCatQQ 需要从 GitHub 下载）
-2. 检查是否被防火墙/杀毒软件拦截
-3. 尝试手动下载 NapCatQQ 放到应用数据目录
-4. 如果一直失败，可以先跳过 QQ 配置，先使用直接聊天
+1. 确认已安装 QQ 桌面客户端（非 App Store 版本）
+2. 确认网络连接正常（NapCatQQ 需要从 GitHub 下载）
+3. 检查是否被防火墙/杀毒软件拦截
+4. 尝试手动下载 NapCatQQ 放到应用数据目录
+5. 如果一直失败，可以先跳过 QQ 配置，先使用直接聊天
+
+### Q: 提示"未找到 QQ 客户端"？
+
+NapCatQQ 需要 QQ 桌面客户端才能运行。macOS 用户注意：App Store 版本的 QQ 不支持 LiteLoader 注入，需要从 https://im.qq.com 下载非商店版本。建议使用 Windows 进行 QQ 机器人功能。
 
 ### Q: 扫码后一直显示"等待确认"？
 
@@ -92,11 +97,11 @@
 
 ### Q: 可以同时有多个伴侣吗？
 
-目前不支持。每个应用实例只能有一个 V-Partner。
+目前不支持。每个应用实例只能有一个伴侣。
 
 ### Q: 数据存在哪里？
 
-- **桌面应用**: `~/Library/Application Support/v-partner/` (macOS)
+- **桌面应用**: `~/Library/Application Support/yumema/` (macOS)
 - **CLI 模式**: 项目的 `data/` 目录
 - 配置文件: `profile.json`, `.env`
 - 聊天记录: `data/conversations/`
@@ -142,6 +147,6 @@
 ### Q: 如何删除所有数据？
 
 删除数据目录即可：
-- macOS: `~/Library/Application Support/v-partner/`
-- Windows: `%APPDATA%/v-partner/`
-- Linux: `~/.config/v-partner/`
+- macOS: `~/Library/Application Support/yumema/`
+- Windows: `%APPDATA%/Yumema/`
+- Linux: `~/.config/yumema/`

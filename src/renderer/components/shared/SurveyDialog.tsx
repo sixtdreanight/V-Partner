@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { Star } from "lucide-react";
-import { Button } from "../ui/button";
+import { X } from "lucide-react";
+import Button from "../ui/Button";
 
-const STORAGE_KEY = "vpartner_survey";
+const STORAGE_KEY = "yumema_survey";
 const TRIGGER_COUNT = 20;
+const DISMISS_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 export function shouldShowSurvey(): boolean {
   try {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    if (data.dismissed) return false;
+    if (data.dismissed) {
+      const dismissedAt = data.dismissedAt || 0;
+      if (Date.now() - dismissedAt < DISMISS_DURATION) return false;
+      // Reset after 30 days
+      data.dismissed = false;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
     const count = data.msgCount || 0;
     return count >= TRIGGER_COUNT && !data.submitted;
   } catch {
@@ -26,28 +33,50 @@ export function incrementMsgCount() {
   }
 }
 
+const EMOJI_RATINGS = [
+  { value: 1, emoji: "😞", label: "很差" },
+  { value: 2, emoji: "😕", label: "不太好" },
+  { value: 3, emoji: "😐", label: "一般" },
+  { value: 4, emoji: "😊", label: "不错" },
+  { value: 5, emoji: "😍", label: "很棒" },
+];
+
+const FEATURES = ["应用内聊天", "QQ 机器人", "微信机器人"];
+const PROBLEMS = [
+  "QQ 无法连接",
+  "回复答非所问",
+  "回复太慢",
+  "软件闪退/卡死",
+  "安装失败",
+  "设置太复杂",
+  "界面不好看",
+];
+
 export default function SurveyDialog({ onClose }: { onClose: () => void }) {
-  const [rating, setRating] = useState(0);
-  const [best, setBest] = useState("");
-  const [worst, setWorst] = useState("");
-  const [nps, setNps] = useState<number | null>(null);
-  const [suggestion, setSuggestion] = useState("");
+  const [satisfaction, setSatisfaction] = useState(0);
+  const [features, setFeatures] = useState<string[]>([]);
+  const [problems, setProblems] = useState<string[]>([]);
+  const [otherProblem, setOtherProblem] = useState("");
+  const [missing, setMissing] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
-    const body = [
-      `【整体满意度】${rating} / 5`,
-      `【最满意的功能】${best || "未填写"}`,
-      `【最不满意/遇到问题】${worst || "未填写"}`,
-      `【推荐意愿 NPS】${nps !== null ? nps : "未填写"} / 10`,
-      `【建议】${suggestion || "未填写"}`,
-      "",
-      `版本：${navigator.userAgent}`,
-      `时间：${new Date().toLocaleString("zh-CN")}`,
-    ].join("\n");
+  const toggle = (list: string[], set: (v: string[]) => void, item: string) => {
+    set(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+  };
 
-    const mailto = `mailto:erk163@163.com?subject=${encodeURIComponent("V-Partner 测试反馈")}&body=${encodeURIComponent(body)}`;
-    window.open(mailto, "_blank");
-
+  const handleSubmit = async () => {
+    try {
+      await window.api.submitSurvey({
+        satisfaction,
+        features,
+        problems: otherProblem ? [...problems, otherProblem] : problems,
+        missing,
+        notes,
+      });
+    } catch {
+      // ignore — data saved locally even if IPC fails
+    }
     try {
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       data.submitted = true;
@@ -55,13 +84,14 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
     } catch {
       // ignore
     }
-    onClose();
+    setSubmitted(true);
   };
 
   const handleDismiss = () => {
     try {
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       data.dismissed = true;
+      data.dismissedAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
       // ignore
@@ -69,95 +99,143 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
+  if (submitted) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm fade-in">
+        <div className="w-[480px] rounded-2xl glass border border-border shadow-xl scale-in p-8 text-center space-y-4">
+          <div style={{ fontSize: 48 }}>😍</div>
+          <h3 className="text-lg font-semibold">感谢你的反馈！</h3>
+          <p className="text-sm text-muted-foreground">
+            你的意见会帮助我们让 Yumema 变得更好
+          </p>
+          <Button variant="primary" onClick={onClose}>完成</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm fade-in">
-      <div className="w-[420px] max-h-[80vh] rounded-2xl overflow-y-auto flex flex-col glass border border-border shadow-xl scale-in p-6 space-y-5">
-        <div className="text-center space-y-1">
-          <h3 className="text-base font-semibold">帮助我们改进 V-Partner</h3>
-          <p className="text-xs text-muted-foreground">测试版问卷（约 1 分钟）</p>
+      <div className="w-[480px] max-h-[85vh] rounded-2xl overflow-y-auto flex flex-col glass border border-border shadow-xl scale-in">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-2">
+          <div>
+            <h3 className="text-base font-semibold">帮助我们改进</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">你的反馈对 Yumema 很重要</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary transition-colors"
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">整体满意度</label>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((n) => (
+        <div className="px-6 pb-6 space-y-5">
+          {/* Satisfaction */}
+          <div className="bg-secondary/50 rounded-xl p-4 space-y-3">
+            <label className="text-sm font-medium">你对 Yumema 的整体感受？</label>
+            <div className="flex items-center justify-center gap-3">
+              {EMOJI_RATINGS.map((r) => (
                 <button
-                  key={n}
-                  onClick={() => setRating(n)}
-                  className={`transition-transform ${n <= rating ? "scale-110" : "opacity-30"}`}
+                  key={r.value}
+                  onClick={() => setSatisfaction(r.value)}
+                  className="flex flex-col items-center gap-1 transition-all"
+                  style={{
+                    transform: satisfaction === r.value ? "scale(1.25)" : "scale(1)",
+                    opacity: satisfaction === 0 || satisfaction === r.value ? 1 : 0.5,
+                    filter: satisfaction === 0 || satisfaction === r.value ? "none" : "grayscale(0.5)",
+                  }}
                 >
-                  <Star
-                    className="w-6 h-6"
-                    fill={n <= rating ? "var(--vp-warning)" : "none"}
-                    stroke={n <= rating ? "var(--vp-warning)" : "currentColor"}
-                  />
+                  <span style={{ fontSize: 28 }}>{r.emoji}</span>
+                  <span className="text-[10px] text-muted-foreground">{r.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">最满意的功能</label>
-            <input
-              type="text"
-              value={best}
-              onChange={(e) => setBest(e.target.value)}
-              placeholder="例如：AI 回复很真实、设置向导简单..."
-              className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-input text-foreground outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">最不满意或遇到的问题</label>
-            <input
-              type="text"
-              value={worst}
-              onChange={(e) => setWorst(e.target.value)}
-              placeholder="例如：QQ 连不上、回复太慢..."
-              className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-input text-foreground outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">愿意推荐给朋友吗？（0-10）</label>
-            <div className="flex gap-1">
-              {Array.from({ length: 11 }, (_, i) => i).map((n) => (
+          {/* Features */}
+          <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+            <label className="text-sm font-medium">你主要使用哪些功能？（多选）</label>
+            <div className="flex flex-wrap gap-2">
+              {FEATURES.map((f) => (
                 <button
-                  key={n}
-                  onClick={() => setNps(n)}
-                  className={`w-7 h-7 rounded-lg text-[10px] font-medium transition-colors ${
-                    nps === n
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-muted-foreground hover:bg-muted"
-                  }`}
+                  key={f}
+                  onClick={() => toggle(features, setFeatures, f)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95"
+                  style={{
+                    background: features.includes(f) ? "var(--primary)" : "var(--background)",
+                    color: features.includes(f) ? "white" : "var(--muted-foreground)",
+                    border: features.includes(f) ? "1px solid var(--primary)" : "1px solid var(--border)",
+                  }}
                 >
-                  {n}
+                  {f}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">其他建议（可选）</label>
+          {/* Problems */}
+          <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+            <label className="text-sm font-medium">遇到了哪些问题？（多选）</label>
+            <div className="flex flex-wrap gap-2">
+              {PROBLEMS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => toggle(problems, setProblems, p)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all active:scale-95"
+                  style={{
+                    background: problems.includes(p) ? "var(--destructive)" : "var(--background)",
+                    color: problems.includes(p) ? "white" : "var(--muted-foreground)",
+                    border: problems.includes(p) ? "1px solid var(--destructive)" : "1px solid var(--border)",
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              value={otherProblem}
+              onChange={(e) => setOtherProblem(e.target.value)}
+              placeholder="其他问题..."
+              className="w-full px-3 py-2 rounded-xl text-sm bg-background border border-input text-foreground outline-none placeholder:text-muted-foreground mt-1"
+            />
+          </div>
+
+          {/* Missing features */}
+          <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+            <label className="text-sm font-medium">缺少什么功能？（选填）</label>
+            <input
+              type="text"
+              value={missing}
+              onChange={(e) => setMissing(e.target.value)}
+              placeholder="例如：语音消息、多语言..."
+              className="w-full px-3 py-2 rounded-xl text-sm bg-background border border-input text-foreground outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+            <label className="text-sm font-medium">还有什么想说的？（选填）</label>
             <textarea
-              value={suggestion}
-              onChange={(e) => setSuggestion(e.target.value)}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="任何想法都可以告诉我们..."
               rows={2}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-background border border-input text-foreground outline-none resize-none placeholder:text-muted-foreground"
+              className="w-full px-3 py-2 rounded-xl text-sm bg-background border border-input text-foreground outline-none resize-none placeholder:text-muted-foreground"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2 pt-2">
+        {/* Footer */}
+        <div className="px-6 pb-5 flex items-center gap-3">
           <Button variant="primary" className="flex-1" onClick={handleSubmit}>
             提交反馈
           </Button>
-          <Button variant="ghost" size="sm" onClick={onClose}>稍后</Button>
           <button
             onClick={handleDismiss}
-            className="text-[10px] text-muted-foreground hover:text-foreground ml-auto"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
           >
             不再提示
           </button>

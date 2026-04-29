@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Settings, MessageCircle, MessageSquare } from "lucide-react";
+import { Heart, Settings, MessageCircle, MessageSquare, MessageCircleHeart } from "lucide-react";
 import { Flex, Text, IconButton } from "@radix-ui/themes";
 import { useChat } from "../hooks/useChat";
 import MessageList from "../components/chat/MessageList";
@@ -13,7 +13,7 @@ import TitleBar from "../components/shared/TitleBar";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 
 export default function ChatWindow() {
-  const { messages, typing, profile, messagesEndRef, sendMessage } = useChat();
+  const { messages, typing, composing, profile, messagesEndRef, sendMessage, queueSize, pending, onTypingActivity } = useChat();
   const [showSettings, setShowSettings] = useState(false);
   const [showNapCat, setShowNapCat] = useState(false);
   const [showWeChat, setShowWeChat] = useState(false);
@@ -35,12 +35,10 @@ export default function ChatWindow() {
   }, []);
 
   useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === "partner") {
-      if (shouldShowSurvey()) {
-        setShowSurvey(true);
-      }
+    if (shouldShowSurvey()) {
+      setShowSurvey(true);
     }
-  }, [messages]);
+  }, []);
 
   if (showNapCat) {
     return <NapCatSetup onBack={() => setShowNapCat(false)} />;
@@ -97,6 +95,11 @@ export default function ChatWindow() {
             <Text size="1" color="gray">微信</Text>
           </Flex>
           <Flex align="center" gap="1" style={{ WebkitAppRegion: "no-drag", cursor: "pointer" }}
+            onClick={() => setShowSurvey(true)}>
+            <MessageCircleHeart size={16} />
+            <Text size="1" color="gray">反馈</Text>
+          </Flex>
+          <Flex align="center" gap="1" style={{ WebkitAppRegion: "no-drag", cursor: "pointer" }}
             onClick={() => setShowSettings(true)}>
             <Settings size={16} />
             <Text size="1" color="gray">设置</Text>
@@ -113,12 +116,12 @@ export default function ChatWindow() {
           margin: "0 auto",
           width: "100%",
         }}>
-          <MessageList messages={messages} typing={typing} messagesEndRef={messagesEndRef} />
+          <MessageList messages={messages} typing={typing} composing={composing} messagesEndRef={messagesEndRef} />
         </div>
 
         <div style={{ borderTop: "1px solid var(--gray-3)", background: "var(--color-background)" }}>
           <div style={{ maxWidth: 768, margin: "0 auto", width: "100%" }}>
-            <MessageInput onSend={sendMessage} disabled={typing} />
+            <MessageInput onSend={sendMessage} queueSize={queueSize} pending={pending} onActivity={onTypingActivity} />
           </div>
         </div>
       </div>

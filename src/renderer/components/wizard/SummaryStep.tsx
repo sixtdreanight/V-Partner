@@ -1,5 +1,5 @@
 import { Sparkles } from "lucide-react";
-import { Button } from "../ui/button";
+import Button from "../ui/Button";
 import { Badge } from "../ui/badge";
 
 export default function SummaryStep({
@@ -59,7 +59,7 @@ export default function SummaryStep({
         disabled={saving}
         loading={saving}
       >
-        {saving ? "创建中..." : "创建我的 V-Partner"}
+        {saving ? "创建中..." : "创建我的 Yumema"}
       </Button>
     </div>
   );

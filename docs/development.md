@@ -9,8 +9,8 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/sixtdreanight/V-Partner.git
-cd V-Partner
+git clone https://github.com/sixtdreanight/Yumema.git
+cd Yumema
 npm install
 npm run dev
 ```
@@ -48,7 +48,7 @@ src/
     │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog / ErrorBoundary / CardSelect
     ├── hooks/          # 自定义 hooks (useSetupWizard, useChat)
     ├── lib/            # cn() 工具函数
-    ├── styles/         # globals.css (shadcn + V-Partner 设计令牌)
+    ├── styles/         # globals.css (shadcn + 梦间 设计令牌)
     └── types.ts        # Window.api 类型声明
 ```
 

@@ -17,6 +17,8 @@ const api = {
     ipcRenderer.invoke("chat:send", message),
   loadHistory: (limit?: number) =>
     ipcRenderer.invoke("chat:load-history", limit),
+  regenerateLast: () =>
+    ipcRenderer.invoke("chat:regenerate"),
 
   // 窗口控制
   transitionToChat: () => ipcRenderer.invoke("window:transition-to-chat"),
@@ -35,10 +37,24 @@ const api = {
   getConfig: () => ipcRenderer.invoke("settings:get-config"),
   updateConfig: (config: Record<string, unknown>) =>
     ipcRenderer.invoke("settings:update-config", config),
+  updateProfile: (data: Record<string, unknown>) =>
+    ipcRenderer.invoke("settings:update-profile", data),
+  submitSurvey: (data: { satisfaction: number; features: string[]; problems: string[]; missing: string; notes: string }) =>
+    ipcRenderer.invoke("survey:submit", data),
 
   // 头像
   pickAvatar: () => ipcRenderer.invoke("app:pick-avatar"),
   getAvatar: () => ipcRenderer.invoke("app:get-avatar"),
+
+  // 版本
+  getVersion: () => ipcRenderer.invoke("app:get-version"),
+
+  // 角色卡导入导出
+  exportProfile: () => ipcRenderer.invoke("app:export-profile"),
+  importProfile: () => ipcRenderer.invoke("app:import-profile"),
+
+  // 聊天记录导出
+  exportChat: (format: "json" | "txt") => ipcRenderer.invoke("app:export-chat", format),
 
   // 重置数据
   resetAllData: () => ipcRenderer.invoke("app:reset-data"),
@@ -55,6 +71,7 @@ const api = {
       "napcat:qr-ready",
       "wechat:status-changed",
       "chat:reply-chunk",
+      "chat:typing",
       "app:update-status",
     ];
     if (valid.includes(channel)) {

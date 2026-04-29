@@ -28,6 +28,16 @@ const CONTAINER_NAME = "gewe";
 const IMAGE_NAME = "gewe";
 const HOST_PORTS = "2531-2532";
 
+function dockerInstallGuide(): string {
+  if (process.platform === "darwin") {
+    return "未检测到 Docker。请运行 `brew install --cask docker` 或访问 https://docker.com 下载安装。安装后启动 Docker Desktop 再重试。";
+  }
+  if (process.platform === "win32") {
+    return "未检测到 Docker。请访问 https://docker.com 下载 Docker Desktop 安装包。安装后启动 Docker Desktop 再重试。";
+  }
+  return "未检测到 Docker。请运行 `curl -fsSL https://get.docker.com | sh` 安装，或使用系统包管理器安装 `docker.io`。安装后启动 Docker 服务再重试。";
+}
+
 // ---- 工具 ----
 
 async function hasDocker(): Promise<boolean> {
@@ -96,7 +106,7 @@ export class WeChatManager {
     this.setStatus("checking", "检查 Docker 环境...");
 
     if (!(await hasDocker())) {
-      this.setStatus("no-docker", "未检测到 Docker，请先安装 Docker");
+      this.setStatus("no-docker", dockerInstallGuide());
       return;
     }
 
@@ -114,7 +124,7 @@ export class WeChatManager {
     if (this.state.status === "starting" || this.state.status === "pulling") return;
 
     if (!(await hasDocker())) {
-      this.setStatus("no-docker", "未检测到 Docker，请先安装 Docker");
+      this.setStatus("no-docker", dockerInstallGuide());
       return;
     }
 

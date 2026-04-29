@@ -1,5 +1,5 @@
 /**
- * V-Partner 入口
+ * Yumema 入口
  *
  * 模式:
  *   npm start                      QQ 适配器模式（需 NapCatQQ）
@@ -161,12 +161,12 @@ async function wechatMode(pipelineCtx: Parameters<typeof processMessage>[2], con
 // ---- 主入口 ----
 
 async function main() {
-  logger.info("V-Partner 启动中...");
+  logger.info("Yumema 启动中...");
 
   const config = loadConfig();
   const profile = loadProfile();
   if (!profile) {
-    logger.error("未找到角色卡，请先运行 npm run setup 创建你的 V-Partner");
+    logger.error("未找到角色卡，请先运行 npm run setup 创建你的 Yumema");
     process.exit(1);
   }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, MessageSquare } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import Button from "../ui/Button";
 
 const QQ_STATUS_LABELS: Record<string, string> = {
   stopped: "未启动",
@@ -69,12 +69,20 @@ export default function PlatformSetupStep({
 
   const handleStartQq = async () => {
     update({ qqEnabled: true });
-    await window.api.startNapCat();
+    const result = await window.api.startNapCat() as { success: boolean; error?: string };
+    if (!result.success) {
+      alert(`QQ 启动失败: ${result.error}`);
+      update({ qqEnabled: false });
+    }
   };
 
   const handleStartWechat = async () => {
     update({ wechatEnabled: true });
-    await window.api.startWeChat();
+    const result = await window.api.startWeChat() as { success: boolean; error?: string };
+    if (!result.success) {
+      alert(`微信启动失败: ${result.error}`);
+      update({ wechatEnabled: false });
+    }
   };
 
   const qqConnected = qqStatus === "connected";

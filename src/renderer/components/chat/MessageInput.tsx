@@ -2,23 +2,25 @@ import { useState, useRef, useCallback, type KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 
 export default function MessageInput({
-  onSend, disabled,
+  onSend, queueSize, pending, onActivity,
 }: {
   onSend: (text: string) => void;
-  disabled: boolean;
+  queueSize: number;
+  pending: boolean;
+  onActivity: () => void;
 }) {
   const [text, setText] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = useCallback(() => {
-    if (!text.trim() || disabled) return;
+    if (!text.trim()) return;
     onSend(text.trim());
     setText("");
     if (inputRef.current) {
       inputRef.current.style.height = "auto";
       inputRef.current.focus();
     }
-  }, [text, disabled, onSend]);
+  }, [text, onSend]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -32,9 +34,10 @@ export default function MessageInput({
     const el = e.target;
     el.style.height = "auto";
     el.style.height = Math.min(el.scrollHeight, 96) + "px";
+    onActivity();
   };
 
-  const canSend = text.trim().length > 0 && !disabled;
+  const canSend = text.trim().length > 0;
 
   return (
     <div style={{ padding: "12px 16px", maxWidth: 720, margin: "0 auto", width: "100%" }}>
@@ -50,9 +53,12 @@ export default function MessageInput({
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="输入消息... (Enter 发送)"
+          placeholder={
+            queueSize > 0 ? `还有 ${queueSize} 条排队中...` :
+            pending ? "可继续输入，稍后一起发送..." :
+            "输入消息... (Enter 发送)"
+          }
           rows={1}
-          disabled={disabled}
           style={{
             flex: 1,
             background: "transparent",

@@ -1,6 +1,6 @@
-appId: com.vpartner.app
-productName: V-Partner
-copyright: Copyright (c) 2026
+appId: com.yumema.app
+productName: Yumema
+copyright: Copyright (c) 2026 DreamNight
 
 directories:
   output: release
@@ -36,24 +36,28 @@ mac:
 win:
   icon: resources/icon.ico
   target:
-    - target: zip
+    - target: nsis
       arch:
         - x64
         - arm64
 
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
 linux:
   icon: resources/icon.png
   target:
-    - target: zip
+    - target: AppImage
       arch:
         - x64
   category: Network
-  maintainer: V-Partner Team <erk163@163.com>
-  description: V-Partner — AI companion desktop app
+  maintainer: 梦夜十六 <erk163@163.com>
+  description: 梦间 / Yumema — AI companion desktop app
 
 afterSign: scripts/notarize.cjs
 
 publish:
   provider: github
   owner: sixtdreanight
-  repo: V-Partner
+  repo: Yumema

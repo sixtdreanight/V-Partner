@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input, Field } from "../ui/input";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import Button from "../ui/Button";
 
 const STATUS_LABELS: Record<string, string> = {
   stopped: "未启动",

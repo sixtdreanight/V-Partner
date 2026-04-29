@@ -101,9 +101,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: V-Partner ${{ github.ref_name }}
+          name: Yumema ${{ github.ref_name }}
           body: |
-            ## V-Partner ${{ github.ref_name }}
+            ## Yumema ${{ github.ref_name }}
 
             ### 下载
             - **macOS (Intel)**: `.dmg`
@@ -112,7 +112,7 @@ jobs:
             - **Linux (x64)**: `.AppImage`
 
             ### 更新内容
-            详见 [CHANGELOG](https://github.com/sixtdreanight/V-Partner/blob/main/docs/CHANGELOG.md)
+            详见 [CHANGELOG](https://github.com/sixtdreanight/Yumema/blob/main/docs/CHANGELOG.md)
           files: release/*
           draft: false
           prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}

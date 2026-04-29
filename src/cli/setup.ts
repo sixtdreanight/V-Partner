@@ -1,5 +1,5 @@
 /**
- * V-Partner 设置向导 — 交互式 CLI
+ * Yumema 设置向导 — 交互式 CLI
  * 问 11 个问题 → 生成 data/profile.json + 更新 .env
  *
  * 支持四种关系组合:
@@ -43,14 +43,14 @@ async function askWithDefault(
 
 function showHeader() {
   console.log("\n╔══════════════════════════════════════╗");
-  console.log("║      💕 创建你的 V-Partner            ║");
+  console.log("║      💕 创建你的 Yumema            ║");
   console.log("╚══════════════════════════════════════╝\n");
 }
 
 function showDone() {
   console.log("\n✅ 已创建 data/profile.json");
   console.log("✅ 已创建 .env");
-  console.log("\n运行 npm start 启动你的 V-Partner~\n");
+  console.log("\n运行 npm start 启动你的 Yumema~\n");
 }
 
 // ---- 解析用户自由描述 → 结构化角色卡 ----
@@ -293,6 +293,7 @@ async function main() {
     speaking_style: parsed.speaking_style || "自然口语化，喜欢用语气词",
     user_nickname: nickname,
     user_gender: userGender,
+    partner_gender: relationshipType === "boyfriend" ? "male" : "female",
     relationship_type: relationshipType,
     relationship_mode: relationshipMode,
     user_city: userCity,

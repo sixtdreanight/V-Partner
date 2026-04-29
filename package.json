@@ -1,8 +1,13 @@
 {
-  "name": "v-partner",
-  "version": "1.0.0-beta.7",
-  "description": "V-Partner — AI 伴侣桌面应用",
-  "author": "V-Partner Team <erk163@163.com>",
+  "name": "yumema",
+  "version": "0.0.1",
+  "description": "梦间 / Yumema — AI 伴侣桌面应用",
+  "author": "DreamNight <erk163@163.com>",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sixtdreanight/Yumema"
+  },
   "private": true,
   "type": "module",
   "main": "dist/main/index.js",

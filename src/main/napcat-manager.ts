@@ -3,6 +3,7 @@ import { spawn, ChildProcess } from "node:child_process";
 import { join, dirname } from "node:path";
 import { existsSync, mkdirSync, createWriteStream, writeFileSync, readdirSync, statSync } from "node:fs";
 import { randomBytes } from "node:crypto";
+import { homedir } from "node:os";
 import { get } from "node:https";
 
 // ---- 类型 ----
@@ -27,6 +28,7 @@ export interface NapCatState {
 
 const NAPCAT_REPO = "NapNeko/NapCatQQ";
 const NAPCAT_API = `https://api.github.com/repos/${NAPCAT_REPO}/releases/latest`;
+const GH_PROXY = "https://ghproxy.com";
 
 /** 各平台对应的 NapCatQQ asset 名称 */
 const ASSET_MAP: Record<string, string> = {
@@ -45,20 +47,45 @@ function platformKey(): string {
 }
 
 /** 检查 QQ 桌面客户端是否已安装 */
-function isQQInstalled(): boolean {
+async function isQQInstalled(): Promise<boolean> {
   if (process.platform === "darwin") {
-    return existsSync("/Applications/QQ.app");
+    const paths = [
+      "/Applications/QQ.app",
+      join(homedir(), "Applications/QQ.app"),
+    ];
+    return paths.some(p => existsSync(p));
   }
   if (process.platform === "win32") {
-    // Windows: 检查常见安装路径
     const programFiles = process.env["ProgramFiles"] || "C:\\Program Files";
     const programFilesX86 = process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
-    return (
-      existsSync(join(programFiles, "Tencent", "QQNT", "QQ.exe")) ||
-      existsSync(join(programFilesX86, "Tencent", "QQNT", "QQ.exe"))
-    );
+    const searchPaths = [
+      join(programFiles, "Tencent", "QQNT", "QQ.exe"),
+      join(programFilesX86, "Tencent", "QQNT", "QQ.exe"),
+      join(programFiles, "Tencent", "QQ", "Bin", "QQ.exe"),
+      join(programFilesX86, "Tencent", "QQ", "Bin", "QQ.exe"),
+      "D:\\Program Files\\Tencent\\QQNT\\QQ.exe",
+      "D:\\Program Files (x86)\\Tencent\\QQNT\\QQ.exe",
+    ];
+    // 先检查路径
+    if (searchPaths.some(p => existsSync(p))) return true;
+    // 注册表查询 fallback
+    try {
+      const { execSync } = await import("node:child_process");
+      const reg = execSync(
+        'reg query "HKLM\\SOFTWARE\\WOW6432Node\\Tencent\\QQNT" /v InstallPath 2>nul & ' +
+        'reg query "HKLM\\SOFTWARE\\Tencent\\QQNT" /v InstallPath 2>nul & ' +
+        'reg query "HKLM\\SOFTWARE\\WOW6432Node\\Tencent\\QQ" /v InstallPath 2>nul & ' +
+        'reg query "HKLM\\SOFTWARE\\Tencent\\QQ" /v InstallPath 2>nul',
+        { encoding: "utf-8" }
+      );
+      const match = reg.match(/REG_SZ\s+(.+)/);
+      if (match) {
+        const installPath = match[1].trim();
+        return existsSync(join(installPath, "QQ.exe"));
+      }
+    } catch { /* 注册表项不存在 */ }
+    return false;
   }
-  // Linux: 检查常见路径
   return existsSync("/opt/QQ/qq") || existsSync("/usr/bin/qq");
 }
 
@@ -106,10 +133,24 @@ function randomToken(): string {
   return randomBytes(16).toString("hex");
 }
 
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function downloadFile(url: string, dest: string, onProgress?: (pct: number) => void): Promise<void> {
   return new Promise((resolve, reject) => {
     const file = createWriteStream(dest);
-    get(url, { headers: { "User-Agent": "V-Partner/1.0" } }, (res) => {
+    get(url, { headers: { "User-Agent": "Yumema/1.0" } }, (res) => {
       if (res.statusCode === 302) {
         // Follow redirect
         file.close();
@@ -156,7 +197,7 @@ function generateNapCatConfig(token: string): Record<string, unknown> {
     network: {
       websocketServers: [
         {
-          name: "V-Partner",
+          name: "Yumema",
           enable: true,
           host: "127.0.0.1",
           port: WS_PORT,
@@ -236,11 +277,23 @@ export class NapCatManager {
     // 获取最新 release 信息
     this.setStatus("downloading", "获取 NapCatQQ 版本信息...");
 
-    const release = await fetch(NAPCAT_API, {
-      headers: { "User-Agent": "V-Partner/1.0" },
-    }).then((r) => r.json() as Promise<{
-      assets: Array<{ name: string; browser_download_url: string; size: number }>;
-    }>);
+    let release: { assets: Array<{ name: string; browser_download_url: string; size: number }> };
+    let useMirror = false;
+
+    try {
+      const res = await fetchWithTimeout(NAPCAT_API, {
+        headers: { "User-Agent": "Yumema/1.0" },
+      }, 10000);
+      release = await res.json() as typeof release;
+    } catch {
+      // GitHub API 超时/失败，切换 ghproxy 镜像
+      useMirror = true;
+      this.setStatus("downloading", "GitHub 连接超时，切换镜像...");
+      const res = await fetch(`${GH_PROXY}/${NAPCAT_API}`, {
+        headers: { "User-Agent": "Yumema/1.0" },
+      });
+      release = await res.json() as typeof release;
+    }
 
     const target = release.assets.find((a) => a.name === asset);
     if (!target) {
@@ -248,11 +301,12 @@ export class NapCatManager {
       throw new Error(`Asset not found: ${asset}`);
     }
 
-    // 下载
+    // 下载（GitHub 超时则走镜像）
     const zipPath = join(dir, asset);
     this.setStatus("downloading", `下载 NapCatQQ (${Math.round(target.size / 1024 / 1024)}MB)...`);
 
-    await downloadFile(target.browser_download_url, zipPath, (pct) => {
+    const dlUrl = useMirror ? `${GH_PROXY}/${target.browser_download_url}` : target.browser_download_url;
+    await downloadFile(dlUrl, zipPath, (pct) => {
       this.setStatus("downloading", `下载 NapCatQQ... ${pct}%`);
     });
 
@@ -283,7 +337,7 @@ export class NapCatManager {
     const config = generateNapCatConfig(this.token);
     writeFileSync(join(configDir, "onebot11.json"), JSON.stringify(config, null, 2), "utf-8");
 
-    // 同时写入 .env 供 V-Partner 使用
+    // 同时写入 .env 供 Yumema 使用
     const envPath = join(app.getPath("userData"), ".env");
     writeFileSync(
       envPath,
@@ -295,7 +349,7 @@ export class NapCatManager {
   }
 
   /** 启动 NapCatQQ */
-  start(): void {
+  async start(): Promise<void> {
     if (this.process) return;
 
     if (!this.isInstalled()) {
@@ -303,7 +357,7 @@ export class NapCatManager {
       return;
     }
 
-    if (!isQQInstalled()) {
+    if (!(await isQQInstalled())) {
       const msg = process.platform === "darwin"
         ? "未找到 QQ 客户端。请从 https://im.qq.com 下载安装 QQ，注意：App Store 版本不支持。"
         : "未找到 QQ 客户端。请先安装 QQ 桌面版。";

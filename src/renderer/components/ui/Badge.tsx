@@ -42,8 +42,8 @@ interface BadgeProps
 }
 
 const dotColors: Record<string, string> = {
-  default: "bg-white/60",
-  primary: "bg-white/60",
+  default: "bg-foreground/40",
+  primary: "bg-foreground/40",
   secondary: "bg-zinc-400",
   success: "bg-emerald-500",
   warning: "bg-amber-500",

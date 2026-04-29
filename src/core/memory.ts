@@ -25,8 +25,8 @@ export interface Fact {
   mentions: number;
   firstMentioned: string;
   lastMentioned: string;
-  /** high = 提到 5+ 次, medium = 3-4 次 */
-  confidence: "high" | "medium";
+  /** high = 提到 5+ 次, medium = 3-4 次, low = 1-2 次 */
+  confidence: "high" | "medium" | "low";
 }
 
 export interface LongTermMemory {
@@ -83,6 +83,23 @@ export function saveShortTerm(userId: string, userMsg: string, assistantMsg: str
 }
 
 /**
+ * 移除最后一轮对话（user+assistant），返回被移除的用户消息。
+ * 用于"重新生成"功能——删除最后一条 AI 回复后重新生成。
+ * 返回 null 表示没有可移除的对话。
+ */
+export function removeLastTurn(userId: string): string | null {
+  ensureDirs();
+  const history = loadShortTerm(userId, 9999);
+  if (history.length < 2) return null;
+  const lastAssistant = history[history.length - 1];
+  const lastUser = history[history.length - 2];
+  if (lastAssistant.role !== "assistant" || lastUser.role !== "user") return null;
+  history.splice(-2, 2);
+  writeFileAtomic(resolve(convDir(), `${userId}.json`), JSON.stringify(history, null, 2));
+  return lastUser.content;
+}
+
+/**
  * 加载最近 N 轮对话并转为 LLM 消息格式
  */
 export function buildMessageHistory(
@@ -94,6 +111,32 @@ export function buildMessageHistory(
     role: turn.role,
     content: turn.content,
   }));
+}
+
+// ---- 对话摘要 ----
+
+function summaryPath(userId: string) {
+  return resolve(convDir(), `${userId}.summary.json`);
+}
+
+export function loadSummary(userId: string): string | null {
+  ensureDirs();
+  const filePath = summaryPath(userId);
+  if (!existsSync(filePath)) return null;
+  try {
+    const data = JSON.parse(readFileSync(filePath, "utf-8"));
+    return data.summary || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSummary(userId: string, summary: string) {
+  ensureDirs();
+  writeFileAtomic(
+    summaryPath(userId),
+    JSON.stringify({ summary, updatedAt: new Date().toISOString() }, null, 2),
+  );
 }
 
 // ---- 长期记忆 ----
@@ -130,9 +173,10 @@ export function updateFact(topic: string, content: string) {
   if (existing) {
     existing.mentions += 1;
     existing.lastMentioned = new Date().toISOString();
-    existing.content = content; // 更新为最新表述
+    existing.content = content;
     if (existing.mentions >= 5) existing.confidence = "high";
     else if (existing.mentions >= 3) existing.confidence = "medium";
+    else existing.confidence = "low";
     logger.debug(`长期记忆更新: ${topic} (提及 ${existing.mentions} 次)`);
   } else {
     memory.facts.push({
@@ -141,7 +185,7 @@ export function updateFact(topic: string, content: string) {
       mentions: 1,
       firstMentioned: new Date().toISOString(),
       lastMentioned: new Date().toISOString(),
-      confidence: "medium",
+      confidence: "low",
     });
     logger.debug(`长期记忆新增: ${topic}`);
   }
@@ -184,16 +228,27 @@ export function applyForgettingCurve() {
 
 /**
  * 构建注入提示词的记忆上下文
+ * 按 mentions × recency 排序，限制注入数量避免噪声
  */
-export function buildMemoryContext(): MemoryContext {
+export function buildMemoryContext(maxFacts = 5): MemoryContext {
   const memory = loadLongTerm();
+  const now = Date.now();
+
+  // 按相关性排序: mentions 越多、越近提到 → 越相关
+  const score = (f: Fact): number => {
+    const daysAgo = (now - new Date(f.lastMentioned).getTime()) / (24 * 60 * 60 * 1000);
+    return f.mentions * (1 / (1 + daysAgo)); // mentions × recency decay
+  };
+
+  const sorted = [...memory.facts].sort((a, b) => score(b) - score(a));
+
+  const high = sorted.filter((f) => f.confidence === "high").slice(0, maxFacts);
+  const medium = sorted.filter((f) => f.confidence === "medium").slice(0, maxFacts);
+  // low confidence facts are not injected — too noisy
+
   return {
-    highConfidence: memory.facts
-      .filter((f) => f.confidence === "high")
-      .map((f) => f.content),
-    mediumConfidence: memory.facts
-      .filter((f) => f.confidence === "medium")
-      .map((f) => f.content),
+    highConfidence: high.map((f) => f.content),
+    mediumConfidence: medium.map((f) => f.content),
   };
 }
 
@@ -209,10 +264,10 @@ export async function extractFactsFromConversation(
   if (history.length < 6) return; // 对话太少，跳过
 
   const conversationText = history
-    .map((t) => `[${t.role === "user" ? "他" : "她"}]: ${t.content}`)
+    .map((t) => `[${t.role === "user" ? "用户" : "伴侣"}]: ${t.content}`)
     .join("\n");
 
-  const extractionPrompt = `请从以下对话中提取关于"他"（用户）的值得长期记住的事实。
+  const extractionPrompt = `请从以下对话中提取关于"用户"的值得长期记住的事实。
 只提取提及了 2 次以上的信息。每条事实一句话概括。
 
 对话:

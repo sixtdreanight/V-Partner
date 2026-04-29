@@ -4,6 +4,8 @@ import electronUpdater from "electron-updater";
 const { autoUpdater } = electronUpdater;
 import { registerIpcHandlers } from "./ipc-handlers.js";
 import { loadProfile } from "../core/config.js";
+import { logger } from "../core/utils.js";
+import { startScheduler } from "../core/scheduler.js";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -108,6 +110,15 @@ app.whenReady().then(() => {
   }, 30000);
 
   const profile = loadProfile();
+  if (profile) {
+    startScheduler({
+      profile,
+      getActiveUsers: () => ["gui-user"],
+      sendMessage: async (_userId: string, message: string) => {
+        logger.info(`定时消息: ${message.slice(0, 40)}`);
+      },
+    });
+  }
   createWindow(profile ? "chat" : "setup");
 });
 

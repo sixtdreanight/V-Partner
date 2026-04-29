@@ -2,8 +2,8 @@ import { useState, useCallback, useMemo } from "react";
 
 export interface WizardData {
   name: string;
-  description: string;
   userGender: "male" | "female" | "other";
+  partnerGender: "male" | "female" | "other";
   relationshipType: "girlfriend" | "boyfriend";
   relationshipMode: "direct" | "slow_burn";
   timezone: string;
@@ -23,14 +23,24 @@ export interface WizardData {
   qqAccessToken: string;
   wechatBaseUrl: string;
   wechatFileUrl: string;
+  // 角色卡字段
+  partnerAge: number;
+  partnerCity: string;
+  partnerOccupation: string;
+  partnerEducation: string;
+  partnerMajor: string;
+  partnerTemperament: string;
+  partnerHobbies: string[];
+  partnerDailyLife: string;
+  partnerQuirks: string[];
 }
 
-const TOTAL_STEPS = 14;
+const TOTAL_STEPS = 16;
 
 const DEFAULTS: WizardData = {
   name: "",
-  description: "",
   userGender: "male",
+  partnerGender: "female",
   relationshipType: "girlfriend",
   relationshipMode: "direct",
   timezone: "Asia/Shanghai",
@@ -50,12 +60,20 @@ const DEFAULTS: WizardData = {
   qqAccessToken: "",
   wechatBaseUrl: "http://127.0.0.1:2531/v2/api",
   wechatFileUrl: "http://127.0.0.1:2532/download",
+  partnerAge: 0,
+  partnerCity: "",
+  partnerOccupation: "",
+  partnerEducation: "",
+  partnerMajor: "",
+  partnerTemperament: "",
+  partnerHobbies: [],
+  partnerDailyLife: "",
+  partnerQuirks: [],
 };
 
 export function useSetupWizard() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<WizardData>({ ...DEFAULTS });
-  const [parsePreview, setParsePreview] = useState<Record<string, unknown>>({});
   const [riskRead, setRiskRead] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -76,39 +94,27 @@ export function useSetupWizard() {
 
   const canNext = useMemo(() => {
     switch (step) {
-      case 0: return true;
-      case 1: return data.name.trim().length > 0;
-      case 2: return true; // description is optional
-      case 3: return true;
-      case 4: return true;
-      case 5: return riskRead;
-      case 6: return true;
-      case 7: return true;
-      case 8: return true;
-      case 9: return true;
-      case 10: return true;
-      case 11: return data.aiApiKey.trim().length > 0;
-      case 12: return true;
-      case 13: return !saving;
+      case 0: return true;  // Welcome
+      case 1: return true;  // QuickStart
+      case 2: return data.name.trim().length > 0;  // PartnerName
+      case 3: return true;  // PartnerDescription optional
+      case 4: return true;  // UserGender
+      case 5: return true;  // PartnerGender
+      case 6: return true;  // RelationshipType
+      case 7: return riskRead;  // RelationshipMode
+      case 8: return true;  // Timezone
+      case 9: return true;  // UserCity
+      case 10: return true; // Nickname
+      case 11: return true; // SpeakingStyle
+      case 12: return true; // MemeStyle
+      case 13: return data.aiApiKey.trim().length > 0;  // AIProvider
+      case 14: return true; // PlatformSetup
+      case 15: return !saving;  // Summary
       default: return true;
     }
   }, [step, data, riskRead, saving]);
 
   const progress = useMemo(() => Math.round((step / (TOTAL_STEPS - 1)) * 100), [step]);
-
-  const handleDescriptionParse = useCallback(async (text: string) => {
-    update({ description: text });
-    if (text.length < 5) {
-      setParsePreview({});
-      return;
-    }
-    try {
-      const parsed = await window.api.parseDescription(text);
-      setParsePreview(parsed as Record<string, unknown>);
-    } catch {
-      // parse failed, ignore
-    }
-  }, [update]);
 
   const saveProfile = useCallback(async () => {
     if (saving) return;
@@ -118,23 +124,24 @@ export function useSetupWizard() {
     try {
       const profile = {
         name: data.name,
-        age: (parsePreview.age as number) || 25,
-        city: (parsePreview.city as string) || "上海",
-        occupation: (parsePreview.occupation as string) || "设计师",
-        education: (parsePreview.education as string) || "本科",
-        major: (parsePreview.major as string) || "设计",
-        hobbies: (parsePreview.hobbies as string[]) || ["看剧", "探店"],
-        temperament: (parsePreview.temperament as string) || "温柔",
+        age: data.partnerAge || 0,
+        city: data.partnerCity || "",
+        occupation: data.partnerOccupation || "",
+        education: data.partnerEducation || "",
+        major: data.partnerMajor || "",
+        hobbies: data.partnerHobbies || [],
+        temperament: data.partnerTemperament || "",
         speaking_style: "自然口语化，喜欢用语气词",
         user_nickname: data.nickname,
         user_gender: data.userGender,
+        partner_gender: data.partnerGender,
         relationship_type: data.relationshipType,
         relationship_mode: data.relationshipMode,
         user_city: data.userCity,
         user_timezone: data.timezone,
         opinions: {},
-        daily_life: "早上赖床，下午容易犯困，晚上精神最好。",
-        quirks: (parsePreview.quirks as string[]) || [],
+        daily_life: data.partnerDailyLife || "",
+        quirks: data.partnerQuirks || [],
         meme_style: memeStyleText(data.memeStyle),
         custom_style: parseCustomStyle(data.customStyle),
       };
@@ -174,18 +181,18 @@ export function useSetupWizard() {
       await new Promise((r) => setTimeout(r, 400));
 
       clearTimeout(timeoutId);
-      window.location.replace("/#/chat");
+      window.location.hash = "#/chat";
     } catch (err) {
       setError(`保存出错: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setSaving(false);
     }
-  }, [data, parsePreview, saving]);
+  }, [data, saving]);
 
   return {
-    step, data, parsePreview, riskRead, saving, error, transitioning, transitionTimedOut, progress,
+    step, data, riskRead, saving, error, transitioning, transitionTimedOut, progress,
     update, next, back, canNext, setRiskRead,
-    handleDescriptionParse, saveProfile,
+    saveProfile,
     totalSteps: TOTAL_STEPS,
   };
 }

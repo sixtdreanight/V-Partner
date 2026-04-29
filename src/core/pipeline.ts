@@ -48,7 +48,15 @@ import {
   loadShortTerm,
   updateFact,
   loadLearnedInterests,
+  loadSummary,
+  saveSummary,
+  extractFactsFromConversation,
+  analyzeUserInterests,
 } from "./memory.js";
+import {
+  generateConversationSummary,
+  formatSummaryBlock,
+} from "./summary.js";
 
 // ---- AI 提供商工厂 ----
 
@@ -66,9 +74,37 @@ export function createAIProvider(config: AppConfig["ai"]): LanguageModel {
     return openai.chat(model);
   }
 
-  // openai-compatible (使用 Chat Completions API，第三方厂商通常不支持 Responses API)
+  // Ollama — OpenAI-compatible API at localhost
+  if (provider === "ollama") {
+    const openai = createOpenAI({ apiKey: apiKey || "ollama", baseURL: baseUrl || "http://localhost:11434/v1" });
+    return openai.chat(model);
+  }
+
+  // openai-compatible
   const openai = createOpenAI({ apiKey, baseURL: baseUrl });
   return openai.chat(model);
+}
+
+async function callAI(
+  model: LanguageModel,
+  systemPrompt: string,
+  history: Array<{ role: "user" | "assistant"; content: string }>,
+  userMessage: string,
+  config: AppConfig,
+): Promise<string> {
+  const result = await retry(() =>
+    generateText({
+      model,
+      system: systemPrompt,
+      messages: [
+        ...history,
+        { role: "user" as const, content: userMessage },
+      ],
+      maxOutputTokens: config.ai.maxTokens,
+      temperature: config.ai.temperature,
+    }),
+  );
+  return result.text || "";
 }
 
 // ---- 消息拆分 ----
@@ -80,8 +116,8 @@ export function createAIProvider(config: AppConfig["ai"]): LanguageModel {
 export function splitForChat(text: string): string[] {
   if (!text || text.length === 0) return [""];
 
-  // 移除括号内容（心理/动作描写残留）
-  let cleaned = text.replace(/[（(][^）)]*[）)]/g, "");
+  // 移除中文全角括号内容（心理/动作描写残留），保留半角括号（颜文字用）
+  let cleaned = text.replace(/（[^）]*）/g, "");
   // 移除 *动作* _心理_ 标记
   cleaned = cleaned.replace(/\*[^*]+\*/g, "").replace(/_[^_]+_/g, "");
 
@@ -128,6 +164,9 @@ export interface PipelineContext {
 
 /** 每个用户的会话状态，用于防沉迷和冷场检测 */
 const sessions = new Map<string, SessionState>();
+
+/** 每个用户的对话轮次计数和摘要状态 */
+const summaryState = new Map<string, { totalTurns: number; lastSummaryTurn: number }>();
 
 function getSession(userId: string): SessionState {
   let session = sessions.get(userId);
@@ -269,8 +308,66 @@ export async function processMessage(
 
   // 3. 加载记忆
   const history = buildMessageHistory(userId, config.memory.maxHistoryTurns);
-  const memoryContext = buildMemoryContext();
+  const memoryContext = buildMemoryContext(config.memory.maxFactsInContext);
   const learnedInterests = loadLearnedInterests().interests;
+
+  // 对话摘要 — 当历史超过阈值时生成/更新
+  const fullHistory = loadShortTerm(userId, 9999);
+  let state = summaryState.get(userId);
+  if (!state) {
+    state = { totalTurns: Math.floor(fullHistory.length / 2), lastSummaryTurn: 0 };
+    summaryState.set(userId, state);
+  }
+  state.totalTurns++;
+
+  let conversationSummary: string | undefined;
+  const SUMMARY_FIRST_TRIGGER = 12;  // 超过 12 轮首次生成
+  const SUMMARY_UPDATE_INTERVAL = 6; // 每 6 轮更新
+
+  if (state.totalTurns >= SUMMARY_FIRST_TRIGGER) {
+    const existingSummary = loadSummary(userId);
+    if (!existingSummary) {
+      // 首次生成摘要
+      const oldTurns = fullHistory.slice(0, -(config.memory.maxHistoryTurns * 2));
+      if (oldTurns.length >= 6) {
+        const summary = await generateConversationSummary(oldTurns, async (prompt) => {
+          const result = await generateText({
+            model,
+            system: "你是一个摘要助手，请按要求生成对话摘要。",
+            messages: [{ role: "user", content: prompt }],
+            maxOutputTokens: 300,
+            temperature: 0.5,
+          });
+          return result.text || "";
+        });
+        if (summary) {
+          saveSummary(userId, summary);
+          state.lastSummaryTurn = state.totalTurns;
+          conversationSummary = formatSummaryBlock(summary);
+        }
+      }
+    } else if (state.totalTurns - state.lastSummaryTurn >= SUMMARY_UPDATE_INTERVAL) {
+      // 增量更新摘要
+      const sinceLastSummary = fullHistory.slice(-(SUMMARY_UPDATE_INTERVAL * 4));
+      const summary = await generateConversationSummary(sinceLastSummary, async (prompt) => {
+        const result = await generateText({
+          model,
+          system: "你是一个摘要助手，请按要求生成对话摘要。",
+          messages: [{ role: "user", content: prompt }],
+          maxOutputTokens: 300,
+          temperature: 0.5,
+        });
+        return result.text || "";
+      });
+      if (summary) {
+        saveSummary(userId, summary);
+        state.lastSummaryTurn = state.totalTurns;
+      }
+      conversationSummary = formatSummaryBlock(existingSummary);
+    } else {
+      conversationSummary = formatSummaryBlock(existingSummary);
+    }
+  }
 
   // 4. 会话状态
   const session = getSession(userId);
@@ -298,7 +395,8 @@ export async function processMessage(
     learnedInterests.length > 0 ? learnedInterests : undefined,
     searchResults,
     undefined, // refusalContext
-    session, // 传入会话状态
+    session,
+    conversationSummary,
   );
 
   // 养成模式: 注入关系阶段行为指引
@@ -333,25 +431,34 @@ export async function processMessage(
   // 10. 调用 AI 生成回复
   let reply: string;
   try {
-    const result = await retry(() =>
-      generateText({
-        model,
-        system: systemPrompt,
-        messages: [
-          ...history,
-          { role: "user" as const, content: userMessage },
-        ],
-        maxOutputTokens: config.ai.maxTokens,
-        temperature: config.ai.temperature,
-      }),
-    );
-
-    reply = result.text || "";
+    reply = await callAI(model, systemPrompt, history, userMessage, config);
   } catch (err) {
     logger.error("AI 调用失败:", err);
-    return saveAndReturn(profile.custom_style?.emoticons
-      ? "呜...刚才走神了，再说一遍好吗？(｡•́︿•̀｡)"
-      : "呜...刚才走神了，再说一遍好吗？");
+    // 尝试备用模型
+    const bak = config.ai;
+    if (bak.backupModel || bak.backupProvider) {
+      try {
+        const backupModel = createAIProvider({
+          provider: bak.backupProvider || bak.provider,
+          model: bak.backupModel || bak.model,
+          apiKey: bak.backupApiKey || bak.apiKey,
+          baseUrl: bak.backupBaseUrl || bak.baseUrl,
+          maxTokens: bak.maxTokens,
+          temperature: bak.temperature,
+        });
+        logger.info(`主模型失败，切换备用模型: ${bak.backupProvider}/${bak.backupModel}`);
+        reply = await callAI(backupModel, systemPrompt, history, userMessage, config);
+      } catch (bakErr) {
+        logger.error("备用模型也失败:", bakErr);
+        return saveAndReturn(profile.custom_style?.emoticons
+          ? "呜...刚才走神了，再说一遍好吗？(｡•́︿•̀｡)"
+          : "呜...刚才走神了，再说一遍好吗？");
+      }
+    } else {
+      return saveAndReturn(profile.custom_style?.emoticons
+        ? "呜...刚才走神了，再说一遍好吗？(｡•́︿•̀｡)"
+        : "呜...刚才走神了，再说一遍好吗？");
+    }
   }
 
   // 11. 安全检查 — 输出层
@@ -364,11 +471,81 @@ export async function processMessage(
     }
   }
 
-  // 12. 保存记忆已在 saveAndReturn 中完成
+  // 12. 输出前自检 — 检查回复是否承接用户话题
+  const socialShortReplies = ["嗯", "哦", "好", "行", "哈哈", "是的", "对的", "知道了", "没问题", "okk"];
+  if (!socialShortReplies.includes(userMessage.trim())) {
+    try {
+      const checkResult = await generateText({
+        model,
+        system: "判断以下回复是否直接回应了用户消息的核心话题。只回答 YES 或 NO。",
+        messages: [{
+          role: "user" as const,
+          content: `用户消息：${userMessage}\n\nAI回复：${reply}\n\n这个回复是否直接回应了用户的核心话题？只回答 YES 或 NO。`,
+        }],
+        maxOutputTokens: 5,
+        temperature: 0,
+      });
 
-  // 13. 简易长期记忆
+      const isOnTopic = checkResult.text?.trim().toUpperCase().startsWith("YES");
+      if (!isOnTopic) {
+        logger.warn("输出自检未通过，重新生成");
+        const retryPrompt = systemPrompt + "\n\n上一轮回复偏离了用户话题。这次请务必直接回应用户最后一条消息的内容，不要岔开话题。";
+        try {
+          reply = await callAI(model, retryPrompt, history, userMessage, config);
+        } catch {
+          logger.warn("重试生成失败，使用原回复");
+        }
+      }
+    } catch {
+      // 自检失败不影响主流程
+    }
+  }
+
+  // 13. 保存记忆已在 saveAndReturn 中完成
+
+  // 14. 长期记忆提取
+  // 每 longTermExtractInterval 轮执行一次 LLM 事实提取
+  if (state.totalTurns % config.memory.longTermExtractInterval === 0) {
+    const extractPrompt = async (prompt: string) => {
+      const result = await generateText({
+        model,
+        system: "你是一个事实提取助手，请按要求提取信息。",
+        messages: [{ role: "user", content: prompt }],
+        maxOutputTokens: 500,
+        temperature: 0.3,
+      });
+      return result.text || "";
+    };
+    extractFactsFromConversation(userId, extractPrompt).catch((err) =>
+      logger.warn("LLM 事实提取失败:", err),
+    );
+  }
+
+  // 每 40 轮分析一次用户兴趣
+  if (state.totalTurns % 40 === 0 && state.totalTurns > 0) {
+    const analyzePrompt = async (prompt: string) => {
+      const result = await generateText({
+        model,
+        system: "你是一个兴趣分析助手，请按要求分析对话。",
+        messages: [{ role: "user", content: prompt }],
+        maxOutputTokens: 500,
+        temperature: 0.5,
+      });
+      return result.text || "";
+    };
+    const profileForAnalysis = {
+      name: profile.name,
+      temperament: profile.temperament,
+      hobbies: profile.hobbies,
+      occupation: profile.occupation,
+    };
+    analyzeUserInterests(userId, profileForAnalysis, analyzePrompt).catch((err) =>
+      logger.warn("兴趣分析失败:", err),
+    );
+  }
+
+  // 仍然保留简易正则提取作为补充（长消息立即提取）
   if (userMessage.length > 30) {
-    // 简易话题提取 — 识别"我在XX"、"我是XX"、"我喜欢XX"等模式
     const patterns = [
       /我(在|是|做)(.{2,15}?)(工作|上班|上学|读书)/,
       /我喜欢(.{2,15}?)(游戏|音乐|电影|书|运动|吃的|喝)/,

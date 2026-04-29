@@ -1,10 +1,10 @@
-# V-Partner
+# 梦间 / Yumema
 
-> 创建属于你的 AI 伴侣 — 桌面应用，开箱即用
+> 梦与现实之间的间隙里，TA 一直都在 — AI 伴侣桌面应用
 
-**当前版本：v1.0.0-beta.6**
+**当前版本：v0.0.1**
 
-V-Partner 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情绪和记忆，可以通过 QQ、微信或应用内直接聊天。双击安装、填写向导、即可使用。
+梦间 (Yumema) 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情绪和记忆，可以通过 QQ、微信或应用内直接聊天。双击安装、填写向导、即可使用。
 
 ---
 
@@ -26,7 +26,7 @@ V-Partner 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情
 
 ## 版本状态
 
-**v1.0.0-beta.6** — 当前为测试版，功能持续迭代中。使用后欢迎通过内置问卷提交反馈。
+**v0.0.1** — 当前为测试版，功能持续迭代中。使用后欢迎通过内置问卷提交反馈。
 
 ---
 
@@ -34,18 +34,18 @@ V-Partner 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情
 
 ### 下载安装
 
-从 [Releases](https://github.com/sixtdreanight/V-Partner/releases) 下载对应平台安装包：
+从 [Releases](https://github.com/sixtdreanight/Yumema/releases) 下载对应平台安装包：
 
-- **macOS**: `.dmg` (Apple Silicon / Intel)
-- **Windows**: `.exe` (NSIS 安装器)
-- **Linux**: `.AppImage`
+- **macOS**: `.dmg` 安装镜像 (Apple Silicon / Intel)
+- **Windows**: `.exe` NSIS 安装程序 (x64 / ARM64)
+- **Linux**: `.AppImage` 可执行文件 (x64)
 
 ### 从源码运行
 
 ```bash
 # 前置要求：Node.js 18+
-git clone https://github.com/sixtdreanight/V-Partner.git
-cd V-Partner
+git clone https://github.com/sixtdreanight/Yumema.git
+cd Yumema
 npm install
 
 # 开发模式
@@ -79,7 +79,7 @@ npm run setup
 ## 目录结构
 
 ```
-v-partner/
+yumema/
 ├── src/
 │   ├── core/           # 纯逻辑（CLI/GUI 共享）
 │   │   ├── config.ts       # 配置管理（AI / QQ / 微信）
@@ -124,7 +124,7 @@ v-partner/
 
 ## 微信接入（可选）
 
-V-Partner 支持通过微信与 AI 伴侣聊天，基于 [Gewechat](https://github.com/Devo919/Gewechat) 服务：
+梦间支持通过微信与 AI 伴侣聊天，基于 [Gewechat](https://github.com/Devo919/Gewechat) 服务：
 
 - **应用内一键启动**：在设置向导或设置页面点击「启动 Gewechat」，应用会自动检查 Docker 环境并启动容器
 - **需预先安装 [Docker](https://www.docker.com/)**
@@ -139,11 +139,11 @@ docker run -itd -p 2531:2531 -p 2532:2532 --name=gewe gewe
 
 ---
 
-## 文档索引
+## 文档
 
-- [架构说明](docs/architecture.md) — 架构图、数据流、IPC 通道
 - [常见问题](docs/faq.md) — QQ 扫码、API Key、NapCatQQ
-- [开发指南](docs/development.md) — 本地开发、打包、贡献
+- [更新日志](docs/CHANGELOG.md) — 版本变更记录
+- [路线图](docs/ROADMAP.md) — 版本规划与排期
 
 ---
 
@@ -157,4 +157,4 @@ docker run -itd -p 2531:2531 -p 2532:2532 --name=gewe gewe
 
 ## License
 
-MIT
+[GPL-3.0](LICENSE)

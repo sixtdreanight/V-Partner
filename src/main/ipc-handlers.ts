@@ -7,10 +7,11 @@ import {
   type AppConfig, type AIConfig, type QQConfig, type WeChatConfig,
 } from "../core/config.js";
 import { processMessage, createAIProvider } from "../core/pipeline.js";
-import { loadShortTerm } from "../core/memory.js";
+import { loadShortTerm, removeLastTurn } from "../core/memory.js";
 import { parseDescription } from "../cli/setup.js";
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { createRelationshipState } from "../core/relationship.js";
+import { validateProfile } from "../core/safety.js";
 import { napCatManager } from "./napcat-manager.js";
 import { weChatManager } from "./wechat-manager.js";
 
@@ -65,6 +66,12 @@ export function registerIpcHandlers() {
       const profile = data.profile;
       if (!profile || typeof profile !== "object") {
         return { success: false, error: "profile 数据无效" };
+      }
+
+      // 内容审核
+      const validation = validateProfile(profile as Record<string, unknown>);
+      if (!validation.ok) {
+        return { success: false, error: validation.errors[0] };
       }
       const relationshipMode = (profile as Record<string, string>).relationship_mode || "direct";
 
@@ -126,12 +133,13 @@ export function registerIpcHandlers() {
 
       const w = win();
       if (w) {
-        for (let i = 0; i < replies.length; i++) {
-          w.webContents.send("chat:reply-chunk", {
-            index: i,
-            total: replies.length,
-            text: replies[i],
-          });
+        // 第一条前模拟打字延迟
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 1500));
+        w.webContents.send("chat:reply-chunk", { index: 0, total: replies.length, text: replies[0] });
+        for (let i = 1; i < replies.length; i++) {
+          w.webContents.send("chat:typing", { active: true });
+          await new Promise(r => setTimeout(r, 600 + Math.random() * 1000));
+          w.webContents.send("chat:reply-chunk", { index: i, total: replies.length, text: replies[i] });
         }
       }
 
@@ -143,6 +151,33 @@ export function registerIpcHandlers() {
 
   ipcMain.handle("chat:load-history", (_, limit?: number) => {
     return loadShortTerm("gui-user", limit ?? 24);
+  });
+
+  ipcMain.handle("chat:regenerate", async () => {
+    try {
+      const userId = "gui-user";
+      const lastUserMsg = removeLastTurn(userId);
+      if (!lastUserMsg) {
+        return { success: false, error: "没有可重新生成的消息" };
+      }
+      if (!pipelineCtx) pipelineCtx = createPipelineContext();
+      const replies = await processMessage(userId, lastUserMsg, pipelineCtx);
+
+      const w = win();
+      if (w) {
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 1500));
+        w.webContents.send("chat:reply-chunk", { index: 0, total: replies.length, text: replies[0] });
+        for (let i = 1; i < replies.length; i++) {
+          w.webContents.send("chat:typing", { active: true });
+          await new Promise(r => setTimeout(r, 600 + Math.random() * 1000));
+          w.webContents.send("chat:reply-chunk", { index: i, total: replies.length, text: replies[i] });
+        }
+      }
+
+      return { success: true, replies };
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
   });
 
   // ---- 窗口控制 ----
@@ -174,7 +209,7 @@ export function registerIpcHandlers() {
       if (!napCatManager.isInstalled()) {
         await napCatManager.install();
       }
-      napCatManager.start();
+      await napCatManager.start();
       return { success: true };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : String(err) };
@@ -246,6 +281,56 @@ export function registerIpcHandlers() {
     return { success: true };
   });
 
+  // 角色卡更新
+  ipcMain.handle("settings:update-profile", (_, data: Record<string, unknown>) => {
+    try {
+      if (!data || typeof data !== "object") {
+        return { success: false, error: "数据无效" };
+      }
+
+      // 加载现有 profile 并合并
+      const existing = loadProfile();
+      if (!existing) {
+        return { success: false, error: "角色卡不存在" };
+      }
+      const merged = { ...existing, ...data };
+
+      // 内容审核
+      const validation = validateProfile(merged as Record<string, unknown>);
+      if (!validation.ok) {
+        return { success: false, error: validation.errors[0] };
+      }
+
+      const dDir = resolve(getDataRoot(), "data");
+      const profilePath = resolve(dDir, "profile.json");
+      writeFileAtomic(profilePath, JSON.stringify(merged, null, 2));
+      pipelineInvalidate();
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: String(err) };
+    }
+  });
+
+  // 问卷反馈
+  ipcMain.handle("survey:submit", (_, data: { satisfaction: number; features: string[]; problems: string[]; missing: string; notes: string }) => {
+    try {
+      const feedbackDir = resolve(getDataRoot(), "data", "feedback");
+      if (!existsSync(feedbackDir)) mkdirSync(feedbackDir, { recursive: true });
+
+      const filename = `feedback-${Date.now()}.json`;
+      const content = {
+        ...data,
+        platform: process.platform,
+        version: app.getVersion(),
+        time: new Date().toISOString(),
+      };
+      writeFileAtomic(resolve(feedbackDir, filename), JSON.stringify(content, null, 2));
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: String(err) };
+    }
+  });
+
   // ---- 头像上传 ----
   ipcMain.handle("app:pick-avatar", async () => {
     const result = await dialog.showOpenDialog({
@@ -273,6 +358,85 @@ export function registerIpcHandlers() {
     return null;
   });
 
+  // ---- 版本 ----
+  ipcMain.handle("app:get-version", () => {
+    return app.getVersion();
+  });
+
+  // ---- 角色卡导入导出 ----
+  ipcMain.handle("app:export-profile", async () => {
+    try {
+      const profilePath = resolve(getDataRoot(), "data", "profile.json");
+      if (!existsSync(profilePath)) {
+        return { success: false, error: "角色卡不存在" };
+      }
+      const result = await dialog.showSaveDialog({
+        defaultPath: "profile.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (result.canceled) return { success: false, error: "已取消" };
+      const data = readFileSync(profilePath, "utf-8");
+      writeFileSync(result.filePath!, data, "utf-8");
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: String(err) };
+    }
+  });
+
+  ipcMain.handle("app:import-profile", async () => {
+    try {
+      const result = await dialog.showOpenDialog({
+        properties: ["openFile"],
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, error: "已取消" };
+      }
+      const raw = readFileSync(result.filePaths[0], "utf-8");
+      const data = JSON.parse(raw);
+      // 验证基本结构
+      if (!data.name || !data.relationship_type) {
+        return { success: false, error: "文件格式不正确，缺少必要字段（name、relationship_type）" };
+      }
+      // 内容审核
+      const validation = validateProfile(data as Record<string, unknown>);
+      if (!validation.ok) {
+        return { success: false, error: validation.errors[0] };
+      }
+      const dDir = resolve(getDataRoot(), "data");
+      if (!existsSync(dDir)) mkdirSync(dDir, { recursive: true });
+      writeFileAtomic(resolve(dDir, "profile.json"), raw);
+      pipelineInvalidate();
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: `导入失败: ${String(err)}` };
+    }
+  });
+
+  // ---- 聊天记录导出 ----
+  ipcMain.handle("app:export-chat", async (_, format: "json" | "txt") => {
+    try {
+      const history = loadShortTerm("gui-user", 1000);
+      const ext = format === "json" ? "json" : "txt";
+      const result = await dialog.showSaveDialog({
+        defaultPath: `chat-history.${ext}`,
+        filters: [{ name: ext.toUpperCase(), extensions: [ext] }],
+      });
+      if (result.canceled) return { success: false, error: "已取消" };
+      if (format === "json") {
+        writeFileSync(result.filePath!, JSON.stringify(history, null, 2), "utf-8");
+      } else {
+        const lines = history.map(
+          (t) => `[${t.role === "user" ? "用户" : "伴侣"}] ${new Date(t.timestamp).toLocaleString("zh-CN")}\n${t.content}\n`
+        );
+        writeFileSync(result.filePath!, lines.join("\n"), "utf-8");
+      }
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: String(err) };
+    }
+  });
+
   // ---- 重置所有数据 ----
   ipcMain.handle("app:reset-data", async () => {
     try {
@@ -292,7 +456,13 @@ export function registerIpcHandlers() {
   if (profile) {
     const config = loadConfig();
     if (config.qq.wsUrl && config.qq.accessToken) {
-      napCatManager.start();
+      try {
+        napCatManager.start().catch((err) => {
+          console.error("NapCatQQ auto-start failed:", err);
+        });
+      } catch (err) {
+        console.error("NapCatQQ auto-start failed:", err);
+      }
     }
     if (config.wechat.baseUrl) {
       weChatManager.checkStatus().then(() => {

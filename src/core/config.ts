@@ -37,6 +37,8 @@ export interface Profile {
   user_nickname: string;
   /** 用户的性别 */
   user_gender: UserGender;
+  /** 伴侣的性别 */
+  partner_gender: UserGender;
   /** 伴侣是女友还是男友 */
   relationship_type: RelationshipType;
   /** 关系模式: 直接情侣 / 养成模式 */
@@ -59,12 +61,16 @@ export interface CustomStyle {
 }
 
 export interface AIConfig {
-  provider: "anthropic" | "openai" | "openai-compatible";
+  provider: "anthropic" | "openai" | "openai-compatible" | "ollama";
   model: string;
   apiKey: string;
   baseUrl?: string;
   maxTokens: number;
   temperature: number;
+  backupProvider?: "anthropic" | "openai" | "openai-compatible" | "ollama";
+  backupModel?: string;
+  backupApiKey?: string;
+  backupBaseUrl?: string;
 }
 
 export interface QQConfig {
@@ -156,6 +162,10 @@ export function writeEnvFile(partial: {
     if (partial.ai.baseUrl) setEnv("AI_BASE_URL", partial.ai.baseUrl);
     if (partial.ai.maxTokens !== undefined) setEnv("AI_MAX_TOKENS", String(partial.ai.maxTokens));
     if (partial.ai.temperature !== undefined) setEnv("AI_TEMPERATURE", String(partial.ai.temperature));
+    if (partial.ai.backupProvider) setEnv("AI_BACKUP_PROVIDER", partial.ai.backupProvider);
+    if (partial.ai.backupModel) setEnv("AI_BACKUP_MODEL", partial.ai.backupModel);
+    if (partial.ai.backupApiKey) setEnv("AI_BACKUP_API_KEY", partial.ai.backupApiKey);
+    if (partial.ai.backupBaseUrl) setEnv("AI_BACKUP_BASE_URL", partial.ai.backupBaseUrl);
   }
   if (partial.qq) {
     setEnv("QQ_WS_URL", partial.qq.wsUrl);
@@ -176,7 +186,7 @@ export function writeEnvFile(partial: {
 /** 默认配置，提供所有 fallback 值 */
 const DEFAULTS: Partial<AppConfig> = {
   memory: {
-    maxHistoryTurns: 24,
+    maxHistoryTurns: 8,
     longTermExtractInterval: 20,
     maxFactsInContext: 5,
   },
@@ -206,6 +216,10 @@ function loadEnvConfig(): { ai: AIConfig; qq: QQConfig; wechat: WeChatConfig } {
       baseUrl: process.env.AI_BASE_URL,
       maxTokens: Number(process.env.AI_MAX_TOKENS) || 2048,
       temperature: Number(process.env.AI_TEMPERATURE) || 0.85,
+      backupProvider: process.env.AI_BACKUP_PROVIDER as AIConfig["provider"] | undefined,
+      backupModel: process.env.AI_BACKUP_MODEL || undefined,
+      backupApiKey: process.env.AI_BACKUP_API_KEY || undefined,
+      backupBaseUrl: process.env.AI_BACKUP_BASE_URL || undefined,
     },
     qq: {
       wsUrl: process.env.QQ_WS_URL || "ws://127.0.0.1:3001",

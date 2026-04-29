@@ -117,6 +117,120 @@ export function checkOutput(reply: string): { ok: boolean; cleaned?: string } {
  * 降级回复 — AI 拒绝生成失败时的兜底
  * 只有 4 条，AI 不可用时随机使用
  */
+// ---- 角色设定审核 ----
+
+const POLITICAL_KEYWORDS = [
+  "习近平", "习主席", "李克强", "政治局", "共产党", "中共",
+  "六四", "天安门", "法轮功", "台独", "藏独", "疆独",
+  "江泽民", "胡锦涛", "温家宝", "薄熙来", "周永康",
+];
+
+const VIOLENT_KEYWORDS = [
+  "杀戮", "虐杀", "肢解", "分尸", "碎尸", "剥皮", "抽筋",
+  "割喉", "斩首", "屠杀", "血洗", "凌迟", "车裂",
+];
+
+const SEXUAL_PATTERNS = [
+  /性交|做爱|上床|操你|肏|屄|婊子|母狗/,
+  /强奸|轮奸|迷奸|诱奸/,
+  /口交|肛交|乳交/,
+  /自慰|手淫|打飞机/,
+  /鸡巴|阴茎|阴道|阴蒂|龟头/,
+];
+
+export interface ProfileValidationResult {
+  ok: boolean;
+  errors: string[];
+}
+
+/**
+ * 验证角色设定内容，只拦截三类红线：
+ * 1. 涉政 — 政治敏感词
+ * 2. 血腥暴力 — 极端暴力描写
+ * 3. 色情 — 露骨性行为描写
+ * 年龄下限: 14 岁
+ */
+export function validateProfile(profile: Record<string, unknown>): ProfileValidationResult {
+  const errors: string[] = [];
+
+  // 年龄检查
+  if (typeof profile.age === "number") {
+    if (profile.age < 14) {
+      errors.push("年龄不能低于 14 岁");
+    }
+  }
+
+  // 收集所有文本字段
+  const textFields: string[] = [];
+  const stringFields = [
+    "name", "temperament", "speaking_style", "daily_life",
+    "meme_style", "occupation", "education", "major", "city",
+  ];
+  for (const key of stringFields) {
+    if (typeof profile[key] === "string") textFields.push(profile[key] as string);
+  }
+
+  // 数组字段
+  const arrayFields = ["hobbies", "quirks"];
+  for (const key of arrayFields) {
+    if (Array.isArray(profile[key])) {
+      for (const item of profile[key] as unknown[]) {
+        if (typeof item === "string") textFields.push(item);
+      }
+    }
+  }
+
+  // opinions
+  if (profile.opinions && typeof profile.opinions === "object") {
+    for (const value of Object.values(profile.opinions as Record<string, unknown>)) {
+      if (typeof value === "string") textFields.push(value);
+    }
+  }
+
+  // custom_style
+  if (profile.custom_style && typeof profile.custom_style === "object") {
+    const cs = profile.custom_style as Record<string, unknown>;
+    for (const key of ["emoticons", "typing_quirks"]) {
+      if (typeof cs[key] === "string") textFields.push(cs[key] as string);
+    }
+    for (const key of ["verbal_tics", "catchphrases"]) {
+      if (Array.isArray(cs[key])) {
+        for (const item of cs[key] as unknown[]) {
+          if (typeof item === "string") textFields.push(item);
+        }
+      }
+    }
+  }
+
+  const combined = textFields.join(" ");
+
+  // 涉政检查
+  for (const kw of POLITICAL_KEYWORDS) {
+    if (combined.includes(kw)) {
+      errors.push("角色设定包含政治敏感内容，请修改后重试");
+      break;
+    }
+  }
+
+  // 暴力检查
+  for (const kw of VIOLENT_KEYWORDS) {
+    if (combined.includes(kw)) {
+      errors.push("角色设定包含暴力血腥内容，请修改后重试");
+      break;
+    }
+  }
+
+  // 色情检查
+  for (const pattern of SEXUAL_PATTERNS) {
+    if (pattern.test(combined)) {
+      errors.push("角色设定包含不当色情内容，请修改后重试");
+      break;
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
 export function fallbackRefusal(): string {
   const replies = [
     "宝贝，这个话题我们换个方向吧~",

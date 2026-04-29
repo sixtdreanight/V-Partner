@@ -36,18 +36,22 @@ function groupByDate(messages: ChatMessage[]): GroupedMessages[] {
 }
 
 export default function MessageList({
-  messages, typing, messagesEndRef,
+  messages, typing, composing, messagesEndRef, onRegenerate,
 }: {
   messages: ChatMessage[];
   typing: boolean;
+  composing: boolean;
   messagesEndRef: RefObject<HTMLDivElement | null>;
+  onRegenerate?: () => void;
 }) {
   const groups = useMemo(() => groupByDate(messages), [messages]);
+  // 最后一条 AI 消息可以右键重新生成
+  const lastAssistantIdx = messages.map(m => m.role).lastIndexOf("partner");
 
   useEffect(() => {
     const el = messagesEndRef.current;
     if (el) el.scrollIntoView({ behavior: "smooth" });
-  }, [messages, typing]);
+  }, [messages, typing, composing]);
 
   if (messages.length === 0) {
     return (
@@ -89,12 +93,14 @@ export default function MessageList({
               key={idx}
               message={msg}
               showAvatar={mi === 0 || group.messages[mi - 1]?.msg.role !== msg.role}
+              canRegenerate={idx === lastAssistantIdx && msg.role === "partner"}
+              onRegenerate={onRegenerate}
             />
           ))}
         </div>
       ))}
 
-      {typing && (
+      {(typing || composing) && (
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12, paddingTop: 4 }}
           className="slide-up">
           <Avatar style={{ width: 32, height: 32, background: "var(--vp-primary-soft)" }}>
@@ -108,6 +114,7 @@ export default function MessageList({
             border: "1px solid var(--border)",
             borderRadius: "18px 18px 18px 4px",
           }}>
+            <span style={{ fontSize: 12, color: "var(--muted-foreground)", marginRight: 6 }}>对方正在输入...</span>
             <span className="bounce-dot" />
             <span className="bounce-dot" style={{ marginLeft: 4 }} />
             <span className="bounce-dot" style={{ marginLeft: 4 }} />

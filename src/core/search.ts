@@ -37,7 +37,7 @@ export function extractSearchQuery(msg: string): string {
 async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
   const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
   const res = await fetch(url, {
-    headers: { "User-Agent": "v-partner/1.0" },
+    headers: { "User-Agent": "yumema/1.0" },
   });
 
   if (!res.ok) {
