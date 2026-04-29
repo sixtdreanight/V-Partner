@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import { spawn, ChildProcess } from "node:child_process";
-import { join } from "node:path";
-import { existsSync, mkdirSync, createWriteStream, writeFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { existsSync, mkdirSync, createWriteStream, writeFileSync, readdirSync, statSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { get } from "node:https";
 
@@ -48,12 +48,41 @@ function napCatDir(): string {
   return join(app.getPath("userData"), "napcat");
 }
 
-function napCatBinary(): string {
+/** NapCatQQ zip 解压后可能有子目录（如 NapCat.Shell/），需要递归查找实际二进制路径 */
+function findNapCatBinary(): string {
   const dir = napCatDir();
   if (process.platform === "win32") {
-    return join(dir, "NapCatWinMain.exe");
+    // win32: 递归查找 NapCatWinMain.exe
+    const found = findFile(dir, "NapCatWinMain.exe");
+    return found || join(dir, "NapCatWinMain.exe");
   }
-  return join(dir, "napcat.sh");
+  // macOS/Linux: 递归查找 napcat.sh
+  const found = findFile(dir, "napcat.sh");
+  return found || join(dir, "napcat.sh");
+}
+
+/** 在目录中递归查找指定文件，返回第一个匹配的完整路径 */
+function findFile(dir: string, name: string): string | null {
+  try {
+    const entries = readdirSync(dir);
+    for (const entry of entries) {
+      const full = join(dir, entry);
+      const stat = statSync(full);
+      if (stat.isDirectory()) {
+        const found = findFile(full, name);
+        if (found) return found;
+      } else if (entry === name) {
+        return full;
+      }
+    }
+  } catch {
+    // 目录不存在或无权限
+  }
+  return null;
+}
+
+function napCatBinary(): string {
+  return findNapCatBinary();
 }
 
 function randomToken(): string {
@@ -214,6 +243,13 @@ export class NapCatManager {
     this.setStatus("extracting", "解压 NapCatQQ...");
     await extractZip(zipPath, dir);
 
+    // 查找实际二进制路径（zip 可能有子目录）
+    const binaryPath = findNapCatBinary();
+    if (!binaryPath || !existsSync(binaryPath)) {
+      this.setStatus("error", "解压后未找到 napcat.sh/NapCatWinMain.exe，请检查 zip 包结构");
+      throw new Error(`NapCat binary not found after extraction in ${dir}`);
+    }
+
     // 清理临时 zip
     try {
       const { unlinkSync } = await import("node:fs");
@@ -259,7 +295,7 @@ export class NapCatManager {
     this.setStatus("starting", "启动 NapCatQQ...");
 
     const binary = napCatBinary();
-    const cwd = napCatDir();
+    const cwd = dirname(binary);
 
     try {
       this.process = spawn(binary, [], { cwd, stdio: ["ignore", "pipe", "pipe"], shell: true });
