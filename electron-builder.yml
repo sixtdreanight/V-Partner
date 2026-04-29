@@ -36,27 +36,15 @@ mac:
 win:
   icon: resources/icon.ico
   target:
-    - target: nsis
+    - target: zip
       arch:
         - x64
         - arm64
 
-nsis:
-  oneClick: false
-  perMachine: false
-  allowToChangeInstallationDirectory: true
-  installerIcon: resources/icon.ico
-  uninstallerIcon: resources/icon.ico
-  license: LICENSE
-  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
-
 linux:
   icon: resources/icon.png
   target:
-    - target: AppImage
-      arch:
-        - x64
-    - target: deb
+    - target: zip
       arch:
         - x64
   category: Network
