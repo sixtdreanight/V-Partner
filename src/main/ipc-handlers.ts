@@ -177,7 +177,7 @@ export function registerIpcHandlers() {
       napCatManager.start();
       return { success: true };
     } catch (err) {
-      return { success: false, error: String(err) };
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
     }
   });
 

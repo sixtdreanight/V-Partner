@@ -304,11 +304,10 @@ export class NapCatManager {
     }
 
     if (!isQQInstalled()) {
-      this.setStatus("error",
-        process.platform === "darwin"
-          ? "未找到 QQ 客户端。请从 https://im.qq.com 下载安装 QQ，注意：App Store 版本不支持。"
-          : "未找到 QQ 客户端。请先安装 QQ 桌面版。");
-      return;
+      const msg = process.platform === "darwin"
+        ? "未找到 QQ 客户端。请从 https://im.qq.com 下载安装 QQ，注意：App Store 版本不支持。"
+        : "未找到 QQ 客户端。请先安装 QQ 桌面版。";
+      throw new Error(msg);
     }
 
     this.setStatus("starting", "启动 NapCatQQ...");
