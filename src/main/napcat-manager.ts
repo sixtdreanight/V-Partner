@@ -353,6 +353,15 @@ export class NapCatManager {
 
   /** 解析 stdout/stderr 中的关键信息 */
   private parseStdout(text: string): void {
+    // 检测 QQ 未安装错误 (macOS/Linux)
+    if (/ENOENT.*versions.*package\.json|QQ.*not found|no such file.*QQ/i.test(text)) {
+      this.setStatus("error",
+        process.platform === "darwin"
+          ? "未找到 QQ 客户端。macOS App Store 版 QQ 不支持 NapCatQQ，请使用 Windows 运行 QQ 机器人功能。"
+          : "未找到 QQ 客户端。请先安装 QQ 桌面版。");
+      return;
+    }
+
     // NapCatQQ 输出中检测 QR 码 URL
     // 常见格式: https://qrcode.qq.com/... 或 base64 QR 图片
     const qrUrlMatch = text.match(/https?:\/\/[^\s]*qrcode[^\s]*/i);
