@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Input, Field } from "../ui/input";
-import { Badge } from "../ui/badge";
+import { Input, Field } from "../ui/Input";
+import { Badge } from "../ui/Badge";
 import Button from "../ui/Button";
 
 const STATUS_LABELS: Record<string, string> = {

@@ -1,4 +1,4 @@
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "../ui/Textarea";
 
 export default function SpeakingStyleStep({
   data, update,

@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/Select";
 
 const ZONES = [
   "Asia/Shanghai", "Asia/Tokyo", "Asia/Seoul", "Asia/Singapore",

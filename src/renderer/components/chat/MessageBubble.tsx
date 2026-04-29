@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Heart, Smile } from "lucide-react";
 import type { ChatMessage } from "../../hooks/useChat";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/Avatar";
 
 function formatTime(iso: string): string {
   const d = new Date(iso);

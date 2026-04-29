@@ -2,7 +2,7 @@ import { type RefObject, useEffect, useMemo } from "react";
 import { Users, Heart } from "lucide-react";
 import type { ChatMessage } from "../../hooks/useChat";
 import MessageBubble from "./MessageBubble";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/Avatar";
 
 function formatDateLabel(ts: string): string | null {
   const d = new Date(ts);

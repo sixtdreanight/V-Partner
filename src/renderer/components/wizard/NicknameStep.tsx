@@ -1,4 +1,4 @@
-import { Input } from "../ui/input";
+import { Input } from "../ui/Input";
 
 export default function NicknameStep({
   data, update,

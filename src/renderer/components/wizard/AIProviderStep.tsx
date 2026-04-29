@@ -1,6 +1,6 @@
-import { Input, Field } from "../ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { Slider } from "../ui/slider";
+import { Input, Field } from "../ui/Input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/Select";
+import { Slider } from "../ui/Slider";
 import CardSelect from "../shared/CardSelect";
 
 const PROVIDERS = [

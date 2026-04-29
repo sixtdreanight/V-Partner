@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import Button from "../ui/Button";
-import { Badge } from "../ui/badge";
+import { Badge } from "../ui/Badge";
 
 export default function SummaryStep({
   data, saveProfile, saving, error,

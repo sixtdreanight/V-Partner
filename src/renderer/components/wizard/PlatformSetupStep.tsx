@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, MessageSquare } from "lucide-react";
-import { Badge } from "../ui/badge";
+import { Badge } from "../ui/Badge";
 import Button from "../ui/Button";
 
 const QQ_STATUS_LABELS: Record<string, string> = {
