@@ -679,7 +679,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
                   </Flex>
                   <Flex direction="column" align="center" gap="1">
                     <h4 className="text-lg font-semibold">梦间 / Yumema</h4>
-                    <Text size="1" color="gray">{appVersion || "v0.0.1"}</Text>
+                    <Text size="1" color="gray">{appVersion || "v0.1.0"}</Text>
                   </Flex>
                 </Flex>
 

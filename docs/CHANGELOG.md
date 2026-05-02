@@ -2,6 +2,27 @@
 
 本文件所有 notable changes 遵循 [Keep a Changelog](https://keepachangelog.com/) 规范。
 
+## [0.1.0] - 2026-05-03
+
+### Added
+- 液态玻璃效果（32px blur + 渐变 + 内阴影高光）
+- 侧边栏布局（220px，居中对齐，图标对齐）
+- 对话框统一 Dialog.Root + GlassCard + CardHeader 模式
+- CLAUDE.md Change Protocol 规则
+- 历史记录按分句加载
+
+### Changed
+- UI 全面重构：统一排版（16px 字体、8px 网格、12px 圆角）
+- 按钮统一 Radix Themes Button
+- 输入框恢复旧版 Send 图标按钮
+- 消息区底部间距 24px
+- 版本升至 0.1.0
+
+### Fixed
+- 41 项 bug：shell:false、error/exit 优先级、双计 incrementMsgCount、空回复超时等
+- 恢复 v0.0.2 分句逻辑（50 字上限）
+- 恢复 v0.0.2 拟人化提示词
+
 ## [0.0.2] - 2026-05-01
 
 ### Added
