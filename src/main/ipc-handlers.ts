@@ -36,18 +36,6 @@ function pipelineInvalidate() {
 }
 
 export function registerIpcHandlers() {
-  // 初始化数据根目录 — 开发模式用项目目录，生产模式用 userData
-  const isDev = !!process.env.ELECTRON_RENDERER_URL;
-  const __dirname = fileURLToPath(new URL(".", import.meta.url));
-  const dataRoot = isDev ? resolve(__dirname, "..", "..") : app.getPath("userData");
-  initDataRoot(dataRoot);
-
-  // 确保 data 目录与子目录存在
-  const dataDir = resolve(getDataRoot(), "data");
-  mkdirSync(dataDir, { recursive: true });
-  mkdirSync(resolve(dataDir, "conversations"), { recursive: true });
-  mkdirSync(resolve(dataDir, "feedback"), { recursive: true });
-
   const win = () => BrowserWindow.getAllWindows()[0] ?? null;
 
   // ---- 应用状态 ----

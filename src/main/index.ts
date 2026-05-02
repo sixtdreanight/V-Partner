@@ -1,9 +1,10 @@
 import { app, BrowserWindow, ipcMain, dialog, Notification, session } from "electron";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import electronUpdater from "electron-updater";
 const { autoUpdater } = electronUpdater;
 import { registerIpcHandlers } from "./ipc-handlers.js";
-import { loadProfile, getDataRoot } from "../core/config.js";
+import { loadProfile, getDataRoot, initDataRoot } from "../core/config.js";
 import { logger, setLogFile } from "../core/utils.js";
 import { startScheduler } from "../core/scheduler.js";
 import { napCatManager } from "./napcat-manager.js";
@@ -137,6 +138,16 @@ app.whenReady().then(() => {
       });
     });
   }
+
+  // 初始化数据根目录（必须在 registerIpcHandlers 之前）
+  const isDev = !!process.env.ELECTRON_RENDERER_URL;
+  const __dirname = fileURLToPath(new URL(".", import.meta.url));
+  const dataRoot = isDev ? join(__dirname, "..", "..") : app.getPath("userData");
+  initDataRoot(dataRoot);
+  const dataDir = join(getDataRoot(), "data");
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(join(dataDir, "conversations"), { recursive: true });
+  mkdirSync(join(dataDir, "feedback"), { recursive: true });
 
   // 启用文件日志输出
   setLogFile(join(getDataRoot(), "logs", "app.log"));
