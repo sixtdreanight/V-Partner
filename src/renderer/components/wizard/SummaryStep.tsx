@@ -33,8 +33,8 @@ export default function SummaryStep({
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
-        <div className="flex items-center gap-2 mb-1">
+      <Flex direction="column" gap="2">
+        <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold">确认信息</h2>
         </div>

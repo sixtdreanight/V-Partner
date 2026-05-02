@@ -97,7 +97,7 @@ export default function PlatformSetupStep({
 
   return (
     <Flex direction="column" gap="6">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">连接聊天平台</h2>
         <p className="text-sm text-muted-foreground">让 TA 能在 QQ 或微信上和你聊天</p>
       </Flex>

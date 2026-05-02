@@ -19,11 +19,12 @@ export interface ScheduledTasks {
 /**
  * 启动所有定时任务
  */
-export function startScheduler(tasks: ScheduledTasks) {
+export function startScheduler(tasks: ScheduledTasks): { stop: () => void } {
   const { sendMessage, getActiveUsers, profile, showNotification } = tasks;
+  const jobs: ReturnType<typeof cron.schedule>[] = [];
 
   // 早安问候 — 每天早上 8:37
-  cron.schedule("37 8 * * *", () => {
+  jobs.push(cron.schedule("37 8 * * *", () => {
     const users = getActiveUsers();
     if (users.length === 0) return;
 
@@ -42,10 +43,10 @@ export function startScheduler(tasks: ScheduledTasks) {
     }
     showNotification?.(profile.name, msg);
     logger.info(`已发送早安问候给 ${users.length} 位用户`);
-  });
+  }));
 
   // 晚安问候 — 每天晚上 22:17
-  cron.schedule("17 22 * * *", () => {
+  jobs.push(cron.schedule("17 22 * * *", () => {
     const users = getActiveUsers();
     if (users.length === 0) return;
 
@@ -64,10 +65,10 @@ export function startScheduler(tasks: ScheduledTasks) {
     }
     showNotification?.(profile.name, msg);
     logger.info(`已发送晚安问候给 ${users.length} 位用户`);
-  });
+  }));
 
   // 午后闲聊 — 工作日下午 15:47
-  cron.schedule("47 15 * * 1-5", () => {
+  jobs.push(cron.schedule("47 15 * * 1-5", () => {
     const users = getActiveUsers();
     if (users.length === 0) return;
 
@@ -87,13 +88,15 @@ export function startScheduler(tasks: ScheduledTasks) {
         logger.warn(`午后闲聊发送失败: ${err}`),
       );
     }
-  });
+  }));
 
   // 长期记忆维护 — 每天凌晨 3:00 运行遗忘曲线
-  cron.schedule("0 3 * * *", () => {
+  jobs.push(cron.schedule("0 3 * * *", () => {
     logger.info("执行记忆遗忘曲线维护");
     applyForgettingCurve();
-  });
+  }));
 
   logger.info("定时任务已启动 (早安8:37 / 晚安22:17 / 午后15:47 / 记忆维护3:00)");
+
+  return { stop: () => { jobs.forEach((j) => j.stop()); } };
 }

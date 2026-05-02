@@ -58,7 +58,7 @@ export default function QuickStartStep({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <h2 className="text-base font-semibold">选择角色模板</h2>
         <p className="text-xs text-muted-foreground">选一个喜欢的起点，后面可以自定义修改</p>
       </div>
@@ -73,7 +73,7 @@ export default function QuickStartStep({
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-base shrink-0">
               {t.emoji}
             </div>
-            <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex flex-col gap-2 min-w-0">
               <span className="text-xs font-medium">{t.label}</span>
               <span className="text-xs text-muted-foreground">{t.desc}</span>
             </div>

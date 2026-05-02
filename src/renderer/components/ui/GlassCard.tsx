@@ -77,10 +77,10 @@ interface HeaderProps {
 export function CardHeader({ title, onClose }: HeaderProps) {
   return (
     <div
-      className="flex items-center justify-between px-6 py-5"
-      style={{ WebkitAppRegion: "no-drag" as unknown as string }}
+      className="flex items-center justify-between"
+      style={{ padding: "20px 28px", WebkitAppRegion: "no-drag" as unknown as string }}
     >
-      <h3 className="text-base font-semibold">{title}</h3>
+      <h3 className="text-base font-semibold" style={{ padding: 0, margin: 0 }}>{title}</h3>
       <button
         onClick={onClose}
         className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"

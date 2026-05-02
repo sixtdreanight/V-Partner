@@ -160,6 +160,28 @@ export function buildTimeContext(tz: string): string {
   return context;
 }
 
+export function buildSensoryContext(tz: string): string {
+  let now: Date;
+  if (tz) {
+    try { now = new Date(new Date().toLocaleString("en-US", { timeZone: tz })); }
+    catch { now = new Date(); }
+  } else { now = new Date(); }
+  const hour = now.getHours();
+  const month = now.getMonth() + 1;
+  const season = month >= 3 && month <= 5 ? "春天" : month >= 6 && month <= 8 ? "夏天" : month >= 9 && month <= 11 ? "秋天" : "冬天";
+  const timeDay = hour < 6 ? "凌晨" : hour < 9 ? "早晨" : hour < 12 ? "上午" : hour < 14 ? "中午" : hour < 18 ? "下午" : hour < 21 ? "傍晚" : "夜晚";
+  let parts = [`${season}的${timeDay}`];
+  if (season === "春天") parts.push("窗外有鸟叫");
+  else if (season === "夏天") parts.push(hour >= 12 && hour <= 15 ? "外面很热" : "外面暖暖的");
+  else if (season === "秋天") parts.push("有凉凉的风");
+  else parts.push("外面很冷");
+  if (hour >= 22 || hour < 6) parts.push("周围很安静");
+  else if (hour >= 7 && hour <= 9) parts.push("通勤的人来来往往");
+  else if (hour >= 12 && hour <= 13) parts.push("午饭时间");
+  else if (hour >= 18 && hour <= 20) parts.push("晚饭时间");
+  return parts.join("，") + "。";
+}
+
 // ---- 心情模拟 ----
 
 export function getTodayMood(): string {

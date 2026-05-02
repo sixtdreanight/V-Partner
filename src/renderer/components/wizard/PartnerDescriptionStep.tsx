@@ -68,7 +68,7 @@ export default function PartnerDescriptionStep({
 
   return (
     <Flex direction="column" gap="4">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-base font-semibold">创建角色卡</h2>
         <p className="text-xs text-muted-foreground">填写 TA 的基本信息，让 TA 更像一个真实的人</p>
       </Flex>
@@ -92,7 +92,7 @@ export default function PartnerDescriptionStep({
                 key={m.type}
                 type="button"
                 onClick={() => applyMBTI(m)}
-                className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border bg-card hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                className="flex flex-col items-center gap-2 p-4 rounded-lg border border-border bg-card hover:bg-primary/5 hover:border-primary/30 transition-colors"
                 title={m.description}
               >
                 <span className="text-xs font-semibold">{m.type}</span>

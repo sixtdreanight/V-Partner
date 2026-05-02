@@ -12,7 +12,7 @@ export default function WelcomeStep({ next }: { next: () => void }) {
           <Sparkles size={28} color="var(--accent-9)" />
         </Flex>
 
-        <Flex direction="column" align="center" gap="1">
+        <Flex direction="column" align="center" gap="2">
           <Heading size="6">V-Partner</Heading>
           <Text size="2" color="gray">创建属于你的 AI 伴侣</Text>
         </Flex>
@@ -21,7 +21,7 @@ export default function WelcomeStep({ next }: { next: () => void }) {
           TA 有自己的性格、爱好和记忆，可以通过 QQ、微信或应用内直接聊天。接下来 14 步完成配置，约 2 分钟。
         </Text>
 
-        <Flex gap="1" style={{ fontSize: 12, color: "var(--gray-10)" }}>
+        <Flex gap="2" style={{ fontSize: 12, color: "var(--gray-10)" }}>
           <span>选择性格</span>
           <span>→</span>
           <span>设置 AI</span>
@@ -35,7 +35,7 @@ export default function WelcomeStep({ next }: { next: () => void }) {
           <AlertTriangle size={16} />
         </Callout.Icon>
         <Callout.Text>
-          <Flex direction="column" gap="1">
+          <Flex direction="column" gap="2">
             <Text weight="medium" size="1">使用前请阅读</Text>
             <ul style={{ paddingLeft: 16, margin: 0, fontSize: 12, lineHeight: 1.6 }}>
               <li>AI 生成内容不代表作者立场，仅供学习娱乐</li>

@@ -124,17 +124,19 @@ app.on("before-quit", () => {
 });
 
 app.whenReady().then(() => {
-  // CSP: restrict renderer to app-owned resources only
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": [
-          "default-src 'self'; script-src 'self' 'sha256-kNOUC0TwZWTjiauI56CRc3F79M+yxOqv+fcvbsN/ZpM='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:* ws://localhost:*;",
-        ],
-      },
+  // CSP: restrict renderer to app-owned resources only (production only; Vite dev server needs looser CSP)
+  if (!process.env.ELECTRON_RENDERER_URL) {
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self'; script-src 'self' 'sha256-0vhENBDiXt7C/5mQpX0pintncSH8cMav2aVDGcEhUZk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';",
+          ],
+        },
+      });
     });
-  });
+  }
 
   // 启用文件日志输出
   setLogFile(join(getDataRoot(), "logs", "app.log"));

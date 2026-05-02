@@ -32,6 +32,7 @@ import {
   formatChatExamples,
   formatSystemPromptForModel,
 } from "../model-tuning.js";
+import { buildSensoryContext } from "../girlfriend.js";
 
 export interface ContextInput {
   userId: string;
@@ -75,8 +76,8 @@ export function contextStage(input: ContextInput): ContextOutput {
   const session = getSession(userId);
   updateSession(session, userMessage);
 
-  // 2. 时间 + 心情
-  const timeContext = buildTimeContext(profile.user_timezone);
+  // 2. 时间 + 心情 + 感官记忆
+  const timeContext = buildTimeContext(profile.user_timezone) + "\n" + buildSensoryContext(profile.user_timezone);
   const todayMood = getTodayMood();
 
   // 3. 情绪检测

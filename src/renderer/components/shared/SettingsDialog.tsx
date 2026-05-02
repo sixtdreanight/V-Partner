@@ -178,10 +178,16 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
     }
     if (resetStep === 1 && resetInput === "RESET") {
       setResetLoading(true);
-      const result = await window.api.resetAllData();
-      if ((result as { success: boolean }).success) {
-        window.location.hash = "#/setup";
-        window.location.reload();
+      try {
+        const result = await window.api.resetAllData();
+        if ((result as { success: boolean }).success) {
+          window.location.hash = "#/setup";
+          window.location.reload();
+        } else {
+          alert("重置失败: " + ((result as { error?: string }).error || "未知错误"));
+        }
+      } catch (err) {
+        alert("重置失败: " + String(err));
       }
       setResetLoading(false);
     }
@@ -222,7 +228,7 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog.Root open onOpenChange={onClose}>
-      <Dialog.Content maxWidth="420px" style={{ padding: 0, background: "transparent", WebkitAppRegion: "no-drag" as unknown as string }}>
+      <Dialog.Content maxWidth="448px" style={{ padding: 0, background: "transparent", WebkitAppRegion: "no-drag" as unknown as string }}>
         <GlassCard padding="p-0">
           <CardHeader title="设置" onClose={onClose} />
           <Flex direction="column" maxHeight="70vh">
@@ -369,9 +375,12 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
                         <button
                           className="text-xs text-muted-foreground hover:text-destructive shrink-0"
                           onClick={async () => {
-                            const result = await window.api.deleteMemoryFact(fact.topic);
-                            const r = result as { success?: boolean; data?: typeof memoryFacts };
-                            if (r.success && r.data) setMemoryFacts(r.data);
+                            try {
+                              const result = await window.api.deleteMemoryFact(fact.topic);
+                              const r = result as { success?: boolean; data?: typeof memoryFacts; error?: string };
+                              if (r.success && r.data) setMemoryFacts(r.data);
+                              else alert(r.error || "删除失败");
+                            } catch (err) { alert("删除失败: " + String(err)); }
                           }}
                         >
                           删除
@@ -384,41 +393,49 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
                     <p className="text-sm text-muted-foreground text-center py-4">还没有记忆 — 多和 TA 聊聊天吧</p>
                   )}
 
-                  <GlassCard variant="solid" padding="p-4">
-                    <div className="space-y-3">
-                      <Text size="2" weight="medium">添加记忆</Text>
-                      <Flex direction="column" gap="2">
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 rounded-lg text-sm bg-background border border-input text-foreground outline-none"
-                          placeholder="话题（如：喜欢的食物）"
-                          value={newTopic}
-                          onChange={(e) => setNewTopic(e.target.value)}
-                        />
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 rounded-lg text-sm bg-background border border-input text-foreground outline-none"
-                          placeholder="内容（如：最喜欢吃火锅，尤其是麻辣锅）"
-                          value={newContent}
-                          onChange={(e) => setNewContent(e.target.value)}
-                        />
-                      </Flex>
-                      <Button
-                        disabled={!newTopic.trim() || !newContent.trim()}
-                        onClick={async () => {
+                  <div style={{
+                    borderRadius: 12, border: "1px solid var(--border)",
+                    background: "var(--card)", padding: 28,
+                    display: "flex", flexDirection: "column", gap: 20,
+                  }}>
+                    <Text size="2" weight="medium">添加记忆</Text>
+                    <Flex direction="column" gap="4">
+                      <input
+                        type="text"
+                        className="rounded-xl text-sm bg-background border border-input text-foreground outline-none"
+                        style={{ width: "100%", padding: "14px 20px" }}
+                        placeholder="话题（如：喜欢的食物）"
+                        value={newTopic}
+                        onChange={(e) => setNewTopic(e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        className="rounded-xl text-sm bg-background border border-input text-foreground outline-none"
+                        style={{ width: "100%", padding: "14px 20px" }}
+                        placeholder="内容（如：最喜欢吃火锅，尤其是麻辣锅）"
+                        value={newContent}
+                        onChange={(e) => setNewContent(e.target.value)}
+                      />
+                    </Flex>
+                    <Button
+                      disabled={!newTopic.trim() || !newContent.trim()}
+                      onClick={async () => {
+                        try {
                           const result = await window.api.updateMemoryFact({ topic: newTopic.trim(), content: newContent.trim() });
-                          const r = result as { success?: boolean; data?: typeof memoryFacts };
+                          const r = result as { success?: boolean; data?: typeof memoryFacts; error?: string };
                           if (r.success && r.data) {
                             setMemoryFacts(r.data);
                             setNewTopic("");
                             setNewContent("");
+                          } else {
+                            alert(r.error || "添加失败");
                           }
-                        }}
-                      >
-                        添加
-                      </Button>
-                    </div>
-                  </GlassCard>
+                        } catch (err) { alert("添加失败: " + String(err)); }
+                      }}
+                    >
+                      添加
+                    </Button>
+                  </div>
                 </Flex>
               </Tabs.Content>
 

@@ -9,7 +9,7 @@ export default function SpeakingStyleStep({
 }) {
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">TA 有什么说话习惯？</h2>
         <p className="text-sm text-muted-foreground">颜文字、口癖、口头禅等，可选填</p>
       </Flex>

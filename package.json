@@ -1,6 +1,6 @@
 {
   "name": "yumema",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "梦间 / Yumema — AI 伴侣桌面应用",
   "author": "DreamNight <erk163@163.com>",
   "license": "GPL-3.0",
@@ -24,6 +24,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.71",
     "@ai-sdk/openai": "^3.0.53",
+    "@assistant-ui/react": "^0.12.28",
+    "@assistant-ui/react-markdown": "^0.12.11",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-progress": "^1.1.8",

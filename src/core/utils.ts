@@ -148,3 +148,34 @@ export function sleep(ms: number): Promise<void> {
 export function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
+
+// ---- Pipeline 统计 (Part 8.2) ----
+
+interface PipelineStats {
+  totalMessages: number;
+  totalApiCalls: number;
+  totalLatencyMs: number;
+  errorCount: number;
+  lastError: string;
+}
+
+const stats: PipelineStats = { totalMessages: 0, totalApiCalls: 0, totalLatencyMs: 0, errorCount: 0, lastError: "" };
+
+export function recordPipelineMessage(latencyMs: number) {
+  stats.totalMessages++;
+  stats.totalApiCalls++;
+  stats.totalLatencyMs += latencyMs;
+  if (stats.totalMessages % 50 === 0) {
+    const avg = Math.round(stats.totalLatencyMs / stats.totalMessages);
+    logger.info(`Pipeline: ${stats.totalMessages} 条消息, 平均延迟 ${avg}ms, ${stats.errorCount} 次错误`);
+  }
+}
+
+export function recordPipelineError(err: string) {
+  stats.errorCount++;
+  stats.lastError = err;
+}
+
+export function getPipelineStats(): Readonly<PipelineStats> {
+  return { ...stats };
+}

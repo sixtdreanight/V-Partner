@@ -25,7 +25,7 @@ export default function RelationshipTypeStep({
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">你希望 TA 是你的？</h2>
         <p className="text-sm text-muted-foreground">
           {recommended ? "已根据你的选择推荐，你也可以换一个" : "选择你想要的伴侣角色"}

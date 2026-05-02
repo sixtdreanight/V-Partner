@@ -94,17 +94,26 @@ export function startOneBot(
     return Math.round(base + jitter);
   }
 
+  let pongTimeout: ReturnType<typeof setTimeout> | null = null;
+
   function startPing() {
     stopPing();
     pingTimer = setInterval(() => {
       if (ws?.readyState === WebSocket.OPEN) {
-        ws.ping();
+        try {
+          ws.ping();
+          pongTimeout = setTimeout(() => {
+            logger.warn("QQ WebSocket pong 超时，主动断开");
+            ws?.close();
+          }, 30000);
+        } catch { /* ws.ping() may throw if state changed between check and call */ }
       }
     }, 15000);
   }
 
   function stopPing() {
     if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+    if (pongTimeout) { clearTimeout(pongTimeout); pongTimeout = null; }
   }
 
   function connect() {
@@ -129,7 +138,7 @@ export function startOneBot(
         const data = JSON.parse(raw.toString()) as OneBotEvent | OneBotResponse;
 
         // API 响应（有 echo 字段）
-        if ("echo" in data && data.echo) {
+        if ("echo" in data) {
           logger.debug(`OneBot API 响应: echo=${data.echo}`);
           return;
         }
@@ -158,6 +167,7 @@ export function startOneBot(
       logger.error("QQ WebSocket 错误:", err.message);
     });
     ws.on("pong", () => {
+      if (pongTimeout) { clearTimeout(pongTimeout); pongTimeout = null; }
       logger.debug("QQ WebSocket pong");
     });
   }
@@ -204,7 +214,8 @@ export function startOneBot(
       }
     } catch (err) {
       logger.error("处理消息失败:", err);
-      sendPrivateMsg(msg.userId, "呜...刚才走神了，再说一遍好吗？");
+      const errTarget = msg.groupId ? String(msg.groupId) : msg.userId;
+      msg.groupId ? sendGroupMsg(errTarget, "呜...刚才走神了，再说一遍好吗？") : sendPrivateMsg(errTarget, "呜...刚才走神了，再说一遍好吗？");
     }
   }
 

@@ -1,8 +1,7 @@
 import { Flex, Text, Button, Progress } from "@radix-ui/themes";
 import { Sparkles, AlertTriangle } from "lucide-react";
 import { useSetupWizard } from "../hooks/useSetupWizard";
-import TitleBar from "../components/shared/TitleBar";
-import { GlassCard } from "../components/ui/GlassCard";
+import { usePlatform } from "../hooks/usePlatform";
 import WelcomeStep from "../components/wizard/WelcomeStep";
 import QuickStartStep from "../components/wizard/QuickStartStep";
 import PartnerNameStep from "../components/wizard/PartnerNameStep";
@@ -29,6 +28,7 @@ const STEPS = [
 ];
 
 export default function SetupWizard() {
+  const platform = usePlatform();
   const wizard = useSetupWizard();
   const { step, progress, back, canNext, next, transitioning, transitionTimedOut, error, saveProfile } = wizard;
   const StepComponent = STEPS[step];
@@ -37,7 +37,7 @@ export default function SetupWizard() {
     return (
       <Flex direction="column" align="center" justify="center" height="100vh" gap="4" className="bounce-in"
         style={{ background: "transparent" }}>
-        <GlassCard padding="p-8" style={{ maxWidth: 380 }}>
+        <div className="glass-shine" style={{ maxWidth: 380, width: "100%", borderRadius: 16, padding: 32 }}>
           <div className="text-center space-y-4">
           <Flex width="64px" height="64px" align="center" justify="center" mx="auto"
             style={{
@@ -49,7 +49,7 @@ export default function SetupWizard() {
               : <Sparkles size={32} color="var(--accent-9)" />
             }
           </Flex>
-          <Flex direction="column" align="center" gap="1">
+          <Flex direction="column" align="center" gap="2">
             <Text size="4" weight="semibold">
               {transitionTimedOut ? "启动超时" : "正在创建你的 AI 伴侣..."}
             </Text>
@@ -61,17 +61,20 @@ export default function SetupWizard() {
             <Button size="2" onClick={saveProfile}>点击重试</Button>
           )}
           </div>
-        </GlassCard>
+        </div>
       </Flex>
     );
   }
 
   return (
     <Flex direction="column" height="100vh" style={{ background: "transparent" }}>
-      <TitleBar borderColor="transparent" background="transparent">
-        <Flex direction="column" width="100%" gap="1">
+      <header style={{
+        padding: "16px 24px", paddingTop: platform === "darwin" ? 56 : 16,
+        WebkitAppRegion: "drag",
+      }}>
+        <Flex direction="column" width="100%" gap="2">
           <Progress value={progress} size="1" variant="soft" radius="none" />
-          <Flex justify="center" gap="1">
+          <Flex justify="center" gap="2">
             {STEPS.map((_, i) => (
               <div
                 key={i}
@@ -86,17 +89,17 @@ export default function SetupWizard() {
             ))}
           </Flex>
         </Flex>
-      </TitleBar>
+      </header>
 
-      <Flex flexGrow="1" align="center" justify="center" px="6" py="6" style={{ overflowY: "auto" }}>
-        <GlassCard padding="p-8" style={{ width: "100%", maxWidth: 448 }} key={step}>
+      <Flex flexGrow="1" align="start" justify="center" style={{ overflowY: "auto", padding: "32px 24px 24px" }}>
+        <div className="glass-shine" style={{ width: "100%", maxWidth: 448, borderRadius: 16, padding: 32 }} key={step}>
           <div className="fade-in">
             <StepComponent {...(wizard as any)} />
           </div>
-        </GlassCard>
+        </div>
       </Flex>
 
-      <GlassCard padding="px-6 py-3" className="flex items-center justify-between flex-shrink-0 h-[56px]">
+      <div className="glass-shine" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, height: 56, padding: "0 24px", borderRadius: 16 }}>
         <Flex align="center" justify="between" style={{ width: "100%" }}>
         <div>
           {step > 0 && (
@@ -116,7 +119,7 @@ export default function SetupWizard() {
           )}
         </div>
         </Flex>
-      </GlassCard>
+      </div>
     </Flex>
   );
 }

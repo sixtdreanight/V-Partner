@@ -307,7 +307,7 @@ export function handleBoundaryViolation(state: RelationshipState): {
  */
 export function executeBreakup(state: RelationshipState): void {
   logger.warn(`关系结束。原因: ${state.breakupReason || "用户选择"}`);
-  // 重置为陌生人模式
+  state.mode = "slow_burn";
   state.stage = "stranger";
   state.affection = 0;
   state.confessions = [];
@@ -324,6 +324,7 @@ export function executeBreakup(state: RelationshipState): void {
  * 分手后保持朋友关系
  */
 export function stayFriends(state: RelationshipState): void {
+  state.mode = "slow_burn";
   state.stage = "friend";
   state.affection = 20;
   state.confessions = [];

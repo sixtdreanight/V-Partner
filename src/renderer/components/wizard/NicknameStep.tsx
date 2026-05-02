@@ -9,7 +9,7 @@ export default function NicknameStep({
 }) {
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">TA 怎么称呼你？</h2>
         <p className="text-sm text-muted-foreground">你想让 TA 叫你什么？</p>
       </Flex>

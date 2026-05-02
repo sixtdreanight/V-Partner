@@ -7,6 +7,7 @@ import {
   type AIConfig,
 } from "../core/config.js";
 import { processMessage, createAIProvider } from "../core/pipeline.js";
+import { logger } from "../core/utils.js";
 import { loadShortTerm, removeLastTurn } from "../core/memory.js";
 import { parseDescription } from "../cli/setup.js";
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from "node:fs";
@@ -361,6 +362,8 @@ export function registerIpcHandlers() {
           firstMentioned: new Date().toISOString(),
           lastMentioned: new Date().toISOString(),
           confidence: "low" as const,
+          importance: 0.5,
+          lastAccess: new Date().toISOString(),
         });
       }
       memory.lastUpdated = new Date().toISOString();

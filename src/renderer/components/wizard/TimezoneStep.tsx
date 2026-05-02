@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/Select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 import { Flex } from "@radix-ui/themes";
 
 const ZONES = [
@@ -18,7 +18,7 @@ export default function TimezoneStep({
 }) {
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">你的时区是？</h2>
         <p className="text-sm text-muted-foreground">TA 会根据你的时间说早晚安</p>
       </Flex>

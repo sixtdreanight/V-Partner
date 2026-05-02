@@ -15,7 +15,7 @@ export default function MemeStyleStep({
 }) {
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">TA 的网络梗风格？</h2>
         <p className="text-sm text-muted-foreground">决定 TA 能不能和你一起玩梗</p>
       </Flex>

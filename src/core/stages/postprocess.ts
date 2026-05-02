@@ -27,7 +27,7 @@ export function postProcessStage(input: PostProcessInput): string[] {
   saveShortTerm(userId, userMessage, reply);
 
   // 2. 长期记忆提取（每 longTermExtractInterval 轮触发 LLM 提取）
-  if (totalTurns % config.memory.longTermExtractInterval === 0) {
+  if (totalTurns > 0 && totalTurns % config.memory.longTermExtractInterval === 0) {
     const extractPrompt = async (prompt: string) => {
       const result = await generateText({
         model,

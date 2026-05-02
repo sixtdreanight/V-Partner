@@ -46,17 +46,21 @@ export function startWeChat(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ appId: config.appid || "" }),
       });
+      if (!loginRes.ok) {
+        throw new Error(`微信登录接口返回 ${loginRes.status}`);
+      }
       const loginData = (await loginRes.json()) as { qrUrl?: string; token?: string };
 
       if (loginData.token) {
         logger.info("微信已登录，token 已获取");
+        pollMessages();
       } else if (loginData.qrUrl) {
         logger.info(`请扫描微信登录二维码: ${loginData.qrUrl}`);
         opts?.onQRCode?.(loginData.qrUrl);
+        pollMessages();
+      } else {
+        throw new Error("微信登录响应缺少 token 或 qrUrl");
       }
-
-      // 2. 开始轮询消息
-      pollMessages();
     } catch (err) {
       logger.error("微信初始化失败:", err);
       throw err;
@@ -105,6 +109,7 @@ export function startWeChat(
         groupId?: string;
       }>;
 
+      if (!Array.isArray(data)) return;
       for (const msg of data) {
         const message: WeChatMessage = {
           userId: msg.fromUser,

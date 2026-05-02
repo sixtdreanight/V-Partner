@@ -25,7 +25,7 @@ export default function PartnerGenderStep({
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">你希望 TA 的性别是？</h2>
         <p className="text-sm text-muted-foreground">选择后会为你推荐关系类型，你也可以在下一步修改</p>
       </Flex>

@@ -42,15 +42,15 @@ export interface PreProcessOutput {
 export async function preProcessStage(input: PreProcessInput): Promise<PreProcessOutput> {
   const { userId, userMessage, model, config, profile } = input;
 
-  // 1. 安全检查
+  // 1. 关系状态机（提前加载，避免重复磁盘I/O）
+  const relState = getOrCreateState(profile.relationship_mode);
+
+  // 2. 安全检查
   const safetyResult = checkInput(userMessage, config.contentFilter);
   if (!safetyResult.ok) {
     const refusal = await generateRefusal(model, profile, safetyResult.reason || "illegal");
-    return { earlyReturn: refusal, searchResults: undefined, relState: getOrCreateState(profile.relationship_mode) };
+    return { earlyReturn: refusal, searchResults: undefined, relState };
   }
-
-  // 2. 关系状态机
-  const relState = getOrCreateState(profile.relationship_mode);
   const relationReply = handleRelationshipFlow(userMessage, profile, relState);
   if (relationReply !== null) return { earlyReturn: relationReply, searchResults: undefined, relState };
 

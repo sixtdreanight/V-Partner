@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
 export function usePlatform() {
-  const [isMac, setIsMac] = useState(false);
+  const [platform, setPlatform] = useState<string>("unknown");
   useEffect(() => {
-    setIsMac(window.api.getPlatform() === "darwin");
+    setPlatform(window.api.getPlatform());
   }, []);
-  return { isMac };
+  return platform;
 }

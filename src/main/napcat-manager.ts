@@ -379,7 +379,7 @@ export class NapCatManager {
       const cmd = isNodeScript ? "node" : binary;
       const args = isNodeScript ? [binary] : [];
 
-        this.process = spawn(cmd, args, { cwd, stdio: ["ignore", "pipe", "pipe"], shell: true });
+        this.process = spawn(cmd, args, { cwd, stdio: ["ignore", "pipe", "pipe"], shell: false });
 
       this.process.stdout?.on("data", (data: Buffer) => {
         this.parseStdout(data.toString());
@@ -399,9 +399,9 @@ export class NapCatManager {
           clearTimeout(this.killTimeout);
           this.killTimeout = null;
         }
-        if (code !== 0 && this.state.status === "starting") {
+        if (code !== 0 && this.state.status !== "error") {
           this.setStatus("error", `NapCatQQ 异常退出 (code=${code})`);
-        } else if (this.state.status !== "stopped") {
+        } else if (this.state.status !== "stopped" && this.state.status !== "error") {
           this.setStatus("stopped", "NapCatQQ 已停止");
         }
         this.process = null;

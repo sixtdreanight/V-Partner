@@ -8,6 +8,16 @@ AI companion that connects to QQ (NapCatQQ OneBot v11) and WeChat (Gewechat HTTP
 **Stack:**
 - Electron + electron-vite (main / preload / renderer)
 - React 19 + shadcn/ui + Radix UI + lucide-react
+
+## CRITICAL RULE: Never modify framework UI code
+
+When the user explicitly says they do NOT want to modify the original framework's UI design:
+- DO NOT add any visible HTML elements (headers, buttons, containers, wrappers)
+- DO NOT change CSS, className, style props, or layout structure
+- DO NOT modify the template's component tree in any way
+- Only change: API connection URLs, backend logic, data adapters
+- Features must be added through non-visual means: keyboard shortcuts, IPC events, or server-side logic
+- If you need to add a UI feature, ask the user first whether the approach is acceptable
 - Vercel AI SDK (`ai` package) -- Anthropic / OpenAI / OpenAI-compatible providers
 - NapCatQQ OneBot v11 (WebSocket), Gewechat HTTP API
 - electron-updater, electron-builder
@@ -96,6 +106,11 @@ Use `.js` extensions in import paths (NodeNext module resolution).
 ### Logging
 
 Use the `logger` from `src/core/utils.ts` -- never `console.log` directly except in main process startup code that runs before core is initialized.
+
+## Change Protocol (MUST FOLLOW)
+
+- **Trace before editing**: Before changing a visual element, trace the ENTIRE render chain: page → component → sub-component → CSS/styling. Verify the change affects all intended targets and no unintended ones. Do NOT edit one file and assume it propagates — check every usage site first.
+- **Verify after editing**: After making a change, check the built output in `dist/` to confirm the change actually landed in the generated CSS/JS. Grep for the changed value.
 
 ## Frontend Design Rules
 

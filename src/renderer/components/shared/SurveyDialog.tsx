@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex, Text, Dialog } from "@radix-ui/themes";
 import Button from "../ui/Button";
-import { GlassCard, CardHeader, DialogOverlay } from "../ui/GlassCard";
+import { GlassCard, CardHeader } from "../ui/GlassCard";
 import ToggleTag from "../shared/ToggleTag";
 
 const STORAGE_KEY = "yumema_survey";
@@ -103,9 +103,9 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
 
   if (submitted) {
     return (
-      <DialogOverlay onClose={onClose} offset="pt-0">
-        <div className="w-[480px] scale-in">
-          <GlassCard padding="p-8">
+      <Dialog.Root open onOpenChange={() => onClose()}>
+      <Dialog.Content style={{ padding: 0, background: "transparent", maxWidth: 448 }}>
+        <GlassCard padding="p-8">
             <div className="text-center space-y-4">
               <div style={{ fontSize: 48 }}>😍</div>
               <h3 className="text-lg font-semibold">感谢你的反馈！</h3>
@@ -115,14 +115,14 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
               <Button variant="primary" onClick={onClose}>完成</Button>
             </div>
           </GlassCard>
-        </div>
-      </DialogOverlay>
+      </Dialog.Content>
+    </Dialog.Root>
     );
   }
 
   return (
-    <DialogOverlay onClose={onClose} offset="pt-0">
-      <div className="w-[480px] scale-in">
+    <Dialog.Root open onOpenChange={() => onClose()}>
+      <Dialog.Content style={{ padding: 0, background: "transparent", maxWidth: 448 }}>
         <GlassCard padding="p-0">
           <CardHeader title="帮助我们改进" onClose={onClose} />
           <div className="max-h-[70vh] overflow-y-auto">
@@ -136,7 +136,7 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
                   <button
                     key={r.value}
                     onClick={() => setSatisfaction(r.value)}
-                    className="flex flex-col items-center gap-1 transition-all"
+                    className="flex flex-col items-center gap-2 transition-all"
                     style={{
                       transform: satisfaction === r.value ? "scale(1.25)" : "scale(1)",
                       opacity: satisfaction === 0 || satisfaction === r.value ? 1 : 0.5,
@@ -221,7 +221,7 @@ export default function SurveyDialog({ onClose }: { onClose: () => void }) {
           </Flex>
           </div>
         </GlassCard>
-      </div>
-    </DialogOverlay>
+      </Dialog.Content>
+    </Dialog.Root>
   );
 }

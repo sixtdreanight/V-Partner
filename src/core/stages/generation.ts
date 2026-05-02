@@ -17,6 +17,8 @@ export interface GenerationInput {
   history: Array<{ role: "user" | "assistant"; content: string }>;
   model: LanguageModel;
   config: AppConfig;
+  authorsNote?: string | null;
+  authorNotePosition?: "system-start" | "pre-user";
 }
 
 export interface GenerationOutput {
@@ -87,25 +89,33 @@ async function generateReplyWithBackup(
     logger.error("AI 调用失败:", err);
     const bak = config.ai;
     if (!bak.backupModel && !bak.backupProvider) throw err;
-    const backupModel = createAIProvider({
-      provider: bak.backupProvider || bak.provider,
-      model: bak.backupModel || bak.model,
-      apiKey: bak.backupApiKey || bak.apiKey,
-      baseUrl: bak.backupBaseUrl || bak.baseUrl,
-      maxTokens: bak.maxTokens,
-      temperature: bak.temperature,
-    });
-    logger.info(`主模型失败，切换备用模型: ${bak.backupProvider}/${bak.backupModel}`);
-    return await callAI(backupModel, systemPrompt, history, userMessage, config);
+    try {
+      const backupModel = createAIProvider({
+        provider: bak.backupProvider || bak.provider,
+        model: bak.backupModel || bak.model,
+        apiKey: bak.backupApiKey || bak.apiKey,
+        baseUrl: bak.backupBaseUrl || bak.baseUrl,
+        maxTokens: bak.maxTokens,
+        temperature: bak.temperature,
+      });
+      logger.info(`主模型失败，切换备用模型: ${bak.backupProvider || bak.provider}/${bak.backupModel || bak.model}`);
+      return await callAI(backupModel, systemPrompt, history, userMessage, config);
+    } catch (backupErr) {
+      logger.error("备用模型创建失败:", backupErr);
+      throw err; // rethrow original error
+    }
   }
 }
 
 export async function generationStage(input: GenerationInput): Promise<GenerationOutput> {
-  const { userMessage, systemPrompt, history, model, config } = input;
+  const { userMessage, systemPrompt, history, model, config, authorsNote, authorNotePosition } = input;
 
-  // 处理 pre-user Author's Note — 插入到用户消息之前作为 system 消息
+  // 处理 Author's Note: pre-user 位置 → 插入为独立 system 消息
   let effectiveSystemPrompt = systemPrompt;
   const messages = [...history];
+  if (authorsNote && authorNotePosition === "pre-user") {
+    messages.push({ role: "user" as const, content: `[指令] ${authorsNote}` });
+  }
 
   // 1. AI 生成（含备用模型 fallback）
   let reply: string;
@@ -121,7 +131,8 @@ export async function generationStage(input: GenerationInput): Promise<Generatio
     reply = outputCheck.cleaned !== undefined ? outputCheck.cleaned : fallbackRefusal();
   }
 
-  // 3. 输出话题自检（跳过短社交短语）
+  // 3. 输出话题自检（可配置，默认关闭以节省 API 费用）
+  if (config.topicSelfCheck) {
   const socialShortReplies = ["嗯", "哦", "好", "行", "哈哈", "是的", "对的", "知道了", "没问题", "okk"];
   if (!socialShortReplies.includes(userMessage.trim())) {
     try {
@@ -150,6 +161,7 @@ export async function generationStage(input: GenerationInput): Promise<Generatio
       // 自检失败不影响主流程
     }
   }
+  } // topicSelfCheck
 
   return { reply };
 }

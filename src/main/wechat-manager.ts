@@ -149,7 +149,7 @@ export class WeChatManager {
     try {
       // 尝试启动容器
       await execAsync(
-        `docker run -itd -p 2531:2531 -p 2532:2532 --name=${CONTAINER_NAME} ${IMAGE_NAME}`,
+        `docker run -d -p 2531:2531 -p 2532:2532 --name=${CONTAINER_NAME} ${IMAGE_NAME}`,
       );
     } catch (err) {
       const msg = String(err);

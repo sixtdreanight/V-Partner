@@ -20,7 +20,7 @@ export default function RelationshipModeStep({
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">你希望怎么开始你们的关系？</h2>
         <p className="text-sm text-muted-foreground">选择你们故事的起点</p>
       </Flex>

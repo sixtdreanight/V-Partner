@@ -46,7 +46,7 @@ export default function QQConfigStep({
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">配置 QQ 机器人</h2>
         <p className="text-sm text-muted-foreground">让 TA 能在 QQ 上和你聊天</p>
       </Flex>

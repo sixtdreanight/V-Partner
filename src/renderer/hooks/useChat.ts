@@ -36,15 +36,24 @@ export function useChat() {
       if (s.profile) setProfile(s.profile);
     });
 
-    // 恢复历史聊天记录
+    // 恢复历史聊天记录 — AI 回复按分句拆分
     window.api.loadHistory().then((history: unknown) => {
       const turns = history as Array<{ role: string; content: string; timestamp: string }>;
       if (Array.isArray(turns) && turns.length > 0) {
-        const restored: ChatMessage[] = turns.map((t) => ({
-          role: t.role === "assistant" ? "partner" : "user",
-          content: t.content,
-          time: t.timestamp,
-        }));
+        const restored: ChatMessage[] = [];
+        for (const t of turns) {
+          const role = t.role === "assistant" ? "partner" as const : "user" as const;
+          if (role === "partner") {
+            // 按句子拆分 AI 回复
+            const sentences = t.content.split(/(?<=[。！？.!?])/);
+            for (const s of sentences) {
+              const trimmed = s.trim();
+              if (trimmed) restored.push({ role: "partner", content: trimmed, time: t.timestamp });
+            }
+          } else {
+            restored.push({ role: "user", content: t.content, time: t.timestamp });
+          }
+        }
         setMessages(restored);
       }
     }).catch(() => {});

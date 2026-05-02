@@ -1,7 +1,7 @@
 import { Input, Field } from "../ui/Input";
 import { Flex } from "@radix-ui/themes";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/Select";
-import { Slider } from "../ui/Slider";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+import { Slider } from "../ui/slider";
 import CardSelect from "../shared/CardSelect";
 
 const PROVIDERS = [
@@ -52,7 +52,7 @@ export default function AIProviderStep({ data, update }: Props) {
 
   return (
     <Flex direction="column" gap="8">
-      <Flex direction="column" gap="1">
+      <Flex direction="column" gap="2">
         <h2 className="text-lg font-semibold">选择 AI 服务商</h2>
         <p className="text-sm text-muted-foreground">TA 的智能由你选择的 AI 驱动</p>
       </Flex>

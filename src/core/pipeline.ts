@@ -9,7 +9,7 @@
 
 import type { LanguageModel } from "ai";
 import type { AppConfig, Profile } from "./config.js";
-import { logger } from "./utils.js";
+import { logger, recordPipelineMessage, recordPipelineError } from "./utils.js";
 import { saveShortTerm } from "./memory.js";
 import { splitForChat } from "./split.js";
 import { preProcessStage } from "./stages/preprocess.js";
@@ -78,11 +78,13 @@ export async function processMessage(
   ctx: PipelineContext,
 ): Promise<string[]> {
   const { model, config, profile } = ctx;
+  const t0 = Date.now();
 
   // 定期清理过期会话
   cleanupSessions();
 
   // Stage 1: PreProcess — 安全 + 关系 + 搜索
+  const t1 = Date.now();
   const pre = await preProcessStage({ userId, userMessage, model, config, profile });
   if (pre.earlyReturn !== null) {
     saveShortTerm(userId, userMessage, pre.earlyReturn);
@@ -90,6 +92,7 @@ export async function processMessage(
   }
 
   // Stage 2: Memory — 记忆加载 + 摘要
+  const t2 = Date.now();
   const mem = await memoryStage(
     { userId, userMessage, model, config },
     getSummaryState(userId),
@@ -97,6 +100,7 @@ export async function processMessage(
   setSummaryState(userId, mem.summaryState);
 
   // Stage 3: Context — 系统提示词组装
+  const t3 = Date.now();
   const ctxOut = contextStage({
     userId, userMessage, profile, config,
     searchResults: pre.searchResults,
@@ -107,16 +111,20 @@ export async function processMessage(
   });
 
   // Stage 4: Generation — AI 调用 + 备用模型 + 输出检查
+  const t4 = Date.now();
   const gen = await generationStage({
     userMessage,
     systemPrompt: ctxOut.systemPrompt,
     history: mem.history,
     model,
     config,
+    authorsNote: ctxOut.authorsNote,
+    authorNotePosition: ctxOut.authorNotePosition,
   });
 
   // Stage 5: PostProcess — 记忆保存 + 事实提取 + 气泡拆分
-  return postProcessStage({
+  const t5 = Date.now();
+  const result = postProcessStage({
     userId,
     userMessage,
     reply: gen.reply,
@@ -125,4 +133,14 @@ export async function processMessage(
     profile,
     totalTurns: mem.summaryState.totalTurns,
   });
+  const t6 = Date.now();
+
+  // 流水线计时
+  const totalMs = t6 - t0;
+  logger.debug(
+    `Pipeline: pre=${t2 - t1}ms mem=${t3 - t2}ms ctx=${t4 - t3}ms gen=${t5 - t4}ms post=${t6 - t5}ms total=${totalMs}ms`,
+  );
+  recordPipelineMessage(totalMs);
+
+  return result;
 }

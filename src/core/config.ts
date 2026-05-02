@@ -96,6 +96,7 @@ export interface AppConfig {
     maxFactsInContext: number;
   };
   contentFilter: "strict" | "moderate" | "off";
+  topicSelfCheck: boolean;
 }
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -126,7 +127,7 @@ function loadEnvFile(dataRoot: string): void {
     const content = readFileSync(envPath, "utf-8");
     const parsed = dotenvParse(content);
     for (const [key, value] of Object.entries(parsed)) {
-      if (process.env[key] === undefined && value) {
+      if (value) {
         process.env[key] = value;
       }
     }
@@ -202,6 +203,7 @@ const DEFAULTS: Partial<AppConfig> = {
     maxFactsInContext: 5,
   },
   contentFilter: "strict",
+  topicSelfCheck: false,
 };
 
 // ---- 加载函数 ----
@@ -316,6 +318,7 @@ export function loadConfig(): AppConfig {
     contentFilter: filter === "strict" || filter === "moderate" || filter === "off"
       ? filter
       : DEFAULTS.contentFilter!,
+    topicSelfCheck: process.env.TOPIC_SELF_CHECK === "true",
   };
 }
 

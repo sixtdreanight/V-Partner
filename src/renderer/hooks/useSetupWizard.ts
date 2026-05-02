@@ -207,8 +207,6 @@ export function useSetupWizard() {
       }, 10000);
 
       await window.api.transitionToChat();
-      await new Promise((r) => setTimeout(r, 400));
-
       clearTimeout(timeoutId);
       window.location.hash = "#/chat";
     } catch (err) {

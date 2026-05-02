@@ -294,18 +294,35 @@ button:focus-visible {
 /* .glass removed — use GlassCard component instead */
 
 /* ===== macOS Dock style frosted glass ===== */
+/* ===== Liquid Glass — 液态玻璃效果 ===== */
 .glass-shine {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.06),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 .dark .glass-shine,
 .dark.glass-shine {
-  background: rgba(28, 28, 34, 0.7);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(40, 40, 50, 0.75) 0%,
+    rgba(30, 30, 38, 0.65) 50%,
+    rgba(35, 35, 45, 0.7) 100%
+  );
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ===== Animated gradient card ===== */
@@ -504,6 +521,11 @@ button:focus-visible {
 .bounce-dot:nth-child(1) { animation-delay: -0.32s; }
 .bounce-dot:nth-child(2) { animation-delay: -0.16s; }
 
+/* ===== Message bubble hover actions ===== */
+.msg-wrap:hover .msg-actions {
+  display: flex !important;
+}
+
 /* ===== Shimmer loading ===== */
 .shimmer {
   background: linear-gradient(
@@ -520,3 +542,4 @@ button:focus-visible {
 .pulse-ring {
   animation: pulse-ring 2s infinite;
 }
+
