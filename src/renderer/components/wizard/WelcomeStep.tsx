@@ -13,7 +13,7 @@ export default function WelcomeStep({ next }: { next: () => void }) {
         </Flex>
 
         <Flex direction="column" align="center" gap="2">
-          <Heading size="6">V-Partner</Heading>
+          <Heading size="6">梦间 / Yumema</Heading>
           <Text size="2" color="gray">创建属于你的 AI 伴侣</Text>
         </Flex>
 
