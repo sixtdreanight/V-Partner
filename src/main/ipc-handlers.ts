@@ -44,7 +44,13 @@ export function registerIpcHandlers() {
 
   // 确保 data 目录存在
   const dataDir = resolve(getDataRoot(), "data");
-  if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
+  if (!existsSync(dataDir)) {
+    try {
+      mkdirSync(dataDir, { recursive: true });
+    } catch (err) {
+      logger.error("Failed to create data directory:", err);
+    }
+  }
 
   const win = () => BrowserWindow.getAllWindows()[0] ?? null;
 
