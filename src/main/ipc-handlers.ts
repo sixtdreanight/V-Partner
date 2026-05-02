@@ -42,15 +42,11 @@ export function registerIpcHandlers() {
   const dataRoot = isDev ? resolve(__dirname, "..", "..") : app.getPath("userData");
   initDataRoot(dataRoot);
 
-  // 确保 data 目录存在
+  // 确保 data 目录与子目录存在
   const dataDir = resolve(getDataRoot(), "data");
-  if (!existsSync(dataDir)) {
-    try {
-      mkdirSync(dataDir, { recursive: true });
-    } catch (err) {
-      logger.error("Failed to create data directory:", err);
-    }
-  }
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(resolve(dataDir, "conversations"), { recursive: true });
+  mkdirSync(resolve(dataDir, "feedback"), { recursive: true });
 
   const win = () => BrowserWindow.getAllWindows()[0] ?? null;
 
