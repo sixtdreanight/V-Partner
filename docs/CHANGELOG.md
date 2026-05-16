@@ -2,6 +2,29 @@
 
 本文件所有 notable changes 遵循 [Keep a Changelog](https://keepachangelog.com/) 规范。
 
+## [0.1.1] - 2026-05-16
+
+### Security
+- preload.ts 新增 IPC invoke 通道白名单校验，阻止渲染进程调用未授权通道
+- writeEnvFile 键名正则转义，防止特殊字符注入
+
+### Fixed
+- 修复 saveShortTerm JSON 字节级拼接导致对话历史损坏的严重 bug
+- 修复 NapCat 安装时 .env 写入错误路径（dev 模式）及完全覆盖已有配置问题
+- 修复 CLI setup 爱好提取正则"喜欢画画"不匹配问题
+- 修复 memory IPC handler 绕过 domain 函数直接操作数据
+
+### Changed
+- 拆分 ipc-handlers.ts (650行) → handlers/chat-handlers.ts + handlers/setup-handlers.ts + ipc-handlers.ts (220行)
+- 提取 getDateInTimezone() 共享函数，消除 buildTimeContext/buildSensoryContext 重复代码
+- 提取 GUI_USER_ID 常量替代硬编码 "gui-user" 字符串
+- memory.ts 新增 deleteFact 函数
+
+### Added
+- src/core/__tests__/ 单元测试骨架 (split/safety/relationship)
+- vitest.config.ts 测试配置
+- findings.md 完整代码审查报告
+
 ## [0.1.0] - 2026-05-03
 
 ### Added

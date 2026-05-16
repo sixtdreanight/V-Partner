@@ -1,11 +1,11 @@
-import { app, BrowserWindow } from "electron";
+import { BrowserWindow } from "electron";
 import { spawn, ChildProcess } from "node:child_process";
 import { join, dirname } from "node:path";
 import { existsSync, mkdirSync, createWriteStream, writeFileSync, readdirSync, statSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
 import { get } from "node:https";
-import { getDataRoot } from "../core/config.js";
+import { getDataRoot, writeEnvFile } from "../core/config.js";
 
 // ---- 类型 ----
 
@@ -340,13 +340,13 @@ export class NapCatManager {
     const config = generateNapCatConfig(this.token);
     writeFileSync(join(configDir, "onebot11.json"), JSON.stringify(config, null, 2), "utf-8");
 
-    // 同时写入 .env 供 Yumema 使用
-    const envPath = join(app.getPath("userData"), ".env");
-    writeFileSync(
-      envPath,
-      `QQ_WS_URL=ws://127.0.0.1:${WS_PORT}\nQQ_ACCESS_TOKEN=${this.token}\n`,
-      "utf-8",
-    );
+    // 合并写入 .env 供 Yumema 使用（不覆盖已有的 AI 配置）
+    writeEnvFile({
+      qq: {
+        wsUrl: `ws://127.0.0.1:${WS_PORT}`,
+        accessToken: this.token,
+      },
+    });
 
     this.setStatus("stopped", "NapCatQQ 已安装");
   }

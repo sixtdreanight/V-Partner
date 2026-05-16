@@ -5,7 +5,7 @@ import electronUpdater from "electron-updater";
 const { autoUpdater } = electronUpdater;
 import { registerIpcHandlers } from "./ipc-handlers.js";
 import { loadProfile, getDataRoot, initDataRoot } from "../core/config.js";
-import { logger, setLogFile } from "../core/utils.js";
+import { logger, setLogFile, GUI_USER_ID } from "../core/utils.js";
 import { startScheduler } from "../core/scheduler.js";
 import { napCatManager } from "./napcat-manager.js";
 import { weChatManager } from "./wechat-manager.js";
@@ -166,7 +166,7 @@ app.whenReady().then(() => {
   if (profile) {
     startScheduler({
       profile,
-      getActiveUsers: () => ["gui-user"],
+      getActiveUsers: () => [GUI_USER_ID],
       sendMessage: async (_userId: string, message: string) => {
         logger.info(`定时消息: ${message.slice(0, 40)}`);
       },

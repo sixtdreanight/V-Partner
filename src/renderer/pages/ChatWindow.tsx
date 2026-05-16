@@ -101,7 +101,7 @@ export default function ChatWindow() {
           {sidebarItem(<MessageCircleHeart size={24} />, "反馈", () => setShowSurvey(true))}
           {sidebarItem(<Settings size={24} />, "设置", () => setShowSettings(true))}
         </div>
-        <Text size="1" color="gray" align="center" style={{ padding: "12px 0", WebkitAppRegion: "no-drag" }}>v0.1.0</Text>
+        <Text size="1" color="gray" align="center" style={{ padding: "12px 0", WebkitAppRegion: "no-drag" }}>v0.1.1</Text>
       </nav>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>

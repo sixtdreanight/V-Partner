@@ -6,7 +6,7 @@
  * 遗忘曲线: 不是无限完美记忆 — 久了不提就忘了
  */
 
-import { readFileSync, existsSync, mkdirSync, renameSync, appendFileSync, statSync, writeFileSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync, renameSync, appendFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { getDataRoot, writeFileAtomic } from "./config.js";
 import { logger, retry } from "./utils.js";
@@ -91,29 +91,9 @@ export function saveShortTerm(userId: string, userMsg: string, assistantMsg: str
   const userTurn = { role: "user" as const, content: userMsg, timestamp: now };
   const assistantTurn = { role: "assistant" as const, content: assistantMsg, timestamp: now };
 
-  if (!existsSync(filePath)) {
-    // 新文件：直接写入完整 JSON 数组
-    writeFileAtomic(filePath, JSON.stringify([userTurn, assistantTurn], null, 2) + "\n");
-    return;
-  }
-
-  // 已有文件：截掉末尾的 "]" 换行，追加新条目
-  const stat = statSync(filePath);
-  const lastBytes = readFileSync(filePath, { encoding: "utf-8", flag: "r" });
-  // 找到最后一个非空白字符（即 "]"），截断后再追加
-  const trimmed = lastBytes.trimEnd();
-  if (!trimmed.endsWith("]")) {
-    // 文件格式异常，回退到全量读写
-    const history = loadShortTerm(userId, 9999);
-    history.push(userTurn, assistantTurn);
-    writeFileAtomic(filePath, JSON.stringify(history, null, 2) + "\n");
-    return;
-  }
-  const cutoff = lastBytes.length - (lastBytes.length - trimmed.length) - 1; // before the "]"
-  const prefix = lastBytes.slice(0, cutoff);
-  const prevEntries = trimmed.startsWith("[") && trimmed.endsWith("]") && trimmed.length > 2;
-  const newEntries = JSON.stringify([userTurn, assistantTurn], null, 2).trimStart().slice(1).trimEnd().slice(0, -1);
-  writeFileSync(filePath, prefix + (prevEntries ? ",\n  " : "") + newEntries + "\n]\n", "utf-8");
+  const history = loadShortTerm(userId, 9999);
+  history.push(userTurn, assistantTurn);
+  writeFileAtomic(filePath, JSON.stringify(history, null, 2) + "\n");
 }
 
 /**
@@ -395,6 +375,18 @@ function expRecencyDecay(lastTimestamp: string, now: number): number {
 }
 
 // ---- 重要性调整（反馈闭环） ----
+
+/** 删除指定 topic 的事实 */
+export function deleteFact(topic: string): void {
+  const memory = loadLongTerm();
+  const before = memory.facts.length;
+  memory.facts = memory.facts.filter((f) => f.topic !== topic);
+  if (memory.facts.length !== before) {
+    memory.lastUpdated = new Date().toISOString();
+    writeFileAtomic(ltmPath(), JSON.stringify(memory, null, 2));
+    logger.debug(`记忆删除: ${topic}`);
+  }
+}
 
 /**
  * 调整事实的重要性评分。

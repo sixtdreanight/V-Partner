@@ -156,7 +156,8 @@ export function writeEnvFile(partial: {
   }
   const setEnv = (key: string, value: string | undefined) => {
     if (value === undefined) return;
-    const re = new RegExp(`^${key}=.*`, "m");
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`^${escapedKey}=.*`, "m");
     if (re.test(content)) {
       content = content.replace(re, `${key}=${value}`);
     } else {

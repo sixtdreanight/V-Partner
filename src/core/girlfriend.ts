@@ -9,7 +9,7 @@
  */
 
 import type { Profile, CustomStyle, UserGender, RelationshipType } from "./config.js";
-import { pickRandom } from "./utils.js";
+import { getDateInTimezone, pickRandom } from "./utils.js";
 import { buildSemanticHints } from "./semantic.js";
 
 // ---- 节日数据 ----
@@ -108,17 +108,7 @@ function getUpcomingHoliday(month: number, day: number): string | null {
 }
 
 export function buildTimeContext(tz: string): string {
-  let now: Date;
-  if (tz) {
-    try {
-      now = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
-    } catch {
-      // 无效时区回退到本地时间
-      now = new Date();
-    }
-  } else {
-    now = new Date();
-  }
+  const now = getDateInTimezone(tz);
   const hour = now.getHours();
   const weekday = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][now.getDay()];
   const month = now.getMonth() + 1;
@@ -161,11 +151,7 @@ export function buildTimeContext(tz: string): string {
 }
 
 export function buildSensoryContext(tz: string): string {
-  let now: Date;
-  if (tz) {
-    try { now = new Date(new Date().toLocaleString("en-US", { timeZone: tz })); }
-    catch { now = new Date(); }
-  } else { now = new Date(); }
+  const now = getDateInTimezone(tz);
   const hour = now.getHours();
   const month = now.getMonth() + 1;
   const season = month >= 3 && month <= 5 ? "春天" : month >= 6 && month <= 8 ? "夏天" : month >= 9 && month <= 11 ? "秋天" : "冬天";

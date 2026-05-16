@@ -149,6 +149,21 @@ export function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+/** 根据时区字符串创建本地时间对应的 Date 对象，无效时区回退到本地时间 */
+export function getDateInTimezone(tz: string): Date {
+  if (tz) {
+    try {
+      return new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
+    } catch {
+      // 无效时区回退到本地时间
+    }
+  }
+  return new Date();
+}
+
+/** GUI 用户的固定 ID */
+export const GUI_USER_ID = "gui-user";
+
 // ---- Pipeline 统计 (Part 8.2) ----
 
 interface PipelineStats {

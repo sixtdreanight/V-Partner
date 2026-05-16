@@ -88,8 +88,8 @@ export function parseDescription(raw: string): Partial<Profile> {
   const majorMatch = raw.match(/(计算机|软件|设计|视觉传达|心理学|金融|会计|法律|医学|建筑|中文|英语|新闻|市场营销|电子|机械)/);
   if (majorMatch) result.major = majorMatch[1];
 
-  // 提取爱好（"喜欢"/"爱"+事情）
-  const hobbyMatches = raw.matchAll(/[喜欢爱](画\S*|猫|狗|咖啡|奶茶|旅行|摄影|看\S*|听\S*|打\S*|做\S*|玩游戏?|健身|瑜伽|读书|写作|追剧|烘焙|探店|逛\S*)/g);
+  // 提取爱好（"喜欢"/"爱"/"想"+事情）
+  const hobbyMatches = raw.matchAll(/(?:喜欢|爱|想)\s*(画\S*|猫|狗|咖啡|奶茶|旅行|摄影|看\S*|听\S*|打\S*|做\S*|玩游戏?|健身|瑜伽|读书|写作|追剧|烘焙|探店|逛\S*)/g);
   const hobbies = new Set<string>();
   for (const m of hobbyMatches) {
     const h = m[1].replace(/[，。！？,.!?]/g, "").trim();

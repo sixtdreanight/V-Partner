@@ -1,96 +1,141 @@
 import { contextBridge, ipcRenderer } from "electron";
 
+const VALID_INVOKE_CHANNELS = [
+  "app:get-state",
+  "app:get-mbti-types",
+  "app:get-version",
+  "app:check-update",
+  "app:download-update",
+  "app:install-update",
+  "app:pick-avatar",
+  "app:get-avatar",
+  "app:export-profile",
+  "app:import-profile",
+  "app:export-chat",
+  "app:reset-data",
+  "setup:parse-description",
+  "setup:save-profile",
+  "setup:import-card",
+  "chat:send",
+  "chat:load-history",
+  "chat:regenerate",
+  "chat:search",
+  "window:transition-to-chat",
+  "napcat:get-status",
+  "napcat:start",
+  "napcat:stop",
+  "wechat:get-status",
+  "wechat:start",
+  "wechat:stop",
+  "settings:get-config",
+  "settings:update-config",
+  "settings:update-profile",
+  "memory:get-facts",
+  "memory:update-fact",
+  "memory:delete-fact",
+  "survey:submit",
+  "feedback:submit",
+];
+
+const VALID_ON_CHANNELS = [
+  "napcat:status-changed",
+  "napcat:qr-ready",
+  "wechat:status-changed",
+  "chat:reply-chunk",
+  "chat:typing",
+  "app:update-status",
+];
+
+function safeInvoke(channel: string, ...args: unknown[]) {
+  if (!VALID_INVOKE_CHANNELS.includes(channel)) {
+    return Promise.reject(new Error(`Blocked invoke on unlisted channel: ${channel}`));
+  }
+  return ipcRenderer.invoke(channel, ...args);
+}
+
 /** 提供给渲染进程的类型安全 API */
 const api = {
   // 应用状态
-  getState: () => ipcRenderer.invoke("app:get-state"),
+  getState: () => safeInvoke("app:get-state"),
   getPlatform: () => process.platform,
 
   // 设置向导
   parseDescription: (desc: string) =>
-    ipcRenderer.invoke("setup:parse-description", desc),
+    safeInvoke("setup:parse-description", desc),
   saveProfile: (data: Record<string, unknown>) =>
-    ipcRenderer.invoke("setup:save-profile", data),
+    safeInvoke("setup:save-profile", data),
   importCard: () =>
-    ipcRenderer.invoke("setup:import-card"),
+    safeInvoke("setup:import-card"),
   getMBTITypes: () =>
-    ipcRenderer.invoke("app:get-mbti-types"),
+    safeInvoke("app:get-mbti-types"),
   getMemoryFacts: () =>
-    ipcRenderer.invoke("memory:get-facts"),
+    safeInvoke("memory:get-facts"),
   updateMemoryFact: (fact: { topic: string; content: string }) =>
-    ipcRenderer.invoke("memory:update-fact", fact),
+    safeInvoke("memory:update-fact", fact),
   deleteMemoryFact: (topic: string) =>
-    ipcRenderer.invoke("memory:delete-fact", topic),
+    safeInvoke("memory:delete-fact", topic),
   searchChat: (query: string) =>
-    ipcRenderer.invoke("chat:search", query),
+    safeInvoke("chat:search", query),
 
   // 聊天
   sendMessage: (message: string) =>
-    ipcRenderer.invoke("chat:send", message),
+    safeInvoke("chat:send", message),
   loadHistory: (limit?: number) =>
-    ipcRenderer.invoke("chat:load-history", limit),
+    safeInvoke("chat:load-history", limit),
   regenerateLast: () =>
-    ipcRenderer.invoke("chat:regenerate"),
+    safeInvoke("chat:regenerate"),
 
   // 窗口控制
-  transitionToChat: () => ipcRenderer.invoke("window:transition-to-chat"),
+  transitionToChat: () => safeInvoke("window:transition-to-chat"),
 
   // NapCatQQ
-  getNapCatStatus: () => ipcRenderer.invoke("napcat:get-status"),
-  startNapCat: () => ipcRenderer.invoke("napcat:start"),
-  stopNapCat: () => ipcRenderer.invoke("napcat:stop"),
+  getNapCatStatus: () => safeInvoke("napcat:get-status"),
+  startNapCat: () => safeInvoke("napcat:start"),
+  stopNapCat: () => safeInvoke("napcat:stop"),
 
   // WeChat
-  getWeChatStatus: () => ipcRenderer.invoke("wechat:get-status"),
-  startWeChat: () => ipcRenderer.invoke("wechat:start"),
-  stopWeChat: () => ipcRenderer.invoke("wechat:stop"),
+  getWeChatStatus: () => safeInvoke("wechat:get-status"),
+  startWeChat: () => safeInvoke("wechat:start"),
+  stopWeChat: () => safeInvoke("wechat:stop"),
 
   // 设置
-  getConfig: () => ipcRenderer.invoke("settings:get-config"),
+  getConfig: () => safeInvoke("settings:get-config"),
   updateConfig: (config: Record<string, unknown>) =>
-    ipcRenderer.invoke("settings:update-config", config),
+    safeInvoke("settings:update-config", config),
   updateProfile: (data: Record<string, unknown>) =>
-    ipcRenderer.invoke("settings:update-profile", data),
+    safeInvoke("settings:update-profile", data),
   submitSurvey: (data: { satisfaction: number; features: string[]; problems: string[]; missing: string; notes: string }) =>
-    ipcRenderer.invoke("survey:submit", data),
+    safeInvoke("survey:submit", data),
 
   // 头像
-  pickAvatar: () => ipcRenderer.invoke("app:pick-avatar"),
-  getAvatar: () => ipcRenderer.invoke("app:get-avatar"),
+  pickAvatar: () => safeInvoke("app:pick-avatar"),
+  getAvatar: () => safeInvoke("app:get-avatar"),
 
   // 版本
-  getVersion: () => ipcRenderer.invoke("app:get-version"),
+  getVersion: () => safeInvoke("app:get-version"),
 
   // 角色卡导入导出
-  exportProfile: () => ipcRenderer.invoke("app:export-profile"),
-  importProfile: () => ipcRenderer.invoke("app:import-profile"),
+  exportProfile: () => safeInvoke("app:export-profile"),
+  importProfile: () => safeInvoke("app:import-profile"),
 
   // 聊天记录导出
-  exportChat: (format: "json" | "txt" | "md") => ipcRenderer.invoke("app:export-chat", format),
+  exportChat: (format: "json" | "txt" | "md") => safeInvoke("app:export-chat", format),
 
   // 消息反馈
   submitFeedback: (data: { type: string; userMessage: string; aiReply: string; correctionText?: string }) =>
-    ipcRenderer.invoke("feedback:submit", data),
+    safeInvoke("feedback:submit", data),
 
   // 重置数据
-  resetAllData: () => ipcRenderer.invoke("app:reset-data"),
+  resetAllData: () => safeInvoke("app:reset-data"),
 
   // 自动更新
-  checkUpdate: () => ipcRenderer.invoke("app:check-update"),
-  downloadUpdate: () => ipcRenderer.invoke("app:download-update"),
-  installUpdate: () => ipcRenderer.invoke("app:install-update"),
+  checkUpdate: () => safeInvoke("app:check-update"),
+  downloadUpdate: () => safeInvoke("app:download-update"),
+  installUpdate: () => safeInvoke("app:install-update"),
 
   // 监听主进程推送事件
   on: (channel: string, callback: (...args: unknown[]) => void) => {
-    const valid = [
-      "napcat:status-changed",
-      "napcat:qr-ready",
-      "wechat:status-changed",
-      "chat:reply-chunk",
-      "chat:typing",
-      "app:update-status",
-    ];
-    if (valid.includes(channel)) {
+    if (VALID_ON_CHANNELS.includes(channel)) {
       const listener = (_: Electron.IpcRendererEvent, ...args: unknown[]) =>
         callback(...args);
       ipcRenderer.on(channel, listener);
