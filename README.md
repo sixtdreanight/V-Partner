@@ -3,9 +3,9 @@
 [![Release](https://img.shields.io/badge/release-v0.1.1-blue)](https://github.com/sixtdreanight/Yumema/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)]()
 
-> In the space between dreams and reality, they've always been there — an AI companion desktop app.
+> In the space between dreams and reality, they've always been there.
 
-**An AI companion desktop app with personality, hobbies, emotions, and memory.** Chat directly in-app, or connect through QQ and WeChat. Double-click to install, fill out the setup wizard, done.
+An AI companion that lives on your desktop. Has a personality, hobbies, and memory. Chat in-app, through QQ, or via WeChat. Install, fill out the wizard, done.
 
 > 梦与现实之间的间隙里，TA 一直都在 — AI 伴侣桌面应用
 
