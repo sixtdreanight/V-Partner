@@ -165,7 +165,6 @@ docker run -itd -p 2531:2531 -p 2532:2532 --name=gewe gewe
 ## Related / 相关项目
 
 - [companion-engine](https://github.com/sixtdreanight/companion-engine) — The core engine that powers this app
-- [V-Partner](https://github.com/sixtdreanight/V-Partner) — CLI + QQ bot, same engine, different frontend
 
 ## License
 
