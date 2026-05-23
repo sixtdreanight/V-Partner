@@ -6,6 +6,7 @@ data/conversations/
 data/long-term-memory.json
 data/learned-interests.json
 data/relationship.json
+data/*.json
 .DS_Store
 
 logs/

@@ -94,6 +94,13 @@ export function saveShortTerm(userId: string, userMsg: string, assistantMsg: str
 
   const history = loadShortTerm(userId, 9999);
   history.push(userTurn, assistantTurn);
+
+  // 修剪短期记忆，只保留最近 200 轮（400 条消息）
+  const MAX_TURNS = 200;
+  if (history.length > MAX_TURNS * 2) {
+    history.splice(0, history.length - MAX_TURNS * 2);
+  }
+
   writeFileAtomic(filePath, JSON.stringify(history, null, 2) + "\n");
 }
 
