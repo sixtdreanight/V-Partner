@@ -28,6 +28,7 @@ function createWindow(startRoute: "setup" | "chat") {
     webPreferences: {
       preload: join(__dirname, "../preload/preload.cjs"),
       contextIsolation: true,
+      sandbox: true,
     },
   });
 
@@ -110,7 +111,12 @@ process.on("uncaughtException", (err) => {
   try { mkdirSync(crashDir, { recursive: true }); } catch { /* ignore */ }
   const crashFile = join(crashDir, `crash-${Date.now()}.log`);
   try {
-    writeFileSync(crashFile, `${new Date().toISOString()} uncaughtException\n${err.stack || err.message}\n`);
+    // 清理堆栈中的 API 密钥和敏感路径
+    const sanitized = (err.stack || err.message)
+      .replace(/api_key[=:]\S+/gi, "api_key=***")
+      .replace(/token[=:]\S+/gi, "token=***")
+      .replace(/secret[=:]\S+/gi, "secret=***");
+    writeFileSync(crashFile, `${new Date().toISOString()} uncaughtException\n${sanitized}\n`);
   } catch { /* ignore */ }
   logger.error("Uncaught exception:", err);
 });

@@ -11,7 +11,6 @@ export const ALLOWED_CHANNELS = new Set([
   // ---- 聊天 ----
   "chat:send",
   "chat:load-history",
-  "chat:export",
   "chat:regenerate",
   "chat:search",
   // ---- 窗口 ----

@@ -313,6 +313,38 @@ export class NapCatManager {
       this.setStatus("downloading", `下载 NapCatQQ... ${pct}%`);
     });
 
+    // 校验下载完整性（文件大小校验 + SHA256 校验和检测）
+    const actualSize = (await import("node:fs")).statSync(zipPath).size;
+    if (actualSize !== target.size) {
+      this.setStatus("error", `下载文件大小不匹配: 期望 ${target.size} 字节, 实际 ${actualSize} 字节`);
+      throw new Error("Download size mismatch");
+    }
+    // 尝试获取并验证 .sha256 校验和
+    const shaAsset = release.assets.find((a) => a.name === `${asset}.sha256`);
+    if (shaAsset) {
+      try {
+        const shaUrl = useMirror
+          ? `${GH_PROXY}/${shaAsset.browser_download_url}`
+          : shaAsset.browser_download_url;
+        const shaRes = await fetch(shaUrl);
+        const expectedHash = (await shaRes.text()).trim().split(/\s+/)[0];
+        const crypto = await import("node:crypto");
+        const actualHash = crypto.createHash("sha256")
+          .update((await import("node:fs")).readFileSync(zipPath))
+          .digest("hex");
+        if (actualHash !== expectedHash) {
+          this.setStatus("error", "SHA256 校验和不匹配，文件可能已损坏或被篡改");
+          throw new Error("SHA256 checksum mismatch");
+        }
+      } catch (err) {
+        if (err instanceof Error && err.message.includes("checksum")) throw err;
+        // sha256 文件获取失败，继续但记录警告
+        logger.warn("[NapCat] SHA256 checksum file found but could not be verified: %s", err);
+      }
+    } else {
+      this.setStatus("downloading", "NapCatQQ 发布未提供 SHA256 校验和，跳过完整性校验");
+    }
+
     // 解压
     this.setStatus("extracting", "解压 NapCatQQ...");
     await extractZip(zipPath, dir);

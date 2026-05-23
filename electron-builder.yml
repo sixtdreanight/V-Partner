@@ -28,8 +28,8 @@ mac:
       arch:
         - x64
         - arm64
-  hardenedRuntime: false
-  gatekeeperAssess: false
+  hardenedRuntime: true
+  gatekeeperAssess: true
   entitlements: resources/entitlements.mac.plist
   entitlementsInherit: resources/entitlements.mac.plist
 

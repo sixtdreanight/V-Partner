@@ -71,7 +71,10 @@ export const updateConfigSchema = z.object({
   qq: qqConfigSchema.partial().optional(),
   wechat: wechatConfigSchema.partial().optional(),
   contentFilter: z.enum(VALID_FILTERS).optional(),
-});
+}).refine(
+  (data) => Object.keys(data).length > 0,
+  { message: "至少需要提供一个要更新的字段" },
+);
 
 // ---- Profile Update ----
 export const updateProfileSchema = profileSchema.partial();
