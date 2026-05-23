@@ -23,10 +23,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --mac --x64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mac-x64
-          path: release/*.dmg
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} release/*.dmg --clobber
 
   mac-arm64:
     runs-on: macos-latest
@@ -42,10 +42,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --mac --arm64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mac-arm64
-          path: release/*.dmg
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} release/*.dmg --clobber
 
   win-x64:
     runs-on: windows-latest
@@ -61,10 +61,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --win --x64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: win-x64
-          path: release/*.exe
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} release/*.exe --clobber
 
   linux-x64:
     runs-on: ubuntu-latest
@@ -80,39 +80,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --linux --x64 --publish never
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-x64
-          path: release/*.AppImage
-
-  publish:
-    needs: [mac-x64, mac-arm64, win-x64, linux-x64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: "*"
-          path: release/
-          merge-multiple: true
-
-      - name: List artifacts
-        run: ls -la release/
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Yumema ${{ github.ref_name }}
-          body: |
-            ## Yumema ${{ github.ref_name }}
-
-            ### 下载
-            - **macOS (Intel)**: `.dmg`
-            - **macOS (Apple Silicon)**: `.dmg`
-            - **Windows (x64)**: `.exe`
-            - **Linux (x64)**: `.AppImage`
-
-            ### 更新内容
-            详见 [CHANGELOG](https://github.com/sixtdreanight/Yumema/blob/main/docs/CHANGELOG.md)
-          files: release/*
-          draft: false
-          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} release/*.AppImage --clobber
