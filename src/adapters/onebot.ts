@@ -6,8 +6,8 @@
  */
 
 import { WebSocket } from "ws";
-import type { QQConfig } from "../core/config.js";
-import { logger, sleep } from "../core/utils.js";
+import type { QQConfig } from "@sleepnight/companion-core";
+import { logger, sleep } from "@sleepnight/companion-core";
 
 // ---- 类型 ----
 

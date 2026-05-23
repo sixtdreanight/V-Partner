@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, createWriteStream, writeFileSync, readdirSync, s
 import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
 import { get } from "node:https";
-import { getDataRoot, writeEnvFile } from "../core/config.js";
+import { getDataRoot, writeEnvFile } from "@sleepnight/companion-core";
 
 // ---- 类型 ----
 

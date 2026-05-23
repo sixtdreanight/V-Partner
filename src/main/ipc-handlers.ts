@@ -4,10 +4,10 @@
 import { BrowserWindow, app, dialog } from "electron";
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from "node:fs";
-import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile } from "../core/config.js";
-import { logger, GUI_USER_ID } from "../core/utils.js";
-import { loadShortTerm } from "../core/memory.js";
-import { validateProfile } from "../core/safety.js";
+import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile } from "@sleepnight/companion-core";
+import { logger, GUI_USER_ID } from "@sleepnight/companion-core";
+import { loadShortTerm } from "@sleepnight/companion-core";
+import { validateProfile } from "@sleepnight/companion-core";
 import { napCatManager } from "./napcat-manager.js";
 import { weChatManager } from "./wechat-manager.js";
 import { safeHandle } from "./handler-utils.js";
@@ -78,7 +78,7 @@ export function registerIpcHandlers() {
 
   // ---- 设置 ----
   safeHandle("app:get-mbti-types", async () => {
-    const { getAllMBTITypes } = await import("../core/mbti.js");
+    const { getAllMBTITypes } = await import("@sleepnight/companion-core");
     return getAllMBTITypes();
   });
 

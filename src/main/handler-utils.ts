@@ -4,7 +4,7 @@
  * 所有 ipcMain.handle 注册必须通过 safeHandle，拒绝未列名的通道。
  */
 import { ipcMain } from "electron";
-import { logger } from "../core/utils.js";
+import { logger } from "@sleepnight/companion-core";
 
 /** 所有允许注册的 IPC 通道名 */
 export const ALLOWED_CHANNELS = new Set([
