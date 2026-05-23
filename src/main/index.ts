@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, dialog, Notification, session } from "electron";
+import { app, BrowserWindow, dialog, Notification, session } from "electron";
+import { safeHandle } from "./handler-utils.js";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import electronUpdater from "electron-updater";
@@ -79,7 +80,7 @@ function setupAutoUpdater() {
     sendUpdateStatus({ type: "error", message: err.message });
   });
 
-  ipcMain.handle("app:check-update", async () => {
+  safeHandle("app:check-update", async () => {
     try {
       const result = await autoUpdater.checkForUpdates();
       return { hasUpdate: !!result?.updateInfo?.version, version: result?.updateInfo?.version };
@@ -88,7 +89,7 @@ function setupAutoUpdater() {
     }
   });
 
-  ipcMain.handle("app:download-update", async () => {
+  safeHandle("app:download-update", async () => {
     try {
       await autoUpdater.downloadUpdate();
       return { success: true };
@@ -97,7 +98,7 @@ function setupAutoUpdater() {
     }
   });
 
-  ipcMain.handle("app:install-update", () => {
+  safeHandle("app:install-update", () => {
     autoUpdater.quitAndInstall(true, true);
   });
 }

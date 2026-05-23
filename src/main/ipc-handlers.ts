@@ -1,7 +1,7 @@
 /**
  * IPC 处理器注册 — 编排各域 handler
  */
-import { ipcMain, BrowserWindow, app, dialog } from "electron";
+import { BrowserWindow, app, dialog } from "electron";
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile } from "../core/config.js";
@@ -10,6 +10,7 @@ import { loadShortTerm } from "../core/memory.js";
 import { validateProfile } from "../core/safety.js";
 import { napCatManager } from "./napcat-manager.js";
 import { weChatManager } from "./wechat-manager.js";
+import { safeHandle } from "./handler-utils.js";
 import { updateConfigSchema, profileSchema } from "../shared/ipc-schemas.js";
 import { registerChatHandlers, pipelineInvalidate } from "./handlers/chat-handlers.js";
 import { registerSetupHandlers } from "./handlers/setup-handlers.js";
@@ -25,11 +26,11 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("napcat:get-status", () => {
+  safeHandle("napcat:get-status", () => {
     return napCatManager.getState();
   });
 
-  ipcMain.handle("napcat:start", async () => {
+  safeHandle("napcat:start", async () => {
     try {
       if (!napCatManager.isInstalled()) {
         await napCatManager.install();
@@ -41,7 +42,7 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("napcat:stop", () => {
+  safeHandle("napcat:stop", () => {
     napCatManager.stop();
     return { success: true };
   });
@@ -53,11 +54,11 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("wechat:get-status", () => {
+  safeHandle("wechat:get-status", () => {
     return weChatManager.getState();
   });
 
-  ipcMain.handle("wechat:start", async () => {
+  safeHandle("wechat:start", async () => {
     try {
       await weChatManager.start();
       return { success: true };
@@ -66,7 +67,7 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("wechat:stop", async () => {
+  safeHandle("wechat:stop", async () => {
     try {
       await weChatManager.stop();
       return { success: true };
@@ -76,12 +77,12 @@ export function registerIpcHandlers() {
   });
 
   // ---- 设置 ----
-  ipcMain.handle("app:get-mbti-types", async () => {
+  safeHandle("app:get-mbti-types", async () => {
     const { getAllMBTITypes } = await import("../core/mbti.js");
     return getAllMBTITypes();
   });
 
-  ipcMain.handle("settings:get-config", () => {
+  safeHandle("settings:get-config", () => {
     const config = loadConfig();
     const hasApiKey = !!config.ai?.apiKey;
     return {
@@ -94,7 +95,7 @@ export function registerIpcHandlers() {
     };
   });
 
-  ipcMain.handle("settings:update-config", (_, raw: unknown) => {
+  safeHandle("settings:update-config", (_, raw: unknown) => {
     try {
       const parsed = updateConfigSchema.safeParse(raw);
       if (!parsed.success) {
@@ -127,7 +128,7 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("settings:update-profile", (_, raw: unknown) => {
+  safeHandle("settings:update-profile", (_, raw: unknown) => {
     try {
       const data = raw as Record<string, unknown> | undefined;
       if (!data || typeof data !== "object") {
@@ -161,11 +162,11 @@ export function registerIpcHandlers() {
   });
 
   // ---- 应用工具 ----
-  ipcMain.handle("app:get-version", () => {
+  safeHandle("app:get-version", () => {
     return app.getVersion();
   });
 
-  ipcMain.handle("app:pick-avatar", async () => {
+  safeHandle("app:pick-avatar", async () => {
     const result = await dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [{ name: "图片", extensions: ["png", "jpg", "jpeg", "gif", "webp"] }],
@@ -182,7 +183,7 @@ export function registerIpcHandlers() {
     return base64;
   });
 
-  ipcMain.handle("app:get-avatar", () => {
+  safeHandle("app:get-avatar", () => {
     const avatarPath = resolve(getDataRoot(), "data", "avatar");
     if (existsSync(avatarPath)) {
       return readFileSync(avatarPath, "utf-8");
@@ -190,7 +191,7 @@ export function registerIpcHandlers() {
     return null;
   });
 
-  ipcMain.handle("app:export-chat", async (_, format: "json" | "txt") => {
+  safeHandle("app:export-chat", async (_, format: "json" | "txt") => {
     try {
       const history = loadShortTerm(GUI_USER_ID, 1000);
       const ext = format === "json" ? "json" : "txt";
@@ -213,7 +214,7 @@ export function registerIpcHandlers() {
     }
   });
 
-  ipcMain.handle("app:reset-data", async () => {
+  safeHandle("app:reset-data", async () => {
     try {
       const dataRoot = getDataRoot();
       const dataDir = resolve(dataRoot, "data");

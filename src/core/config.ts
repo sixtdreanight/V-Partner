@@ -119,7 +119,13 @@ export function getDataRoot(): string {
 
 const VALID_PROVIDERS = ["anthropic", "openai", "openai-compatible", "ollama"] as const;
 
-/** Load .env from data root into process.env (only keys not already set by system) */
+/**
+ * Load .env from data root into process.env (only keys not already set by system)
+ *
+ * 安全警告: 在 Electron 中，任何有权限的扩展或渲染进程代码都能读取 process.env。
+ * 生产环境应考虑使用 electron.safeStorage 加密存储敏感值（如 API key），
+ * 并在运行时解密后注入，而非将其放在 .env / process.env 中。
+ */
 function loadEnvFile(dataRoot: string): void {
   const envPath = resolve(dataRoot, ".env");
   if (!existsSync(envPath)) return;
@@ -130,6 +136,13 @@ function loadEnvFile(dataRoot: string): void {
       if (value) {
         process.env[key] = value;
       }
+    }
+    /** 检查是否加载了敏感字段 */
+    if (parsed.AI_API_KEY || parsed.ANTHROPIC_API_KEY || parsed.OPENAI_API_KEY) {
+      logger.warn(
+        "API key loaded into process.env via .env — in Electron, extensions can read process.env. " +
+        "Consider using electron.safeStorage for production.",
+      );
     }
     logger.info(`Loaded .env from ${envPath}`);
   } catch (err) {
@@ -223,6 +236,8 @@ function validateProvider(raw: string | undefined, fallback: AIConfig["provider"
 function loadEnvConfig(): { ai: AIConfig; qq: QQConfig; wechat: WeChatConfig } {
   const provider = validateProvider(process.env.AI_PROVIDER, "anthropic");
   const model = process.env.AI_MODEL || "claude-sonnet-4-20250514";
+  // SECURITY: process.env is readable by any Electron extension in the renderer.
+  // For production, prefer electron.safeStorage over plaintext env vars.
   const apiKey =
     process.env.AI_API_KEY ||
     process.env.ANTHROPIC_API_KEY ||
@@ -231,6 +246,11 @@ function loadEnvConfig(): { ai: AIConfig; qq: QQConfig; wechat: WeChatConfig } {
 
   if (!apiKey) {
     logger.warn("未设置 AI_API_KEY，AI 功能将不可用");
+  } else {
+    logger.warn(
+      "API key loaded from process.env — in Electron, any extension can read process.env. " +
+      "Consider using electron.safeStorage for production use.",
+    );
   }
 
   return {

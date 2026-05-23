@@ -1,7 +1,8 @@
 /**
  * Chat + Memory IPC handlers
  */
-import { ipcMain, BrowserWindow, dialog } from "electron";
+import { BrowserWindow, dialog } from "electron";
+import { safeHandle } from "../handler-utils.js";
 import { processMessage, createAIProvider } from "../../core/pipeline.js";
 import { loadConfig, loadProfile, getDataRoot } from "../../core/config.js";
 import { logger, GUI_USER_ID } from "../../core/utils.js";
@@ -28,7 +29,7 @@ function win() { return BrowserWindow.getAllWindows()[0] ?? null; }
 
 export function registerChatHandlers() {
   // ---- 聊天 ----
-  ipcMain.handle("chat:send", async (_, message: string) => {
+  safeHandle("chat:send", async (_, message: string) => {
     try {
       if (!pipelineCtx) pipelineCtx = createPipelineContext();
       const replies = await processMessage(GUI_USER_ID, message, pipelineCtx);
@@ -55,11 +56,11 @@ export function registerChatHandlers() {
     }
   });
 
-  ipcMain.handle("chat:load-history", (_, limit?: number) => {
+  safeHandle("chat:load-history", (_, limit?: number) => {
     return loadShortTerm(GUI_USER_ID, limit ?? 24);
   });
 
-  ipcMain.handle("chat:export", async (_, format: "txt" | "md") => {
+  safeHandle("chat:export", async (_, format: "txt" | "md") => {
     try {
       const w = win();
       if (!w) return { success: false, error: "无窗口" };
@@ -87,7 +88,7 @@ export function registerChatHandlers() {
     }
   });
 
-  ipcMain.handle("chat:regenerate", async () => {
+  safeHandle("chat:regenerate", async () => {
     try {
       const lastUserMsg = removeLastTurn(GUI_USER_ID);
       if (!lastUserMsg) {
@@ -113,18 +114,18 @@ export function registerChatHandlers() {
     }
   });
 
-  ipcMain.handle("chat:search", async (_, query: string) => {
+  safeHandle("chat:search", async (_, query: string) => {
     const { searchConversations } = await import("../../core/search-history.js");
     return searchConversations(query);
   });
 
   // ---- 记忆 ----
-  ipcMain.handle("memory:get-facts", async () => {
+  safeHandle("memory:get-facts", async () => {
     const { loadLongTerm } = await import("../../core/memory.js");
     return loadLongTerm().facts;
   });
 
-  ipcMain.handle("memory:update-fact", async (_, raw: unknown) => {
+  safeHandle("memory:update-fact", async (_, raw: unknown) => {
     try {
       const parsed = memoryFactSchema.safeParse(raw);
       if (!parsed.success) {
@@ -145,7 +146,7 @@ export function registerChatHandlers() {
     }
   });
 
-  ipcMain.handle("memory:delete-fact", async (_, topic: string) => {
+  safeHandle("memory:delete-fact", async (_, topic: string) => {
     try {
       const { deleteFact, loadLongTerm } = await import("../../core/memory.js");
       deleteFact(topic);
@@ -156,7 +157,7 @@ export function registerChatHandlers() {
   });
 
   // ---- 消息反馈 ----
-  ipcMain.handle("feedback:submit", async (_, raw: unknown) => {
+  safeHandle("feedback:submit", async (_, raw: unknown) => {
     try {
       const parsed = feedbackSchema.safeParse(raw);
       if (!parsed.success) {
@@ -173,7 +174,7 @@ export function registerChatHandlers() {
   });
 
   // ---- 窗口控制 ----
-  ipcMain.handle("window:transition-to-chat", () => {
+  safeHandle("window:transition-to-chat", () => {
     const w = win();
     if (w) {
       w.setMinimumSize(700, 500);

@@ -1,7 +1,8 @@
 /**
  * Setup wizard + Profile import/export + App state + Survey IPC handlers
  */
-import { ipcMain, BrowserWindow, app, dialog } from "electron";
+import { BrowserWindow, app, dialog } from "electron";
+import { safeHandle } from "../handler-utils.js";
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, readFileSync } from "node:fs";
 import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile, type AIConfig } from "../../core/config.js";
@@ -15,7 +16,7 @@ function win() { return BrowserWindow.getAllWindows()[0] ?? null; }
 
 export function registerSetupHandlers() {
   // ---- 应用状态 ----
-  ipcMain.handle("app:get-state", () => {
+  safeHandle("app:get-state", () => {
     const profile = loadProfile();
     return {
       hasProfile: !!profile,
@@ -25,11 +26,11 @@ export function registerSetupHandlers() {
   });
 
   // ---- 设置向导 ----
-  ipcMain.handle("setup:parse-description", (_, desc: string) => {
+  safeHandle("setup:parse-description", (_, desc: string) => {
     return parseDescription(desc);
   });
 
-  ipcMain.handle("setup:import-card", async () => {
+  safeHandle("setup:import-card", async () => {
     const { parseSTCard, extractCardFromPNG } = await import("../../core/card-import.js");
     const w = win();
     if (!w) return { success: false, error: "无窗口" };
@@ -64,7 +65,7 @@ export function registerSetupHandlers() {
     }
   });
 
-  ipcMain.handle("setup:save-profile", (_, raw: unknown) => {
+  safeHandle("setup:save-profile", (_, raw: unknown) => {
     try {
       const data = raw as Record<string, unknown>;
       const root = getDataRoot();
@@ -133,7 +134,7 @@ export function registerSetupHandlers() {
   });
 
   // ---- 角色卡导入导出 ----
-  ipcMain.handle("app:export-profile", async () => {
+  safeHandle("app:export-profile", async () => {
     try {
       const profilePath = resolve(getDataRoot(), "data", "profile.json");
       if (!existsSync(profilePath)) {
@@ -153,7 +154,7 @@ export function registerSetupHandlers() {
     }
   });
 
-  ipcMain.handle("app:import-profile", async () => {
+  safeHandle("app:import-profile", async () => {
     try {
       const result = await dialog.showOpenDialog({
         properties: ["openFile"],
@@ -183,7 +184,7 @@ export function registerSetupHandlers() {
   });
 
   // ---- 问卷反馈 ----
-  ipcMain.handle("survey:submit", (_, raw: unknown) => {
+  safeHandle("survey:submit", (_, raw: unknown) => {
     try {
       const parsed = surveySchema.safeParse(raw);
       if (!parsed.success) {

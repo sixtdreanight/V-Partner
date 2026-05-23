@@ -6,7 +6,7 @@
  * 遗忘曲线: 不是无限完美记忆 — 久了不提就忘了
  */
 
-import { readFileSync, existsSync, mkdirSync, renameSync, appendFileSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
 import { getDataRoot, writeFileAtomic } from "./config.js";
 import { logger, retry } from "./utils.js";
@@ -82,7 +82,8 @@ export function loadShortTerm(userId: string, maxTurns: number): ConversationTur
 
 /**
  * 追加一轮对话到短期记忆
- * 使用文件追加替代全量读写，避免每条消息 O(n) 文件 I/O
+ * 安全做法：读取当前数组 → 追加新消息 → 原子写入（写 .tmp 再 rename）
+ * 避免 JSON 拼接（appendFileSync）导致文件损坏
  */
 export function saveShortTerm(userId: string, userMsg: string, assistantMsg: string) {
   ensureDirs();
