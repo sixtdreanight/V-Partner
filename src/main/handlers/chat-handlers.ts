@@ -3,12 +3,12 @@
  */
 import { BrowserWindow, dialog } from "electron";
 import { safeHandle } from "../handler-utils.js";
-import { processMessage, createAIProvider } from "@sleepnight/companion-core";
-import { loadConfig, loadProfile, getDataRoot } from "@sleepnight/companion-core";
-import { logger, GUI_USER_ID } from "@sleepnight/companion-core";
-import { loadShortTerm, removeLastTurn } from "@sleepnight/companion-core";
+import { processMessage, createAIProvider } from "@sixtdreamnight/companion-engine";
+import { loadConfig, loadProfile, getDataRoot } from "@sixtdreamnight/companion-engine";
+import { logger, GUI_USER_ID } from "@sixtdreamnight/companion-engine";
+import { loadShortTerm, removeLastTurn } from "@sixtdreamnight/companion-engine";
 import { memoryFactSchema, feedbackSchema } from "../../shared/ipc-schemas.js";
-import { saveFeedback } from "@sleepnight/companion-core";
+import { saveFeedback } from "@sixtdreamnight/companion-engine";
 import type { LanguageModel } from "ai";
 
 let pipelineCtx: { model: LanguageModel; config: ReturnType<typeof loadConfig>; profile: ReturnType<typeof loadProfile> } | null = null;
@@ -64,7 +64,7 @@ export function registerChatHandlers() {
     try {
       const w = win();
       if (!w) return { success: false, error: "无窗口" };
-      const { exportToTXT, exportToMarkdown } = await import("@sleepnight/companion-core");
+      const { exportToTXT, exportToMarkdown } = await import("@sixtdreamnight/companion-engine");
       const profile = loadProfile();
       const content = format === "md"
         ? exportToMarkdown(GUI_USER_ID, profile)
@@ -115,13 +115,13 @@ export function registerChatHandlers() {
   });
 
   safeHandle("chat:search", async (_, query: string) => {
-    const { searchConversations } = await import("@sleepnight/companion-core");
+    const { searchConversations } = await import("@sixtdreamnight/companion-engine");
     return searchConversations(query);
   });
 
   // ---- 记忆 ----
   safeHandle("memory:get-facts", async () => {
-    const { loadLongTerm } = await import("@sleepnight/companion-core");
+    const { loadLongTerm } = await import("@sixtdreamnight/companion-engine");
     return loadLongTerm().facts;
   });
 
@@ -132,7 +132,7 @@ export function registerChatHandlers() {
         return { success: false, error: parsed.error.issues[0].message };
       }
       const fact = parsed.data;
-      const { loadLongTerm, updateFact, adjustFactImportance } = await import("@sleepnight/companion-core");
+      const { loadLongTerm, updateFact, adjustFactImportance } = await import("@sixtdreamnight/companion-engine");
       const memory = loadLongTerm();
       const exists = memory.facts.some((f) => f.topic === fact.topic);
       if (exists) {
@@ -148,7 +148,7 @@ export function registerChatHandlers() {
 
   safeHandle("memory:delete-fact", async (_, topic: string) => {
     try {
-      const { deleteFact, loadLongTerm } = await import("@sleepnight/companion-core");
+      const { deleteFact, loadLongTerm } = await import("@sixtdreamnight/companion-engine");
       deleteFact(topic);
       return { success: true, data: loadLongTerm().facts };
     } catch (err) {

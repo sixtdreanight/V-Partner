@@ -11,14 +11,14 @@
 
 import "dotenv/config";
 import * as readline from "node:readline";
-import { loadConfig, loadProfile } from "@sleepnight/companion-core";
-import { logger, setLogLevel } from "@sleepnight/companion-core";
-import { createAIProvider, processMessage } from "@sleepnight/companion-core";
+import { loadConfig, loadProfile } from "@sixtdreamnight/companion-engine";
+import { logger, setLogLevel } from "@sixtdreamnight/companion-engine";
+import { createAIProvider, processMessage } from "@sixtdreamnight/companion-engine";
 import { startOneBot } from "../adapters/onebot.js";
 import type { QQMessage } from "../adapters/onebot.js";
 import { startWeChat } from "../adapters/wechat.js";
 import type { WeChatMessage } from "../adapters/wechat.js";
-import { startScheduler } from "@sleepnight/companion-core";
+import { startScheduler } from "@sixtdreamnight/companion-engine";
 
 // ---- 终端测试模式 ----
 

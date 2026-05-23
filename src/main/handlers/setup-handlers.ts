@@ -5,10 +5,10 @@ import { BrowserWindow, app, dialog } from "electron";
 import { safeHandle } from "../handler-utils.js";
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, readFileSync } from "node:fs";
-import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile, type AIConfig } from "@sleepnight/companion-core";
+import { loadProfile, loadConfig, getDataRoot, writeFileAtomic, writeEnvFile, type AIConfig } from "@sixtdreamnight/companion-engine";
 import { pipelineInvalidate } from "./chat-handlers.js";
-import { validateProfile } from "@sleepnight/companion-core";
-import { createRelationshipState } from "@sleepnight/companion-core";
+import { validateProfile } from "@sixtdreamnight/companion-engine";
+import { createRelationshipState } from "@sixtdreamnight/companion-engine";
 import { parseDescription } from "../../cli/setup.js";
 import { profileSchema, surveySchema } from "../../shared/ipc-schemas.js";
 
@@ -31,7 +31,7 @@ export function registerSetupHandlers() {
   });
 
   safeHandle("setup:import-card", async () => {
-    const { parseSTCard, extractCardFromPNG } = await import("@sleepnight/companion-core");
+    const { parseSTCard, extractCardFromPNG } = await import("@sixtdreamnight/companion-engine");
     const w = win();
     if (!w) return { success: false, error: "无窗口" };
     const result = await dialog.showOpenDialog(w, {

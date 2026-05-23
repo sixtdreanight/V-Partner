@@ -10,8 +10,8 @@ import * as readline from "node:readline";
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Profile, CustomStyle, UserGender, RelationshipType, RelationshipMode } from "@sleepnight/companion-core";
-import { createRelationshipState } from "@sleepnight/companion-core";
+import type { Profile, CustomStyle, UserGender, RelationshipType, RelationshipMode } from "@sixtdreamnight/companion-engine";
+import { createRelationshipState } from "@sixtdreamnight/companion-engine";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(__dirname, "..", "..");

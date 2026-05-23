@@ -7,7 +7,7 @@
  * 本适配器通过轮询 + HTTP 回调方式收发消息。
  */
 
-import { logger, sleep } from "@sleepnight/companion-core";
+import { logger, sleep } from "@sixtdreamnight/companion-engine";
 
 // ---- 类型 ----
 

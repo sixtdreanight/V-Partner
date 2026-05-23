@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../ui/Button";
 import type { WizardData } from "../../hooks/useSetupWizard";
-import { getTemplates, type RoleTemplate } from "@sleepnight/companion-core";
+import { getTemplates, type RoleTemplate } from "@sixtdreamnight/companion-engine";
 
 export default function QuickStartStep({
   next, updateParseField, update,
