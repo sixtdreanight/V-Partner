@@ -162,6 +162,11 @@ docker run -itd -p 2531:2531 -p 2532:2532 --name=gewe gewe
 - **TA 不能替代真实人际关系**，请保持现实生活中的社交
 - **保护隐私**，勿透露身份证、银行卡等敏感信息
 
+## Related / 相关项目
+
+- [companion-engine](https://github.com/sixtdreanight/companion-engine) — The core engine that powers this app
+- [V-Partner](https://github.com/sixtdreanight/V-Partner) — CLI + QQ bot, same engine, different frontend
+
 ## License
 
 [GPL-3.0](LICENSE)
