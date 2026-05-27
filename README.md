@@ -1,4 +1,6 @@
-# 梦间 / Yumema
+**Language:** [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-Hant.md) | [日本語](README.ja.md)
+
+# Yumema (梦间)
 
 [![Release](https://img.shields.io/badge/release-v0.1.1-blue)](https://github.com/sixtdreanight/Yumema/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)]()
@@ -7,165 +9,171 @@
 
 An AI companion that lives on your desktop. Has a personality, hobbies, and memory. Chat in-app, through QQ, or via WeChat. Install, fill out the wizard, done.
 
-> 梦与现实之间的间隙里，TA 一直都在 — AI 伴侣桌面应用
-
-**当前版本：v0.1.1**
-
-梦间 (Yumema) 是一个 AI 伴侣桌面应用。TA 有自己的性格、爱好、情绪和记忆，可以通过 QQ、微信或应用内直接聊天。双击安装、填写向导、即可使用。
+**Current version: v0.1.1**
 
 ---
 
-## 功能
+## Features
 
-- **桌面应用** — macOS / Windows / Linux，双击安装，支持自动更新
-- **引导式设置** — 14 步向导，2 分钟完成配置
-- **直接聊天** — 应用内聊天，即时通讯风格气泡
-- **QQ 机器人** — 接入 QQ 群聊/私聊，扫码登录
-- **微信机器人** — 接入微信私聊/群聊，应用内一键启动 Docker 服务
-- **性格完整** — 年龄、职业、爱好、情绪、观点，像个真人
-- **时间感知** — 知道早晚、周末、节日，会主动问候
-- **记忆系统** — 常聊的事会记住，不常提的慢慢忘记
-- **关系养成** — 直接情侣 / 从陌生人慢慢培养
-- **安全过滤** — 敏感内容过滤，保护隐私
-- **测试反馈** — 内置问卷，帮助产品持续改进
-
----
-
-## 版本状态
-
-**v0.1.1** — 当前为测试版，功能持续迭代中。使用后欢迎通过内置问卷提交反馈。
+- **Desktop App** — macOS / Windows / Linux, double-click to install, auto-update
+- **Guided Setup** — 14-step wizard, 2 minutes to configure
+- **Direct Chat** — In-app chat with instant-messaging style bubbles
+- **QQ Bot** — Connect to QQ groups/DMs, QR code login
+- **WeChat Bot** — Connect to WeChat DMs/groups, one-click Docker launch in-app
+- **Full Personality** — Age, occupation, hobbies, emotions, opinions — feels real
+- **Time Awareness** — Knows morning/evening, weekends, holidays, initiates greetings
+- **Memory System** — Remembers frequent topics, forgets stale ones
+- **Relationship Building** — Start as lovers or grow from strangers
+- **Safety Filtering** — Sensitive content filtering, privacy protection
+- **Feedback Loop** — Built-in survey for product improvement
 
 ---
 
-## 快速开始
+## Version Status
 
-### 下载安装
+**v0.1.1** — Current beta release. Features are actively iterating. Feedback welcome via the in-app survey.
 
-从 [Releases](https://github.com/sixtdreanight/Yumema/releases) 下载对应平台安装包：
+---
 
-- **macOS**: `.dmg` 安装镜像 (Apple Silicon / Intel)
-- **Windows**: `.exe` NSIS 安装程序 (x64 / ARM64)
-- **Linux**: `.AppImage` 可执行文件 (x64)
+## Quick Start
 
-### 从源码运行
+### Download
+
+Download the installer for your platform from [Releases](https://github.com/sixtdreanight/Yumema/releases):
+
+- **macOS**: `.dmg` image (Apple Silicon / Intel)
+- **Windows**: `.exe` NSIS installer (x64 / ARM64)
+- **Linux**: `.AppImage` executable (x64)
+
+### Run from Source
 
 ```bash
-# 前置要求：Node.js 18+
+# Prerequisites: Node.js 18+
 git clone https://github.com/sixtdreanight/Yumema.git
 cd Yumema
 npm install
 
-# 开发模式
+# Development mode
 npm run dev
 
-# CLI 模式（终端聊天）
+# CLI mode (terminal chat)
 npm start --terminal
 
-# CLI 设置向导
+# CLI setup wizard
 npm run setup
 ```
 
 ---
 
-## 技术栈
+## Tech Stack
 
-| 层 | 技术 |
-|---|---|
-| 桌面框架 | Electron 41 |
-| 构建工具 | electron-vite 5 |
-| 前端 | React 19 + TypeScript + Tailwind CSS 4 |
-| UI 组件 | shadcn/ui + Radix UI + lucide-react |
-| AI 引擎 | Vercel AI SDK (Claude / GPT / DeepSeek) |
-| QQ 适配 | NapCatQQ (OneBot v11) |
-| 微信适配 | Gewechat HTTP API |
-| 自动更新 | electron-updater + GitHub Releases |
-| 打包 | electron-builder (macOS/Windows/Linux 双架构) |
+| Layer | Technology |
+|-------|-------------|
+| Desktop Framework | Electron 41 |
+| Build Tooling | electron-vite 5 |
+| Frontend | React 19 + TypeScript + Tailwind CSS 4 |
+| UI Components | shadcn/ui + Radix UI + lucide-react |
+| AI Engine | Vercel AI SDK (Claude / GPT / DeepSeek) |
+| QQ Adapter | NapCatQQ (OneBot v11) |
+| WeChat Adapter | Gewechat HTTP API |
+| Auto Update | electron-updater + GitHub Releases |
+| Packaging | electron-builder (macOS/Windows/Linux dual-arch) |
 
 ---
 
-## 目录结构
+## Directory Structure
 
 ```
 yumema/
 ├── src/
-│   ├── core/           # 纯逻辑（CLI/GUI 共享）
-│   │   ├── config.ts       # 配置管理（AI / QQ / 微信）
-│   │   ├── pipeline.ts     # 消息处理管道
-│   │   ├── girlfriend.ts   # 人格引擎
-│   │   ├── relationship.ts # 关系管理
-│   │   ├── memory.ts       # 记忆系统
-│   │   ├── safety.ts       # 安全过滤
-│   │   ├── search.ts       # 联网搜索
-│   │   ├── scheduler.ts    # 定时任务
-│   │   └── utils.ts        # 工具函数
+│   ├── core/           # Pure logic (shared by CLI/GUI)
+│   │   ├── config.ts       # Configuration management
+│   │   ├── pipeline.ts     # Message processing pipeline
+│   │   ├── girlfriend.ts   # Personality engine
+│   │   ├── relationship.ts # Relationship management
+│   │   ├── memory.ts       # Memory system
+│   │   ├── safety.ts       # Safety filtering
+│   │   ├── search.ts       # Web search
+│   │   ├── scheduler.ts    # Scheduled tasks
+│   │   └── utils.ts        # Utility functions
 │   ├── adapters/
-│   │   ├── onebot.ts       # QQ WebSocket 适配器
-│   │   └── wechat.ts       # 微信 HTTP API 适配器
-│   ├── cli/             # CLI 入口
-│   │   ├── index.ts        # 终端 / QQ / 微信 聊天
-│   │   └── setup.ts        # CLI 设置向导
-│   ├── main/            # Electron 主进程
-│   │   ├── index.ts        # 窗口管理 + 自动更新
+│   │   ├── onebot.ts       # QQ WebSocket adapter
+│   │   └── wechat.ts       # WeChat HTTP API adapter
+│   ├── cli/             # CLI entry points
+│   │   ├── index.ts        # Terminal / QQ / WeChat chat
+│   │   └── setup.ts        # CLI setup wizard
+│   ├── main/            # Electron main process
+│   │   ├── index.ts        # Window management + auto-update
 │   │   ├── preload.ts      # contextBridge API
-│   │   ├── ipc-handlers.ts # IPC 通道实现
-│   │   ├── napcat-manager.ts # NapCatQQ 管理
-│   │   └── wechat-manager.ts # Gewechat Docker 管理
-│   └── renderer/        # React 渲染进程
-│       ├── App.tsx         # HashRouter 路由
+│   │   ├── ipc-handlers.ts # IPC channel implementation
+│   │   ├── napcat-manager.ts # NapCatQQ management
+│   │   └── wechat-manager.ts # Gewechat Docker management
+│   └── renderer/        # React renderer process
+│       ├── App.tsx         # HashRouter routing
 │       ├── pages/          # SetupWizard / ChatWindow / NapCatSetup
 │       ├── components/     # wizard/ chat/ shared/
-│       │   ├── ui/         # shadcn/ui 组件 (Button/Badge/Card/Dialog/Select/Slider/Sheet/Tabs)
-│       │   ├── wizard/     # 14 个设置向导步骤
+│       │   ├── ui/         # shadcn/ui components
+│       │   ├── wizard/     # 14 setup wizard steps
 │       │   ├── chat/       # MessageBubble / MessageList / MessageInput
-│       │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog / ErrorBoundary / CardSelect
+│       │   └── shared/     # SettingsDialog / UpdateToast / SurveyDialog / ErrorBoundary
 │       ├── hooks/          # useSetupWizard / useChat
-│       ├── lib/            # cn() 工具函数
-│       └── styles/         # globals.css (设计令牌)
-├── data/                # 运行时数据（谈话记录、配置）
-├── dist/                # 构建输出
-├── docs/                # 项目文档
-└── resources/           # 应用图标
+│       ├── lib/            # cn() utility
+│       └── styles/         # globals.css (design tokens)
+├── data/                # Runtime data (chat logs, config)
+├── dist/                # Build output
+├── docs/                # Project documentation
+└── resources/           # App icons
 ```
 
 ---
 
-## 微信接入（可选）
+## WeChat Setup (Optional)
 
-梦间支持通过微信与 AI 伴侣聊天，基于 [Gewechat](https://github.com/Devo919/Gewechat) 服务：
+Yumema supports chatting via WeChat, powered by [Gewechat](https://github.com/Devo919/Gewechat):
 
-- **应用内一键启动**：在设置向导或设置页面点击「启动 Gewechat」，应用会自动检查 Docker 环境并启动容器
-- **需预先安装 [Docker](https://www.docker.com/)**
+- **One-click launch in-app**: In the setup wizard or settings page, click "Start Gewechat" — the app auto-checks Docker and starts the container
+- **[Docker](https://www.docker.com/) must be pre-installed**
 
-如需手动部署：
+Manual deployment:
 
 ```bash
 docker run -itd -p 2531:2531 -p 2532:2532 --name=gewe gewe
 ```
 
-微信与 QQ 可同时配置，也可随时在设置中启用/停用。
+WeChat and QQ can be configured simultaneously and toggled in settings at any time.
 
 ---
 
-## 文档
+## Documentation
 
-- [常见问题](docs/faq.md) — QQ 扫码、API Key、NapCatQQ
-- [更新日志](docs/CHANGELOG.md) — 版本变更记录
-- [路线图](docs/ROADMAP.md) — 版本规划与排期
+- [FAQ](docs/faq.md) — QQ QR login, API Keys, NapCatQQ
+- [Changelog](docs/CHANGELOG.md) — Version history
+- [Roadmap](docs/ROADMAP.md) — Planned features and schedule
 
 ---
 
-## 重要提醒
+## Important Notes
 
-- **AI 内容不代表作者立场**，本软件仅供学习娱乐
-- **QQ 使用第三方协议**，存在封号风险，建议使用小号
-- **AI API 按量计费**，频繁聊天会产生费用
-- **TA 不能替代真实人际关系**，请保持现实生活中的社交
-- **保护隐私**，勿透露身份证、银行卡等敏感信息
+- AI-generated content does not represent the author's views. This software is for learning and entertainment.
+- QQ uses third-party protocols — account ban risk exists. Use a secondary account.
+- AI API usage is metered — frequent chatting will incur costs.
+- This companion cannot replace real human relationships. Maintain real-life social connections.
+- Protect your privacy — do not share ID numbers, bank cards, or other sensitive information.
 
-## Related / 相关项目
+## Related
 
 - [companion-engine](https://github.com/sixtdreanight/companion-engine) — The core engine that powers this app
 
 ## License
 
 [GPL-3.0](LICENSE)
+
+---
+
+<div align="center">
+
+**Language / 语言**
+
+[**English**](README.md) | [**简体中文**](README.zh-CN.md)
+
+</div>
